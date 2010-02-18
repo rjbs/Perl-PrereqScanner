@@ -101,20 +101,12 @@ sub scan_document {
     grep { ref($_) eq 'PPI::Statement' } # no ->isa()
     $ppi_doc->children;
 
-  # roles: with ...
-  my @roles =
-    map  { $self->_q_contents( $_->child(2) ) }
-    grep { $_->child(0)->literal eq 'with' }
-    @statements;
-
-  $self->_add_prereq($prereq, $_ => 0) for @roles;
-
-  # inheritance: extends ...
+  # Moose-based roles / inheritance
   my @bases =
     map  { $self->_q_contents( $_ ) }
     grep { $_->isa('PPI::Token::Quote') || $_->isa('PPI::Token::QuoteLike') }
     map  { $_->children }
-    grep { $_->child(0)->literal eq 'extends' }
+    grep { $_->child(0)->literal ~~ [ qw{ with extends } ] }
     @statements;
 
   $self->_add_prereq($prereq, $_ => 0) for @bases;
