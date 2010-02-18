@@ -99,7 +99,7 @@ sub scan_ppi_document {
       # the content is in the 5th token
       my @meat = $node->arguments;
 
-      my @parents = map {; $self->_q_contents($_) } @meat;
+      my @parents = map { $self->_q_contents($_) } @meat;
       $self->_add_prereq($prereq, $_ => 0) for @parents;
     }
 
