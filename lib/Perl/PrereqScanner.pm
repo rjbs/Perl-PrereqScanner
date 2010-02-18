@@ -43,6 +43,21 @@ sub _add_prereq {
 }
 
 
+
+=method my $prereqs = $scanner->scan_file( $path );
+
+Return a list of prereqs with their minimum version (0 if no minimum
+specified) given a path to a Perl file.
+
+=cut
+
+sub scan_file {
+  my ($self, $path) = shift;
+  my $ppi = PPI::Document->new( $path );
+  return $self->scan_ppi_document( $ppi );
+}
+
+
 =method my $prereqs = $scanner->scan_ppi_document( $ppi_doc );
 
 Return a list of prereqs with their minimum version (0 if no minimum
