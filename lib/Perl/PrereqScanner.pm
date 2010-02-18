@@ -51,7 +51,7 @@ specified) given a string of Perl code.
 =cut
 
 sub scan_string {
-  my ($self, $str) = shift;
+  my ($self, $str) = @_;
   my $ppi = PPI::Document->new( \$str );
   return $self->scan_ppi_document( $ppi );
 }
@@ -65,7 +65,7 @@ specified) given a path to a Perl file.
 =cut
 
 sub scan_file {
-  my ($self, $path) = shift;
+  my ($self, $path) = @_;
   my $ppi = PPI::Document->new( $path );
   return $self->scan_ppi_document( $ppi );
 }
