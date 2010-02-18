@@ -2,6 +2,7 @@
 use strict;
 use warnings;
 
+use File::Temp qw{ tempfile };
 use Perl::PrereqScanner;
 use PPI::Document;
 use Try::Tiny;
@@ -14,13 +15,35 @@ sub prereq_is {
 
   my $scanner = Perl::PrereqScanner->new;
 
+  # scan_ppi_document
   try {
     my $result  = $scanner->scan_ppi_document( PPI::Document->new(\$str) );
     is_deeply($result, $want, $comment);
   } catch {
     fail("scanner died on: $comment");
     diag($_);
-  }
+  };
+
+  # scan_string
+  try {
+    my $result  = $scanner->scan_string( $str );
+    is_deeply($result, $want, $comment);
+  } catch {
+    fail("scanner died on: $comment");
+    diag($_);
+  };
+
+  # scan_file
+  try {
+    my ($fh, $filename) = tempfile();
+    print $fh $str;
+    close $fh;
+    my $result  = $scanner->scan_file( $filename );
+    is_deeply($result, $want, $comment);
+  } catch {
+    fail("scanner died on: $comment");
+    diag($_);
+  };
 }
 
 prereq_is('', { }, '(empty string)');
