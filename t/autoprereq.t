@@ -11,22 +11,37 @@ use Test::More;
 # t/eg/lib/Empty.pm
 # t/eg/lib/Main.pm
 sub prereq_is {
-  my ($str, $want) = @_;
+  my ($str, $want, $comment) = @_;
+  $comment ||= $str;
 
   my $scanner = Perl::PrereqScanner->new;
 
   try {
-    my %result  = $scanner->scan_document( PPI::Document->new(\$str) );
-    is_deeply(\%result, $want, $str);
+    my $result  = $scanner->scan_document( PPI::Document->new(\$str) );
+    is_deeply($result, $want, $comment);
   } catch {
-    fail("scanner died on: $str");
+    fail("scanner died on: $comment");
   }
 }
 
-prereq_is('', { });
+prereq_is('', { }, '(empty string)');
 prereq_is('use Use::NoVersion;', { 'Use::NoVersion' => 0 });
 prereq_is('use Use::Version 0.50;', { 'Use::Version' => '0.50' });
 prereq_is('require Require;', { Require => 0 });
+
+prereq_is(
+  'use Use::Version 0.50; use Use::Version 1.00;',
+  {
+    'Use::Version' => '1.00',
+  },
+);
+
+prereq_is(
+  'use Use::Version 1.00; use Use::Version 0.50;',
+  {
+    'Use::Version' => '1.00',
+  },
+);
 
 prereq_is(
   'use Import::IgnoreAPI require => 1;',

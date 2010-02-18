@@ -33,6 +33,7 @@ It will also trim the modules shipped within your dist.
 =cut
 
 use PPI;
+use List::Util qw(max);
 use version;
 use namespace::autoclean;
 
@@ -45,17 +46,32 @@ sub _q_contents {
   return @contents;
 }
 
+sub _add_prereq {
+  my ($self, $prereq, $name, $newver) = @_;
+
+  $newver = version->parse($newver) unless blessed($newver);
+
+  if (defined (my $oldver = $prereq->{ $name })) {
+    if (defined $newver) {
+      $prereq->{ $name } = (sort { $b cmp $a } ($newver, $oldver))[0];
+    }
+    return;
+  }
+
+  $prereq->{ $name } = $newver;
+}
+
 sub scan_document {
   my ($self, $ppi_doc) = @_;
 
-  my %prereqs;
+  my $prereq = {};
 
   # regular use and require
   my $includes = $ppi_doc->find('Statement::Include') || [];
   for my $node ( @$includes ) {
     # minimum perl version
     if ( $node->version ) {
-      $prereqs{perl} = $node->version;
+      $self->_add_prereq($prereq, perl => $node->version);
       next;
     }
 
@@ -67,7 +83,7 @@ sub scan_document {
       my @meat = $node->arguments;
 
       my @parents = map {; $self->_q_contents($_) } @meat;
-      @prereqs{ @parents } = (0) x @parents;
+      $self->_add_prereq($prereq, $_ => 0) for @parents;
     }
 
     # regular modules
@@ -76,7 +92,7 @@ sub scan_document {
     # base has been core since perl 5.0
     next if $node->module eq 'base' and not $version;
 
-    $prereqs{ $node->module } = $version;
+    $self->_add_prereq($prereq, $node->module => $version);
   }
 
   # for moose specifics, let's fetch top-level statements
@@ -91,7 +107,7 @@ sub scan_document {
     grep { $_->child(0)->literal eq 'with' }
     @statements;
 
-  @prereqs{ @roles } = (0) x @roles;
+  $self->_add_prereq($prereq, $_ => 0) for @roles;
 
   # inheritance: extends ...
   my @bases =
@@ -101,9 +117,9 @@ sub scan_document {
     grep { $_->child(0)->literal eq 'extends' }
     @statements;
 
-  @prereqs{ @bases } = (0) x @bases;
+  $self->_add_prereq($prereq, $_ => 0) for @bases;
 
-  return %prereqs;
+  return $prereq;
 }
 
 __PACKAGE__->meta->make_immutable;
