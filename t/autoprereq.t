@@ -61,7 +61,13 @@ prereq_is(
 );
 
 prereq_is('use base "Base::QQ1";', { 'Base::QQ1' => 0 });
-prereq_is('use base 10 "Base::QQ1";', { 'Base::QQ1' => 0 });
+prereq_is(
+  'use base 10 "Base::QQ1";',
+  {
+    'Base::QQ1' => 0,
+    base => 10,
+  },
+);
 prereq_is(
   'use base qw{ Base::QW1 Base::QW2 };',
   { 'Base::QW1' => 0, 'Base::QW2' => 0 },

@@ -68,13 +68,14 @@ sub scan_document {
 
       my @parents = map {; $self->_q_contents($_) } @meat;
       @prereqs{ @parents } = (0) x @parents;
-
-      # base is in perl core, parent isn't
-      next if $node->module eq 'base';
     }
 
     # regular modules
     my $version = $node->module_version ? $node->module_version->content : 0;
+
+    # base has been core since perl 5.0
+    next if $node->module eq 'base' and not $version;
+
     $prereqs{ $node->module } = $version;
   }
 
