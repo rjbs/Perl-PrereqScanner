@@ -1,6 +1,7 @@
 use 5.010;
+use strict;
+use warnings;
 package Perl::PrereqScanner;
-use Moose;
 # ABSTRACT: a tool to scan your Perl code for its prerequisites
 
 =head1 DESCRIPTION
@@ -34,7 +35,9 @@ It will also trim the modules shipped within your dist.
 
 use PPI;
 use List::Util qw(max);
+use Scalar::Util qw(blessed);
 use version;
+
 use namespace::autoclean;
 
 sub _q_contents {
@@ -44,6 +47,11 @@ sub _q_contents {
     : ( $token->string  );
 
   return @contents;
+}
+
+sub new {
+  my ($class) = @_;
+  bless {} => $class;
 }
 
 sub _add_prereq {
@@ -109,5 +117,4 @@ sub scan_document {
   return $prereq;
 }
 
-__PACKAGE__->meta->make_immutable;
 1;
