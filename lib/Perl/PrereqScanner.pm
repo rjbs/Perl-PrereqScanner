@@ -167,7 +167,7 @@ pragmata
 =back
 
 It will trim the following pragamata: C<strict>, C<warnings>, and C<lib>.
-C<bare> is trimmed unless a specific version is required.  C<parent> is kept,
+C<base> is trimmed unless a specific version is required.  C<parent> is kept,
 since it's only recently become a core library.
 
 =cut
