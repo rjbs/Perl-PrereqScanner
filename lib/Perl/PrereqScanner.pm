@@ -137,6 +137,11 @@ __END__
   use Perl::PrereqScanner;
   my $scan    = Perl::PrereqScanner->new;
   my $prereqs = $scan->scan_ppi_document( $ppi_doc );
+  my $prereqs = $scan->scan_file( $file_path );
+  my $prereqs = $scan->scan_string( $perl_code );
+
+  # or using class methods
+  my $prereqs = Perl::PrereqScanner->scan_ppi_document( $ppi_doc );
 
 
 =head1 DESCRIPTION
