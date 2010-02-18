@@ -90,6 +90,24 @@ prereq_is(
 );
 
 prereq_is(
+  'use parent 2 "Parent::QQ1"; use parent 2 "Parent::QQ2"',
+  {
+    'Parent::QQ1' => 0,
+    'Parent::QQ2' => 0,
+    parent => 2,
+  },
+);
+
+prereq_is(
+  'use parent 2 "Parent::QQ1"; use parent 1 "Parent::QQ2"',
+  {
+    'Parent::QQ1' => 0,
+    'Parent::QQ2' => 0,
+    parent => 2,
+  },
+);
+
+prereq_is(
   'use parent qw{ Parent::QW1 Parent::QW2 };',
   {
     'Parent::QW1' => 0,
