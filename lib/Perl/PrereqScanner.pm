@@ -43,14 +43,14 @@ sub _add_prereq {
 }
 
 
-=method my $prereqs = $scanner->scan_document( $ppi_doc );
+=method my $prereqs = $scanner->scan_ppi_document( $ppi_doc );
 
 Return a list of prereqs with their minimum version (0 if no minimum
 specified) given a L<PPI> document.
 
 =cut
 
-sub scan_document {
+sub scan_ppi_document {
   my ($self, $ppi_doc) = @_;
 
   my $prereq = {};
@@ -108,7 +108,7 @@ __END__
 
   use Perl::PrereqScanner;
   my $scan    = Perl::PrereqScanner->new;
-  my $prereqs = $scan->scan_document( $ppi_doc );
+  my $prereqs = $scan->scan_ppi_document( $ppi_doc );
 
 
 =head1 DESCRIPTION

@@ -15,7 +15,7 @@ sub prereq_is {
   my $scanner = Perl::PrereqScanner->new;
 
   try {
-    my $result  = $scanner->scan_document( PPI::Document->new(\$str) );
+    my $result  = $scanner->scan_ppi_document( PPI::Document->new(\$str) );
     is_deeply($result, $want, $comment);
   } catch {
     fail("scanner died on: $comment");
