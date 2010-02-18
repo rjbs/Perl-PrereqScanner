@@ -95,19 +95,14 @@ sub scan_document {
     $self->_add_prereq($prereq, $node->module => $version);
   }
 
-  # for moose specifics, let's fetch top-level statements
-  my @statements =
-    grep { $_->child(0)->isa('PPI::Token::Word') }
-    grep { ref($_) eq 'PPI::Statement' } # no ->isa()
-    $ppi_doc->children;
-
   # Moose-based roles / inheritance
   my @bases =
     map  { $self->_q_contents( $_ ) }
     grep { $_->isa('PPI::Token::Quote') || $_->isa('PPI::Token::QuoteLike') }
     map  { $_->children }
     grep { $_->child(0)->literal ~~ [ qw{ with extends } ] }
-    @statements;
+    grep { $_->child(0)->isa('PPI::Token::Word') }
+    @{ $ppi_doc->find('PPI::Statement') || [] };
 
   $self->_add_prereq($prereq, $_ => 0) for @bases;
 

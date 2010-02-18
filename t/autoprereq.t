@@ -21,6 +21,7 @@ sub prereq_is {
     is_deeply($result, $want, $comment);
   } catch {
     fail("scanner died on: $comment");
+    diag($_);
   }
 }
 
