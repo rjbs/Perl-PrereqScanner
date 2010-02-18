@@ -67,11 +67,29 @@ prereq_is(
   { 'Base::QW1' => 0, 'Base::QW2' => 0 },
 );
 
-prereq_is('use parent "Parent::QQ1";', { 'Parent::QQ1' => 0 });
-prereq_is('use parent 10 "Parent::QQ1";', { 'Parent::QQ1' => 0 });
+prereq_is(
+  'use parent "Parent::QQ1";',
+  {
+    'Parent::QQ1' => 0,
+    parent => 0,
+  },
+);
+
+prereq_is(
+  'use parent 10 "Parent::QQ1";',
+  {
+    'Parent::QQ1' => 0,
+    parent => 10,
+  },
+);
+
 prereq_is(
   'use parent qw{ Parent::QW1 Parent::QW2 };',
-  { 'Parent::QW1' => 0, 'Parent::QW2' => 0 },
+  {
+    'Parent::QW1' => 0,
+    'Parent::QW2' => 0,
+    parent => 0,
+  },
 );
 
 done_testing;

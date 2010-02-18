@@ -36,6 +36,15 @@ use PPI;
 use version;
 use namespace::autoclean;
 
+sub _q_contents {
+  my ($self, $token) = @_;
+  my @contents = $token->isa('PPI::Token::QuoteLike::Words')
+    ? ( $token->literal )
+    : ( $token->string  );
+
+  return @contents;
+}
+
 sub scan_document {
   my ($self, $ppi_doc) = @_;
 
@@ -55,10 +64,9 @@ sub scan_document {
 
     if ( $node->module ~~ [ qw{ base parent } ] ) {
       # the content is in the 5th token
-      my $meat = $node->child(4);
-      my @parents = $meat->isa('PPI::Token::QuoteLike::Words')
-        ? ( $meat->literal )
-        : ( $meat->string  );
+      my @meat = $node->arguments;
+
+      my @parents = map {; $self->_q_contents($_) } @meat;
       @prereqs{ @parents } = (0) x @parents;
 
       # base is in perl core, parent isn't
@@ -78,7 +86,7 @@ sub scan_document {
 
   # roles: with ...
   my @roles =
-    map  { $_->child(2)->string }
+    map  { $self->_q_contents( $_->child(2) ) }
     grep { $_->child(0)->literal eq 'with' }
     @statements;
 
@@ -86,8 +94,8 @@ sub scan_document {
 
   # inheritance: extends ...
   my @bases =
-    map  { $_->string }
-    grep { $_->isa('PPI::Token::Quote') }
+    map  { $self->_q_contents( $_ ) }
+    grep { $_->isa('PPI::Token::Quote') || $_->isa('PPI::Token::QuoteLike') }
     map  { $_->children }
     grep { $_->child(0)->literal eq 'extends' }
     @statements;
