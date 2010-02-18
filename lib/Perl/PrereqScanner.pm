@@ -43,6 +43,19 @@ sub _add_prereq {
 }
 
 
+=method my $prereqs = $scanner->scan_string( $perl_code );
+
+Return a list of prereqs with their minimum version (0 if no minimum
+specified) given a string of Perl code.
+
+=cut
+
+sub scan_string {
+  my ($self, $str) = shift;
+  my $ppi = PPI::Document->new( \$str );
+  return $self->scan_ppi_document( $ppi );
+}
+
 
 =method my $prereqs = $scanner->scan_file( $path );
 
