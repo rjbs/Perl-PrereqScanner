@@ -1,37 +1,10 @@
 use 5.010;
 use strict;
 use warnings;
+
 package Perl::PrereqScanner;
 # ABSTRACT: a tool to scan your Perl code for its prerequisites
 
-=head1 DESCRIPTION
-
-The scanner will extract loosely your distribution prerequisites from your
-files.
-
-The extraction may not be perfect but tries to do its best. It will currently
-find the following prereqs:
-
-=over 4
-
-=item * plain lines beginning with C<use> or C<require> in your perl
-modules and scripts. This includes minimum perl version.
-
-=item * regular inheritance declated with the C<base> and C<parent>
-pragamata.
-
-=item * L<Moose> inheritance declared with the C<extends> keyword.
-
-=item * L<Moose> roles included with the C<with> keyword.
-
-=back
-
-It will trim the following pragamata: C<strict>, C<warnings>, C<base>
-and C<lib>. However, C<parent> is kept, since it's not in a core module.
-
-It will also trim the modules shipped within your dist.
-
-=cut
 
 use PPI;
 use List::Util qw(max);
@@ -68,6 +41,14 @@ sub _add_prereq {
 
   $prereq->{ $name } = $newver;
 }
+
+
+=method my $prereqs = $scanner->scan_document( $ppi_doc );
+
+Return a list of prereqs with their minimum version (0 if no minimum
+specified) given a L<PPI> document.
+
+=cut
 
 sub scan_document {
   my ($self, $ppi_doc) = @_;
@@ -118,3 +99,43 @@ sub scan_document {
 }
 
 1;
+__END__
+
+=for Pod::Coverage::TrustPod
+  new
+
+=head1 SYNOPSIS
+
+  use Perl::PrereqScanner;
+  my $scan    = Perl::PrereqScanner->new;
+  my $prereqs = $scan->scan_document( $ppi_doc );
+
+
+=head1 DESCRIPTION
+
+The scanner will extract loosely your distribution prerequisites from your
+files.
+
+The extraction may not be perfect but tries to do its best. It will currently
+find the following prereqs:
+
+=over 4
+
+=item * plain lines beginning with C<use> or C<require> in your perl
+modules and scripts. This includes minimum perl version.
+
+=item * regular inheritance declated with the C<base> and C<parent>
+pragamata.
+
+=item * L<Moose> inheritance declared with the C<extends> keyword.
+
+=item * L<Moose> roles included with the C<with> keyword.
+
+=back
+
+It will trim the following pragamata: C<strict>, C<warnings>, C<base>
+and C<lib>. However, C<parent> is kept, since it's not in a core module.
+
+It will also trim the modules shipped within your dist.
+
+=cut
