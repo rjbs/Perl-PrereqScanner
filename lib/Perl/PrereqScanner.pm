@@ -169,6 +169,4 @@ pragamata.
 It will trim the following pragamata: C<strict>, C<warnings>, C<base>
 and C<lib>. However, C<parent> is kept, since it's not in a core module.
 
-It will also trim the modules shipped within your dist.
-
 =cut
