@@ -8,8 +8,6 @@ use Try::Tiny;
 
 use Test::More;
 
-# t/eg/lib/Empty.pm
-# t/eg/lib/Main.pm
 sub prereq_is {
   my ($str, $want, $comment) = @_;
   $comment ||= $str;
