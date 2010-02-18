@@ -1,0 +1,13 @@
+Revision history for Perl-PrereqScanner
+
+{{$NEXT}}
+
+0.100491  2010-02-18 19:16:15 Europe/Paris
+ - added a changelog (this file)
+
+0.100490 2010-02-18 19:10:32 Europe/Paris
+ - factored out from dist-zilla-plugin-autoprereq
+ - fix qw and base-ver parent-ver (ricardo signes)
+ - require base if version given (ricardo signes)
+ - refactor with/extends (ricardo signes)
+ - new methods scan_string() / scan_file()
