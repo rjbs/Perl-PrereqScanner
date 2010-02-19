@@ -82,6 +82,22 @@ prereq_is(
 );
 
 prereq_is(
+  "with 'With::Single', 'With::Double';",
+  {
+    'With::Single' => 0,
+    'With::Double' => 0,
+  },
+);
+
+prereq_is(
+  "with 'With::Single' => { -excludes => 'method'}, 'With::Double';",
+  {
+    'With::Single' => 0,
+    'With::Double' => 0,
+  },
+);
+
+prereq_is(
   'with qw(With::QW1 With::QW2);',
   {
     'With::QW1' => 0,
