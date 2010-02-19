@@ -5,7 +5,6 @@ use warnings;
 package Perl::PrereqScanner;
 # ABSTRACT: a tool to scan your Perl code for its prerequisites
 
-
 use PPI;
 use List::Util qw(max);
 use Scalar::Util qw(blessed);
@@ -43,7 +42,9 @@ sub _add_prereq {
 }
 
 
-=method my $prereqs = $scanner->scan_string( $perl_code );
+=method scan_string
+
+  my $prereqs = $scanner->scan_string( $perl_code );
 
 Return a list of prereqs with their minimum version (0 if no minimum
 specified) given a string of Perl code.
@@ -57,7 +58,9 @@ sub scan_string {
 }
 
 
-=method my $prereqs = $scanner->scan_file( $path );
+=method scan_file
+
+  my $prereqs = $scanner->scan_file( $path );
 
 Return a list of prereqs with their minimum version (0 if no minimum
 specified) given a path to a Perl file.
@@ -71,10 +74,12 @@ sub scan_file {
 }
 
 
-=method my $prereqs = $scanner->scan_ppi_document( $ppi_doc );
+=method scan_ppi_document
+
+  my $prereqs = $scanner->scan_ppi_document( $ppi_doc );
 
 Return a list of prereqs with their minimum version (0 if no minimum
-specified) given a L<PPI> document.
+specified) given a L<PPI::Document>.
 
 =cut
 
@@ -140,10 +145,6 @@ __END__
   my $prereqs = $scan->scan_file( $file_path );
   my $prereqs = $scan->scan_string( $perl_code );
 
-  # or using class methods
-  my $prereqs = Perl::PrereqScanner->scan_ppi_document( $ppi_doc );
-
-
 =head1 DESCRIPTION
 
 The scanner will extract loosely your distribution prerequisites from your
@@ -152,19 +153,17 @@ files.
 The extraction may not be perfect but tries to do its best. It will currently
 find the following prereqs:
 
-=over 4
+=begin :list
 
-=item * plain lines beginning with C<use> or C<require> in your perl
-modules and scripts, including minimum perl version
+* plain lines beginning with C<use> or C<require> in your perl modules and scripts, including minimum perl version
 
-=item * regular inheritance declared with the C<base> and C<parent>
-pragmata
+* regular inheritance declared with the C<base> and C<parent> pragmata
 
-=item * L<Moose> inheritance declared with the C<extends> keyword
+* L<Moose> inheritance declared with the C<extends> keyword
 
-=item * L<Moose> roles included with the C<with> keyword
+* L<Moose> roles included with the C<with> keyword
 
-=back
+=end :list
 
 It will trim the following pragamata: C<strict>, C<warnings>, and C<lib>.
 C<base> is trimmed unless a specific version is required.  C<parent> is kept,
