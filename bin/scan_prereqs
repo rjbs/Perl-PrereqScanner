@@ -1,0 +1,21 @@
+#!/usr/bin/perl
+
+use 5.010;
+use strict;
+use warnings;
+
+use File::Spec::Functions qw{ catdir updir };
+use FindBin qw{ $Bin };
+use lib catdir( $Bin, updir, 'lib' );
+
+use List::Util qw{ max };
+use Perl::PrereqScanner;
+
+foreach my $file ( @ARGV ) {
+    say "* $file";
+    my $prereqs = Perl::PrereqScanner->scan_file($file);
+    my $max = max map { length } keys %$prereqs;
+    printf( "%-${max}s = %s\n", $_, $prereqs->{$_} )
+        for sort keys %$prereqs;
+}
+exit;
