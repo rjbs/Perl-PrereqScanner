@@ -1,8 +1,10 @@
 Revision history for Perl-PrereqScanner
 
 {{$NEXT}}
- - typo fixes (ricard signes)
+ - typo fixes (ricardo signes)
  - new script scan_prereqs
+ - prereq accounting now managed by Version::Prerequisites
+ - easier-to-link-to Pod
 
 0.100491  2010-02-18 19:16:15 Europe/Paris
  - added a changelog (this file)
