@@ -1,6 +1,8 @@
 Revision history for Perl-PrereqScanner
 
 {{$NEXT}}
+
+0.100510  2010-02-20 17:38:59 America/New_York
  - typo fixes (ricardo signes)
  - new script scan_prereqs
  - prereq accounting now managed by Version::Prerequisites
