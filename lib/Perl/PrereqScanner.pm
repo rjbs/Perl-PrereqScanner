@@ -8,7 +8,7 @@ package Perl::PrereqScanner;
 use PPI;
 use List::Util qw(max);
 use Scalar::Util qw(blessed);
-use version;
+use Version::Requirements;
 
 use namespace::autoclean;
 
@@ -25,22 +25,6 @@ sub new {
   my ($class) = @_;
   bless {} => $class;
 }
-
-sub _add_prereq {
-  my ($self, $prereq, $name, $newver) = @_;
-
-  $newver = version->parse($newver) unless blessed($newver);
-
-  if (defined (my $oldver = $prereq->{ $name })) {
-    if (defined $newver) {
-      $prereq->{ $name } = (sort { $b cmp $a } ($newver, $oldver))[0];
-    }
-    return;
-  }
-
-  $prereq->{ $name } = $newver;
-}
-
 
 =method scan_string
 
@@ -86,14 +70,14 @@ specified) given a L<PPI::Document>.
 sub scan_ppi_document {
   my ($self, $ppi_doc) = @_;
 
-  my $prereq = {};
+  my $req = Version::Requirements->new;
 
   # regular use and require
   my $includes = $ppi_doc->find('Statement::Include') || [];
   for my $node ( @$includes ) {
     # minimum perl version
     if ( $node->version ) {
-      $self->_add_prereq($prereq, perl => $node->version);
+      $req->add_minimum(perl => $node->version);
       next;
     }
 
@@ -105,7 +89,7 @@ sub scan_ppi_document {
       my @meat = $node->arguments;
 
       my @parents = map { $self->_q_contents($_) } @meat;
-      $self->_add_prereq($prereq, $_ => 0) for @parents;
+      $req->add_minimum($_ => 0) for @parents;
     }
 
     # regular modules
@@ -114,7 +98,7 @@ sub scan_ppi_document {
     # base has been core since perl 5.0
     next if $node->module eq 'base' and not $version;
 
-    $self->_add_prereq($prereq, $node->module => $version);
+    $req->add_minimum($node->module, $version);
   }
 
   # Moose-based roles / inheritance
@@ -126,9 +110,9 @@ sub scan_ppi_document {
     grep { $_->child(0)->isa('PPI::Token::Word') }
     @{ $ppi_doc->find('PPI::Statement') || [] };
 
-  $self->_add_prereq($prereq, $_ => 0) for @bases;
+  $req->add_minimum($_ => 0) for @bases;
 
-  return $prereq;
+  return $req->as_string_hash;
 }
 
 1;
