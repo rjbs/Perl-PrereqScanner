@@ -2,6 +2,9 @@ Revision history for Perl-PrereqScanner
 
 {{$NEXT}}
 
+0.100520  2010-02-21 15:55:31 America/New_York
+ - add perl prereq to Makefile.PL to stop test failures
+
 0.100510  2010-02-20 17:38:59 America/New_York
  - typo fixes (ricardo signes)
  - new script scan_prereqs
