@@ -18,7 +18,7 @@ sub prereq_is {
   # scan_ppi_document
   try {
     my $result  = $scanner->scan_ppi_document( PPI::Document->new(\$str) );
-    is_deeply($result, $want, $comment);
+    is_deeply($result->as_string_hash, $want, $comment);
   } catch {
     fail("scanner died on: $comment");
     diag($_);
@@ -27,7 +27,7 @@ sub prereq_is {
   # scan_string
   try {
     my $result  = $scanner->scan_string( $str );
-    is_deeply($result, $want, $comment);
+    is_deeply($result->as_string_hash, $want, $comment);
   } catch {
     fail("scanner died on: $comment");
     diag($_);
@@ -39,7 +39,7 @@ sub prereq_is {
     print $fh $str;
     close $fh;
     my $result  = $scanner->scan_file( $filename );
-    is_deeply($result, $want, $comment);
+    is_deeply($result->as_string_hash, $want, $comment);
   } catch {
     fail("scanner died on: $comment");
     diag($_);

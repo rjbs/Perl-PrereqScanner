@@ -30,8 +30,8 @@ sub new {
 
   my $prereqs = $scanner->scan_string( $perl_code );
 
-Return a list of prereqs with their minimum version (0 if no minimum
-specified) given a string of Perl code.
+Given a string containing Perl source code, this method returns a
+Version::Requirements object describing the modules it requires.
 
 =cut
 
@@ -46,8 +46,8 @@ sub scan_string {
 
   my $prereqs = $scanner->scan_file( $path );
 
-Return a list of prereqs with their minimum version (0 if no minimum
-specified) given a path to a Perl file.
+Given a file path to a Perl document, this method returns a
+Version::Requirements object describing the modules it requires.
 
 =cut
 
@@ -62,8 +62,8 @@ sub scan_file {
 
   my $prereqs = $scanner->scan_ppi_document( $ppi_doc );
 
-Return a list of prereqs with their minimum version (0 if no minimum
-specified) given a L<PPI::Document>.
+Given a L<PPI::Document>, this method returns a Version::Requirements object
+describing the modules it requires.
 
 =cut
 
@@ -112,7 +112,7 @@ sub scan_ppi_document {
 
   $req->add_minimum($_ => 0) for @bases;
 
-  return $req->as_string_hash;
+  return $req;
 }
 
 1;
