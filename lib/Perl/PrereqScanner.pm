@@ -8,7 +8,7 @@ package Perl::PrereqScanner;
 use PPI;
 use List::Util qw(max);
 use Scalar::Util qw(blessed);
-use Version::Requirements;
+use Version::Requirements 0.100520;
 
 use namespace::autoclean;
 
