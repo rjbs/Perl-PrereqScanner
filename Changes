@@ -1,6 +1,8 @@
 Revision history for Perl-PrereqScanner
 
 {{$NEXT}}
+
+0.100521  2010-02-21 23:20:55 America/New_York
  - scanning methods now return Version::Requirements objects
 
 0.100520  2010-02-21 15:55:31 America/New_York
