@@ -1,6 +1,7 @@
 Revision history for Perl-PrereqScanner
 
 {{$NEXT}}
+ - scanning methods now return Version::Requirements objects
 
 0.100520  2010-02-21 15:55:31 America/New_York
  - add perl prereq to Makefile.PL to stop test failures
@@ -8,7 +9,7 @@ Revision history for Perl-PrereqScanner
 0.100510  2010-02-20 17:38:59 America/New_York
  - typo fixes (ricardo signes)
  - new script scan_prereqs
- - prereq accounting now managed by Version::Prerequisites
+ - prereq accounting now managed by Version::Requirements
  - easier-to-link-to Pod
 
 0.100491  2010-02-18 19:16:15 Europe/Paris
