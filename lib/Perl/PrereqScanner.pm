@@ -1,4 +1,4 @@
-use 5.010;
+use 5.008;
 use strict;
 use warnings;
 
@@ -82,9 +82,9 @@ sub scan_ppi_document {
     }
 
     # skipping pragamata
-    next if $node->module ~~ [ qw{ strict warnings lib } ];
+    next if grep { $_ eq $node->module } qw{ strict warnings lib };
 
-    if ( $node->module ~~ [ qw{ base parent } ] ) {
+    if (grep { $_ eq $node->module } qw{ base parent }) {
       # the content is in the 5th token
       my @meat = $node->arguments;
 
@@ -106,7 +106,7 @@ sub scan_ppi_document {
     map  { $self->_q_contents( $_ ) }
     grep { $_->isa('PPI::Token::Quote') || $_->isa('PPI::Token::QuoteLike') }
     map  { $_->children }
-    grep { $_->child(0)->literal ~~ [ qw{ with extends } ] }
+    grep { $_->child(0)->literal =~ m{\Awith|extends\z} }
     grep { $_->child(0)->isa('PPI::Token::Word') }
     @{ $ppi_doc->find('PPI::Statement') || [] };
 
