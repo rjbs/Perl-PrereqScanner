@@ -1,6 +1,8 @@
 Revision history for Perl-PrereqScanner
 
 {{$NEXT}}
+
+0.100630  2010-03-04 22:58:55 America/New_York
  - work on perl 5.8
  - require a newer Version::Requirements with critical bugfix
 
