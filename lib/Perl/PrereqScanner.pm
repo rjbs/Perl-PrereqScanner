@@ -8,7 +8,7 @@ package Perl::PrereqScanner;
 use PPI;
 use List::Util qw(max);
 use Scalar::Util qw(blessed);
-use Version::Requirements 0.100520;
+use Version::Requirements 0.100630; # merge with 0-min bug fixed
 
 use namespace::autoclean;
 

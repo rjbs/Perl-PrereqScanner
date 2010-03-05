@@ -1,6 +1,8 @@
 Revision history for Perl-PrereqScanner
 
 {{$NEXT}}
+ - work on perl 5.8
+ - require a newer Version::Requirements with critical bugfix
 
 0.100521  2010-02-21 23:20:55 America/New_York
  - scanning methods now return Version::Requirements objects
