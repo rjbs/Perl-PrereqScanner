@@ -1,6 +1,7 @@
 Revision history for Perl-PrereqScanner
 
 {{$NEXT}}
+ - fix PPI version required (thanks, Christopher J. Madsen)
 
 0.100630  2010-03-04 22:58:55 America/New_York
  - work on perl 5.8
