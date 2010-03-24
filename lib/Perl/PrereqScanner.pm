@@ -102,7 +102,8 @@ sub scan_ppi_document {
     # base has been core since perl 5.0
     next if $node->module eq 'base' and not $version;
 
-    $req->add_minimum($node->module, $version);
+    # rt#55851: 'require $foo;' shouldn't add any prereq
+    $req->add_minimum($node->module, $version) if $node->module;
   }
 
   # Moose-based roles / inheritance

@@ -179,4 +179,10 @@ prereq_is(
   },
 );
 
+# test case for #55851: require $foo
+prereq_is(
+  'my $foo = "Carp"; require $foo',
+  {},
+);
+
 done_testing;
