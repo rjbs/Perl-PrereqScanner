@@ -84,9 +84,13 @@ sub scan_ppi_document {
     # skipping pragamata
     next if grep { $_ eq $node->module } qw{ strict warnings lib };
 
+    # inheritance
     if (grep { $_ eq $node->module } qw{ base parent }) {
-      # the content is in the 5th token
-      my @meat = $node->arguments;
+      # rt#55713: skip arguments to base or parent, focus only on inheritance
+      my @meat = grep {
+           $_->isa('PPI::Token::QuoteLike::Words')
+        || $_->isa('PPI::Token::Quote')
+        } $node->arguments;
 
       my @parents = map { $self->_q_contents($_) } @meat;
       $req->add_minimum($_ => 0) for @parents;
