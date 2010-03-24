@@ -1,6 +1,8 @@
 Revision history for Perl-PrereqScanner
 
 {{$NEXT}}
+
+0.100830  2010-03-24 13:37:31 Europe/Paris
  - fix rt#55713: support for use parent -norequire
  - fix rt#55851: 'require $foo;' shouldn't add any prereq
 
