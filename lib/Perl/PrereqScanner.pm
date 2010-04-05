@@ -82,7 +82,7 @@ sub scan_ppi_document {
     }
 
     # skipping pragamata
-    next if grep { $_ eq $node->module } qw{ strict warnings lib };
+    next if grep { $_ eq $node->module } qw{ strict warnings lib feature };
 
     # inheritance
     if (grep { $_ eq $node->module } qw{ base parent }) {
