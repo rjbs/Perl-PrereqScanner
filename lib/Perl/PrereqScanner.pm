@@ -81,7 +81,7 @@ sub scan_ppi_document {
       next;
     }
 
-    # skipping pragamata
+    # skipping pragmata
     next if grep { $_ eq $node->module } qw{ strict warnings lib feature };
 
     # inheritance

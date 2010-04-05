@@ -185,4 +185,9 @@ prereq_is(
   {},
 );
 
+# test case for ignoring pragmata
+prereq_is(
+  q{use strict; use warnings; use lib '.'; use feature ':5.10';},
+  {},
+);
 done_testing;
