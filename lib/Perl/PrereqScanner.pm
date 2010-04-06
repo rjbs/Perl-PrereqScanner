@@ -1,15 +1,12 @@
 use 5.008;
-use strict;
-use warnings;
-
 package Perl::PrereqScanner;
+use Moose;
 # ABSTRACT: a tool to scan your Perl code for its prerequisites
 
-use Carp qw(confess);
 use List::Util qw(max);
 use Params::Util qw(_CLASS);
+use Perl::PrereqScanner::Scanner;
 use PPI 1.205; # module_version
-use Scalar::Util qw(blessed);
 use String::RewritePrefix rewrite => {
   -as => '__rewrite_scanner',
   prefixes => { '' => 'Perl::PrereqScanner::Scanner::', '=' => '' },
@@ -19,29 +16,38 @@ use Version::Requirements 0.100630; # merge with 0-min bug fixed
 
 use namespace::autoclean;
 
-sub new {
-  my ($class, $arg) = @_;
+has scanners => (
+  is  => 'ro',
+  isa => 'ArrayRef[Perl::PrereqScanner::Scanner]',
+  init_arg => undef,
+  writer   => '_set_scanners',
+);
 
-  my @scanners = @{ $arg->{scanners} || [ qw(Default Moose) ] };
-  my @extra_scanners = @{ $arg->{extra_scanners} || [] };
-  bless {
-    scanners => $class->__prepare_scanners([ @scanners, @extra_scanners ]),
-  } => $class;
-}
-
-sub __scanner_class {
+sub __scanner_from_str {
   my $class = __rewrite_scanner($_[0]);
   confess "illegal class name: $class" unless _CLASS($class);
   eval "require $class; 1" or die $@;
-  return $class;
+  return $class->new;
 }
 
 sub __prepare_scanners {
   my ($self, $specs) = @_;
-  my @scanners = map {; ref $_ ? $_ : __scanner_class($_)->new } @$specs;
+  my @scanners = map {; ref $_ ? $_ : __scanner_from_str($_) } @$specs;
 
   return \@scanners;
 }
+
+sub BUILD {
+  my ($self, $arg) = @_;
+
+  my @scanners = @{ $arg->{scanners} || [ qw(Default Moose) ] };
+  my @extra_scanners = @{ $arg->{extra_scanners} || [] };
+
+  my $scanners = $self->__prepare_scanners([ @scanners, @extra_scanners ]);
+
+  $self->_set_scanners($scanners);
+}
+
 
 =method scan_string
 

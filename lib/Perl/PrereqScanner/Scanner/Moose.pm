@@ -1,7 +1,6 @@
-use strict;
-use warnings;
 package Perl::PrereqScanner::Scanner::Moose;
-use base 'Perl::PrereqScanner::Scanner';
+use Moose;
+with 'Perl::PrereqScanner::Scanner';
 
 sub scan_for_prereqs {
   my ($self, $ppi_doc, $req) = @_;

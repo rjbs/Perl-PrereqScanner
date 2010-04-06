@@ -1,11 +1,5 @@
-use strict;
-use warnings;
 package Perl::PrereqScanner::Scanner;
-
-sub new {
-  my ($class) = @_;
-  return bless {} => $class;
-}
+use Moose::Role;
 
 # DO NOT RELY ON THIS EXISTING OUTSIDE OF CORE!
 # THIS MIGHT GO AWAY WITHOUT NOTICE!
