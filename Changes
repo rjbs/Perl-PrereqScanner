@@ -1,7 +1,10 @@
 Revision history for Perl-PrereqScanner
 
 {{$NEXT}}
- - add 'feature' pragma to skip list
+
+0.100960  2010-04-06 17:03:46 Europe/Paris
+ - add 'feature' pragma to skip list (mark gardner)
+ - added some tests (mark gardner)
 
 0.100830  2010-03-24 13:37:31 Europe/Paris
  - fix rt#55713: support for use parent -norequire
