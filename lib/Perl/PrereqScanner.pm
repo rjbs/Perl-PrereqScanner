@@ -5,25 +5,42 @@ use warnings;
 package Perl::PrereqScanner;
 # ABSTRACT: a tool to scan your Perl code for its prerequisites
 
-use PPI 1.205; # module_version
+use Carp qw(confess);
 use List::Util qw(max);
+use Params::Util qw(_CLASS);
+use PPI 1.205; # module_version
 use Scalar::Util qw(blessed);
+use String::RewritePrefix rewrite => {
+  -as => '__rewrite_scanner',
+  prefixes => { '' => 'Perl::PrereqScanner::Scanner::', '=' => '' },
+};
+
 use Version::Requirements 0.100630; # merge with 0-min bug fixed
 
 use namespace::autoclean;
 
-sub _q_contents {
-  my ($self, $token) = @_;
-  my @contents = $token->isa('PPI::Token::QuoteLike::Words')
-    ? ( $token->literal )
-    : ( $token->string  );
+sub new {
+  my ($class, $arg) = @_;
 
-  return @contents;
+  my @scanners = @{ $arg->{scanners} || [ qw(Default Moose) ] };
+  my @extra_scanners = @{ $arg->{extra_scanners} || [] };
+  bless {
+    scanners => $class->__prepare_scanners([ @scanners, @extra_scanners ]),
+  } => $class;
 }
 
-sub new {
-  my ($class) = @_;
-  bless {} => $class;
+sub __scanner_class {
+  my $class = __rewrite_scanner($_[0]);
+  confess "illegal class name: $class" unless _CLASS($class);
+  eval "require $class; 1" or die $@;
+  return $class;
+}
+
+sub __prepare_scanners {
+  my ($self, $specs) = @_;
+  my @scanners = map {; ref $_ ? $_ : __scanner_class($_)->new } @$specs;
+
+  return \@scanners;
 }
 
 =method scan_string
@@ -72,50 +89,9 @@ sub scan_ppi_document {
 
   my $req = Version::Requirements->new;
 
-  # regular use and require
-  my $includes = $ppi_doc->find('Statement::Include') || [];
-  for my $node ( @$includes ) {
-    # minimum perl version
-    if ( $node->version ) {
-      $req->add_minimum(perl => $node->version);
-      next;
-    }
-
-    # skipping pragmata
-    next if grep { $_ eq $node->module } qw{ strict warnings lib feature };
-
-    # inheritance
-    if (grep { $_ eq $node->module } qw{ base parent }) {
-      # rt#55713: skip arguments to base or parent, focus only on inheritance
-      my @meat = grep {
-           $_->isa('PPI::Token::QuoteLike::Words')
-        || $_->isa('PPI::Token::Quote')
-        } $node->arguments;
-
-      my @parents = map { $self->_q_contents($_) } @meat;
-      $req->add_minimum($_ => 0) for @parents;
-    }
-
-    # regular modules
-    my $version = $node->module_version ? $node->module_version->content : 0;
-
-    # base has been core since perl 5.0
-    next if $node->module eq 'base' and not $version;
-
-    # rt#55851: 'require $foo;' shouldn't add any prereq
-    $req->add_minimum($node->module, $version) if $node->module;
+  for my $scanner (@{ $self->{scanners} }) {
+    $scanner->scan_for_prereqs($ppi_doc, $req);
   }
-
-  # Moose-based roles / inheritance
-  my @bases =
-    map  { $self->_q_contents( $_ ) }
-    grep { $_->isa('PPI::Token::Quote') || $_->isa('PPI::Token::QuoteLike') }
-    map  { $_->children }
-    grep { $_->child(0)->literal =~ m{\Awith|extends\z} }
-    grep { $_->child(0)->isa('PPI::Token::Word') }
-    @{ $ppi_doc->find('PPI::Statement') || [] };
-
-  $req->add_minimum($_ => 0) for @bases;
 
   return $req;
 }
