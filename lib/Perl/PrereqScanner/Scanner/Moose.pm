@@ -1,6 +1,21 @@
 package Perl::PrereqScanner::Scanner::Moose;
 use Moose;
 with 'Perl::PrereqScanner::Scanner';
+# ABSTRACT: scan for Moose sugar indicators of required modules
+
+=head1 DESCRIPTION
+
+This scanner will look for the following indicators:
+
+=begin :list
+
+* L<Moose> inheritance declared with the C<extends> keyword
+
+* L<Moose> roles included with the C<with> keyword
+
+=end :list
+
+=cut
 
 sub scan_for_prereqs {
   my ($self, $ppi_doc, $req) = @_;

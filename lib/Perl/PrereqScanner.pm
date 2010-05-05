@@ -40,14 +40,13 @@ sub __prepare_scanners {
 sub BUILD {
   my ($self, $arg) = @_;
 
-  my @scanners = @{ $arg->{scanners} || [ qw(Default Moose) ] };
+  my @scanners = @{ $arg->{scanners} || [ qw(Perl5 Moose) ] };
   my @extra_scanners = @{ $arg->{extra_scanners} || [] };
 
   my $scanners = $self->__prepare_scanners([ @scanners, @extra_scanners ]);
 
   $self->_set_scanners($scanners);
 }
-
 
 =method scan_string
 
@@ -111,10 +110,10 @@ __END__
 =head1 SYNOPSIS
 
   use Perl::PrereqScanner;
-  my $scan    = Perl::PrereqScanner->new;
-  my $prereqs = $scan->scan_ppi_document( $ppi_doc );
-  my $prereqs = $scan->scan_file( $file_path );
-  my $prereqs = $scan->scan_string( $perl_code );
+  my $scanner = Perl::PrereqScanner->new;
+  my $prereqs = $scanner->scan_ppi_document( $ppi_doc );
+  my $prereqs = $scanner->scan_file( $file_path );
+  my $prereqs = $scanner->scan_string( $perl_code );
 
 =head1 DESCRIPTION
 
@@ -139,5 +138,18 @@ find the following prereqs:
 It will trim the following pragamata: C<strict>, C<warnings>, and C<lib>.
 C<base> is trimmed unless a specific version is required.  C<parent> is kept,
 since it's only recently become a core library.
+
+=head2 Scanner Plugins
+
+Perl::PrereqScanner works by running a series of scanners over a PPI::Document
+representing the code to scan.  By default the "Perl5" and "Moose" scanners
+are run.  You can supply your own scanners when constructing your
+PrereqScanner:
+
+  # Do not use the Moose scanner, only Perl5:
+  my $scanner = Perl::PrereqScanner->new({ plugins => [ qw(Perl5) ] });
+
+  # Use any stock plugins, plus Example:
+  my $scanner = Perl::PrereqScanner->new({ extra_plugins => [ qw(Example) ] });
 
 =cut

@@ -1,6 +1,21 @@
-package Perl::PrereqScanner::Scanner::Default;
+package Perl::PrereqScanner::Scanner::Perl5;
 use Moose;
 with 'Perl::PrereqScanner::Scanner';
+# ABSTRACT: scan for core Perl 5 language indicators of required modules
+
+=head1 DESCRIPTION
+
+This scanner will look for the following indicators:
+
+=begin :list
+
+* plain lines beginning with C<use> or C<require> in your perl modules and scripts, including minimum perl version
+
+* regular inheritance declared with the C<base> and C<parent> pragmata
+
+=end :list
+
+=cut
 
 sub scan_for_prereqs {
   my ($self, $ppi_doc, $req) = @_;
