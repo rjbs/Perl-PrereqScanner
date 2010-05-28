@@ -2,6 +2,9 @@ Revision history for Perl-PrereqScanner
 
 {{$NEXT}}
 
+0.101480  2010-05-28 08:41:56 America/New_York
+ - bump prereq version of String::RewritePrefix
+
 0.101250  2010-05-05 09:32:19 America/New_York
  - convert to Moose object system
  - add the Scanner role and pluggable scanners
