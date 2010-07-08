@@ -35,7 +35,7 @@ sub prereq_is {
 
   # scan_file
   try {
-    my ($fh, $filename) = tempfile();
+    my ($fh, $filename) = tempfile( UNLINK => 1 );
     print $fh $str;
     close $fh;
     my $result  = $scanner->scan_file( $filename );
