@@ -2,6 +2,9 @@ Revision history for Perl-PrereqScanner
 
 {{$NEXT}}
 
+0.101890  2010-07-08 18:45:57 Europe/Paris
+ - fix rt#59121 - remove lurking temp files
+
 0.101480  2010-05-28 08:41:56 America/New_York
  - bump prereq version of String::RewritePrefix
 
