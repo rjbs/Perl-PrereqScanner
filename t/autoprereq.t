@@ -98,6 +98,13 @@ prereq_is(
 );
 
 prereq_is(
+  "with('Paren::Role');",
+  {
+    'Paren::Role' => 0,
+  },
+);
+
+prereq_is(
   'with qw(With::QW1 With::QW2);',
   {
     'With::QW1' => 0,
