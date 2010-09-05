@@ -1,6 +1,8 @@
 Revision history for Perl-PrereqScanner
 
 {{$NEXT}}
+
+0.101891  2010-09-05 15:31:49 America/New_York
  - add a core scanner for Test::More's done_testing
  - do not detect prereqs for invalid class names in Moose scanner
  - added TODO tests for "with('Name')" -- note the parens
