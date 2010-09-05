@@ -1,4 +1,6 @@
 #!/usr/bin/perl
+package Perl::PrereqScanner::App;
+# ABSTRACT: scan your working dir for likely prereqs
 
 use strict;
 use warnings;
@@ -17,4 +19,5 @@ foreach my $file ( @ARGV ) {
     printf( "%-${max}s = %s\n", $_, $prereqs->{$_} )
         for sort keys %$prereqs;
 }
+
 exit;

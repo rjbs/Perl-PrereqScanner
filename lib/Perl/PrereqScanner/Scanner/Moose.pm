@@ -22,8 +22,21 @@ sub scan_for_prereqs {
 
   # Moose-based roles / inheritance
   my @bases =
+    grep { Params::Util::_CLASS($_) }
     map  { $self->_q_contents( $_ ) }
     grep { $_->isa('PPI::Token::Quote') || $_->isa('PPI::Token::QuoteLike') }
+
+    # This is what we get when someone does:   with('Foo');
+    # The target to get at is the PPI::Token::Quote::Single.
+    # -- rjbs, 2010-09-05
+    #
+    # PPI::Statement
+    #   PPI::Token::Word
+    #   PPI::Structure::List
+    #     PPI::Statement::Expression
+    #       PPI::Token::Quote::Single
+    #   PPI::Token::Structure
+
     map  { $_->children }
     grep { $_->child(0)->literal =~ m{\Awith|extends\z} }
     grep { $_->child(0)->isa('PPI::Token::Word') }
