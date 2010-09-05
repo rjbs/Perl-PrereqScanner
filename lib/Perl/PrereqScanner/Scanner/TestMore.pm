@@ -1,6 +1,6 @@
 package Perl::PrereqScanner::Scanner::TestMore;
 use Moose;
-use List::AllUtils 'none';
+use List::MoreUtils 'none';
 with 'Perl::PrereqScanner::Scanner';
 
 sub scan_for_prereqs {
