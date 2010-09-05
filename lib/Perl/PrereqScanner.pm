@@ -40,7 +40,7 @@ sub __prepare_scanners {
 sub BUILD {
   my ($self, $arg) = @_;
 
-  my @scanners = @{ $arg->{scanners} || [ qw(Perl5 Moose) ] };
+  my @scanners = @{ $arg->{scanners} || [ qw(Perl5 TestMore Moose) ] };
   my @extra_scanners = @{ $arg->{extra_scanners} || [] };
 
   my $scanners = $self->__prepare_scanners([ @scanners, @extra_scanners ]);

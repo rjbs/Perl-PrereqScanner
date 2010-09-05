@@ -197,4 +197,12 @@ prereq_is(
   q{use strict; use warnings; use lib '.'; use feature ':5.10';},
   {},
 );
+
+prereq_is(
+  q{use Test::More; is 0, 1; done_testing},
+  {
+    'Test::More' => '0.88',
+  },
+);
+
 done_testing;
