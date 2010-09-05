@@ -97,12 +97,15 @@ prereq_is(
   },
 );
 
-prereq_is(
-  "with('Paren::Role');",
-  {
-    'Paren::Role' => 0,
-  },
-);
+TODO: {
+  local $TODO = 'enable with()';
+  prereq_is(
+    "with('Paren::Role');",
+    {
+      'Paren::Role' => 0,
+    },
+  );
+}
 
 prereq_is(
   'with qw(With::QW1 With::QW2);',
@@ -110,6 +113,11 @@ prereq_is(
     'With::QW1' => 0,
     'With::QW2' => 0,
   },
+);
+
+prereq_is(
+  'with "::Foo"',
+  { },
 );
 
 prereq_is(
