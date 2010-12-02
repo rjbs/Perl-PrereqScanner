@@ -55,11 +55,15 @@ sub BUILD {
 Given a string containing Perl source code, this method returns a
 Version::Requirements object describing the modules it requires.
 
+This method will throw an exception if PPI fails to parse the code.
+
 =cut
 
 sub scan_string {
   my ($self, $str) = @_;
   my $ppi = PPI::Document->new( \$str );
+  confess "PPI parse failed" unless defined $ppi;
+
   return $self->scan_ppi_document( $ppi );
 }
 
@@ -71,11 +75,15 @@ sub scan_string {
 Given a file path to a Perl document, this method returns a
 Version::Requirements object describing the modules it requires.
 
+This method will throw an exception if PPI fails to parse the code.
+
 =cut
 
 sub scan_file {
   my ($self, $path) = @_;
   my $ppi = PPI::Document->new( $path );
+  confess "PPI failed to parse '$path'" unless defined $ppi;
+
   return $self->scan_ppi_document( $ppi );
 }
 

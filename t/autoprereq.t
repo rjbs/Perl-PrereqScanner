@@ -213,4 +213,14 @@ prereq_is(
   },
 );
 
+{
+    my $scanner = Perl::PrereqScanner->new;
+    try {
+        $scanner->scan_string(\"\x0");
+        fail('scan succeeded');
+    } catch {
+        like($_, qr/PPI parse failed/);
+    };
+}
+
 done_testing;
