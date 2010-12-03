@@ -1,7 +1,9 @@
 Revision history for Perl-PrereqScanner
 
 {{$NEXT}}
- - throw an exception if PPI fails to parse code
+
+0.101892  2010-12-03 17:15:25 Europe/Paris
+ - throw an exception if PPI fails to parse code (vyacheslav matjukhin)
 
 0.101891  2010-09-05 15:31:49 America/New_York
  - add a core scanner for Test::More's done_testing
