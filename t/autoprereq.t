@@ -72,6 +72,20 @@ prereq_is(
 
 
 # Moose features
+prereq_is(
+  'extends "Foo::Bar";',
+  {
+    'Foo::Bar' => 0,
+  },
+);
+
+prereq_is(
+  'extends "Foo::Bar"; extends "Foo::Baz";',
+  {
+    'Foo::Bar' => 0,
+    'Foo::Baz' => 0,
+  },
+);
 prereq_is("with 'With::Single';", { 'With::Single' => 0 });
 prereq_is(
   "extends 'Extends::List1', 'Extends::List2';",
@@ -222,5 +236,273 @@ prereq_is(
         like($_, qr/PPI parse failed/);
     };
 }
+
+# test cases for Moose 1.03 -version extension
+prereq_is(
+  'extends "Foo::Bar"=>{-version=>"1.1"};',
+  {
+    'Foo::Bar' => '1.1',
+  },
+);
+
+prereq_is(
+  'extends "Foo::Bar" => { -version => \'1.1\' };',
+  {
+    'Foo::Bar' => '1.1',
+  },
+);
+
+prereq_is(
+  'extends "Foo::Bar" => { -version => 13.3 };',
+  {
+    'Foo::Bar' => '13.3',
+  },
+);
+
+prereq_is(
+  'extends "Foo::Bar" => { -version => \'1.1\' }; extends "Foo::Baz" => { -version => 5 };',
+  {
+    'Foo::Bar' => '1.1',
+    'Foo::Baz' => 5,
+  },
+);
+
+prereq_is(
+  'extends "Foo::Bar"=>{-version=>1},"Foo::Baz"=>{-version=>2};',
+  {
+    'Foo::Bar' => 1,
+    'Foo::Baz' => 2,
+  },
+);
+
+prereq_is(
+  'extends "Foo::Bar" => { -version => "4.3.2" }, "Foo::Baz" => { -version => 2.44894 };',
+  {
+    'Foo::Bar' => '4.3.2',
+    'Foo::Baz' => 2.44894,
+  },
+);
+
+prereq_is(
+  'with "With::Single" => { -excludes => "method", -version => "1.1.1" }, "With::Double";',
+  {
+    'With::Single' => '1.1.1',
+    'With::Double' => 0,
+  },
+);
+
+prereq_is(
+  'with "With::Single" => { -wow => { -wow => { a => b } }, -version => "1.1.1" }, "With::Double";',
+  {
+    'With::Single' => '1.1.1',
+    'With::Double' => 0,
+  },
+);
+
+prereq_is(
+  'with "With::Single" => { -exclude => "method", -version => "1.1.1" },
+  "With::Double" => { -exclude => "foo" };',
+  {
+    'With::Single' => '1.1.1',
+    'With::Double' => 0,
+  },
+);
+
+prereq_is(
+  'with("Foo::Bar");',
+  {
+    'Foo::Bar' => 0,
+  },
+);
+
+prereq_is(
+  'with( "Foo::Bar" );',
+  {
+    'Foo::Bar' => 0,
+  },
+);
+
+prereq_is(
+  'with( "Foo::Bar", "Bar::Baz" );',
+  {
+    'Foo::Bar' => 0,
+    'Bar::Baz' => 0,
+  }
+);
+
+prereq_is(
+  'with( "Foo::Bar" => { -version => "1.1" },
+  "Bar::Baz" );',
+  {
+    'Foo::Bar' => '1.1',
+    'Bar::Baz' => 0,
+  }
+);
+
+prereq_is(
+  'with( "Blam::Blam", "Foo::Bar" => { -version => "1.1" },
+  "Bar::Baz" );',
+  {
+    'Blam::Blam' => 0,
+    'Foo::Bar' => '1.1',
+    'Bar::Baz' => 0,
+  }
+);
+
+prereq_is(
+  'with("Blam::Blam","Foo::Bar"=>{-version=>"1.1"},
+  "Bar::Baz" );',
+  {
+    'Blam::Blam' => 0,
+    'Foo::Bar' => '1.1',
+    'Bar::Baz' => 0,
+  }
+);
+
+prereq_is(
+  'with("Blam::Blam","Foo::Bar"=>{-version=>"1.1"},
+  "Bar::Baz",
+  "Hoopla" => { -version => 1 } );',
+  {
+    'Blam::Blam' => 0,
+    'Foo::Bar' => '1.1',
+    'Bar::Baz' => 0,
+    'Hoopla' => 1,
+  }
+);
+
+prereq_is(
+  'extends("Foo::Bar");',
+  {
+    'Foo::Bar' => 0,
+  },
+);
+
+prereq_is(
+  'extends( "Foo::Bar" );',
+  {
+    'Foo::Bar' => 0,
+  },
+);
+
+prereq_is(
+  'extends( "Foo::Bar", "Bar::Baz" );',
+  {
+    'Foo::Bar' => 0,
+    'Bar::Baz' => 0,
+  }
+);
+
+prereq_is(
+  'extends( "Foo::Bar" => { -version => "1.1" },
+  "Bar::Baz" );',
+  {
+    'Foo::Bar' => '1.1',
+    'Bar::Baz' => 0,
+  }
+);
+
+prereq_is(
+  'extends( "Blam::Blam", "Foo::Bar" => { -version => "1.1" },
+  "Bar::Baz" );',
+  {
+    'Blam::Blam' => 0,
+    'Foo::Bar' => '1.1',
+    'Bar::Baz' => 0,
+  }
+);
+
+prereq_is(
+  'extends("Blam::Blam","Foo::Bar"=>{-version=>"1.1"},
+  "Bar::Baz" );',
+  {
+    'Blam::Blam' => 0,
+    'Foo::Bar' => '1.1',
+    'Bar::Baz' => 0,
+  }
+);
+
+prereq_is(
+  'extends("Blam::Blam","Foo::Bar"=>{-version=>"1.1"},
+  "Bar::Baz",
+  "Hoopla" => { -version => 1 } );',
+  {
+    'Blam::Blam' => 0,
+    'Foo::Bar' => '1.1',
+    'Bar::Baz' => 0,
+    'Hoopla' => 1,
+  }
+);
+
+prereq_is(
+  'with(
+	\'AAA\' => { -version => \'1\' },
+	\'BBB\' => { -version => \'2.1\' },
+	\'CCC\' => {
+		-version => \'4.012345\',
+		default_finders => [ \':InstallModules\', \':ExecFiles\' ],
+	},
+);',
+  {
+    'AAA' => 1,
+    'BBB' => '2.1',
+    'CCC' => '4.012345',
+  },
+);
+
+prereq_is(
+  'with(
+    "AAA"
+      =>
+        {
+          -version
+            =>
+              1
+        },
+  );',
+  {
+    'AAA' => 1,
+  },
+);
+
+prereq_is(
+  'with
+    "AAA"
+      =>
+        {
+          -version
+            =>
+              1
+        };',
+  {
+    'AAA' => 1,
+  },
+);
+
+prereq_is(
+  'with(
+
+"Bar"
+
+);',
+  {
+    'Bar' => 0,
+  },
+);
+
+prereq_is(
+  'with
+
+\'Bar\'
+
+;',
+  {
+    'Bar' => 0,
+  },
+);
+
+# invalid code tests
+prereq_is( 'with;', {}, );
+prereq_is( 'with foo;', {} );
 
 done_testing;

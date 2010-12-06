@@ -24,9 +24,12 @@ requires 'scan_for_prereqs';
 # -- rjbs, 2010-04-06
 sub _q_contents {
   my ($self, $token) = @_;
-  my @contents = $token->isa('PPI::Token::QuoteLike::Words')
-    ? ( $token->literal )
-    : ( $token->string  );
+  my @contents;
+  if ( $token->isa('PPI::Token::QuoteLike::Words') || $token->isa('PPI::Token::Number') ) {
+    @contents = $token->literal;
+  } else {
+    @contents = $token->string;
+  }
 
   return @contents;
 }
