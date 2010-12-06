@@ -1,3 +1,6 @@
+use strict;
+use warnings;
+
 package Perl::PrereqScanner::Scanner::TestMore;
 use Moose;
 use List::MoreUtils 'none';

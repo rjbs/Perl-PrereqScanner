@@ -1,4 +1,7 @@
 use 5.008;
+use strict;
+use warnings;
+
 package Perl::PrereqScanner;
 use Moose;
 # ABSTRACT: a tool to scan your Perl code for its prerequisites

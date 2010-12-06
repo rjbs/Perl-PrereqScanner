@@ -1,3 +1,6 @@
+use strict;
+use warnings;
+
 package Perl::PrereqScanner::Scanner::Perl5;
 use Moose;
 with 'Perl::PrereqScanner::Scanner';

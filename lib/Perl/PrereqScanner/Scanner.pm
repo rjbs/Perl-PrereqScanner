@@ -1,3 +1,6 @@
+use strict;
+use warnings;
+
 package Perl::PrereqScanner::Scanner;
 use Moose::Role;
 # ABSTRACT: something that scans for prereqs in a Perl document
