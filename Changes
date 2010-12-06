@@ -2,6 +2,9 @@ Revision history for Perl-PrereqScanner
 
 {{$NEXT}}
 
+1.000     2010-12-06 17:54:20 Europe/Paris
+ - fix rt#59016 - support for moose 1.03 version declarations (apocalypse)
+
 0.101892  2010-12-03 17:15:25 Europe/Paris
  - throw an exception if PPI fails to parse code (vyacheslav matjukhin)
 
