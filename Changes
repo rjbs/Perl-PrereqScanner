@@ -1,6 +1,7 @@
 Revision history for Perl-PrereqScanner
 
 {{$NEXT}}
+ - fix rt#61608 - missing description in whatisentry for TestMore.pm
 
 1.001     2011-01-05 16:35:26 Europe/Paris
  - fix bin/prereqs (randy stauner)

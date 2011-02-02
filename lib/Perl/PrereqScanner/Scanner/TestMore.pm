@@ -2,6 +2,8 @@ use strict;
 use warnings;
 
 package Perl::PrereqScanner::Scanner::TestMore;
+# ABSTRACT: scanner to find recent Test::More usage
+
 use Moose;
 use List::MoreUtils 'none';
 with 'Perl::PrereqScanner::Scanner';
@@ -20,3 +22,12 @@ sub scan_for_prereqs {
 }
 
 1;
+
+__END__
+
+=head1 DESCRIPTION
+
+This scanner will check if a given test is using recent functions from
+L<Test::More>, and increase the minimum version for this module
+accordingly.
+
