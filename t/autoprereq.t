@@ -95,6 +95,8 @@ prereq_is(
   },
 );
 
+prereq_is("within('With::Single');", { });
+
 prereq_is(
   "with 'With::Single', 'With::Double';",
   {

@@ -1,6 +1,8 @@
 Revision history for Perl-PrereqScanner
 
 {{$NEXT}}
+  - fix a bug that caused things like "within" and "trextends" to trigger
+    the Moose scanner
 
 1.002     2011-02-02 10:21:55 Europe/Paris
  - fix rt#61608 - missing description in whatisentry for TestMore.pm

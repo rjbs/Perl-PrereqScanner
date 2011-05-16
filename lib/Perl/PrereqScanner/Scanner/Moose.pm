@@ -37,7 +37,7 @@ sub scan_for_prereqs {
     #   PPI::Token::Structure
 
     map  { [ $_->children ] }
-    grep { $_->child(0)->literal =~ m{\Awith|extends\z} }
+    grep { $_->child(0)->literal =~ m{\A(?:with|extends)\z} }
     grep { $_->child(0)->isa('PPI::Token::Word') }
     @{ $ppi_doc->find('PPI::Statement') || [] };
 
