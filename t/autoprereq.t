@@ -144,7 +144,14 @@ prereq_is(
   },
 );
 
-prereq_is('use base "Base::QQ1";', { 'Base::QQ1' => 0 });
+prereq_is(
+  'use base "Base::QQ1";',
+  {
+    'Base::QQ1' => 0,
+    base => 0,
+  },
+);
+
 prereq_is(
   'use base 10 "Base::QQ1";',
   {
@@ -154,7 +161,7 @@ prereq_is(
 );
 prereq_is(
   'use base qw{ Base::QW1 Base::QW2 };',
-  { 'Base::QW1' => 0, 'Base::QW2' => 0 },
+  { 'Base::QW1' => 0, 'Base::QW2' => 0, base => 0 },
 );
 
 prereq_is(
@@ -216,10 +223,9 @@ prereq_is(
   {},
 );
 
-# test case for ignoring pragmata
 prereq_is(
   q{use strict; use warnings; use lib '.'; use feature ':5.10';},
-  {},
+  { strict => 0, warnings => 0, feature => 0, lib => 0 },
 );
 
 prereq_is(

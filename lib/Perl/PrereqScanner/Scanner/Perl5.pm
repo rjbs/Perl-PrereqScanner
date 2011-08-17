@@ -32,9 +32,6 @@ sub scan_for_prereqs {
       next;
     }
 
-    # skipping pragmata
-    next if grep { $_ eq $node->module } qw{ strict warnings lib feature };
-
     # inheritance
     if (grep { $_ eq $node->module } qw{ base parent }) {
       # rt#55713: skip arguments to base or parent, focus only on inheritance
@@ -49,9 +46,6 @@ sub scan_for_prereqs {
 
     # regular modules
     my $version = $node->module_version ? $node->module_version->content : 0;
-
-    # base has been core since perl 5.0
-    next if $node->module eq 'base' and not $version;
 
     # rt#55851: 'require $foo;' shouldn't add any prereq
     $req->add_minimum($node->module, $version) if $node->module;
