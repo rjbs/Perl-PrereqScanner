@@ -1,6 +1,7 @@
 Revision history for Perl-PrereqScanner
 
 {{$NEXT}}
+  - add a core scanner for the aliased.pm module (dagolden)
 
 1.004     2011-05-30 21:02:52 America/New_York
   - avoid calling a method on undef (i.e., cope with PPI doing surprising

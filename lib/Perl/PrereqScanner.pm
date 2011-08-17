@@ -43,7 +43,7 @@ sub __prepare_scanners {
 sub BUILD {
   my ($self, $arg) = @_;
 
-  my @scanners = @{ $arg->{scanners} || [ qw(Perl5 TestMore Moose) ] };
+  my @scanners = @{ $arg->{scanners} || [ qw(Perl5 TestMore Moose Aliased) ] };
   my @extra_scanners = @{ $arg->{extra_scanners} || [] };
 
   my $scanners = $self->__prepare_scanners([ @scanners, @extra_scanners ]);
@@ -144,16 +144,18 @@ find the following prereqs:
 
 * L<Moose> roles included with the C<with> keyword
 
+* OO namespace aliasing using the C<aliased> module 
+
 =end :list
 
 =head2 Scanner Plugins
 
 Perl::PrereqScanner works by running a series of scanners over a PPI::Document
-representing the code to scan.  By default the "Perl5" and "Moose" scanners
-are run.  You can supply your own scanners when constructing your
-PrereqScanner:
+representing the code to scan.  By default the "Perl5", "Moose", "TestMore"
+and "Aliased" scanners are run.  You can supply your own scanners when
+constructing your PrereqScanner:
 
-  # Do not use the Moose scanner, only Perl5:
+  # Us only the Perl5 scanner:
   my $scanner = Perl::PrereqScanner->new({ plugins => [ qw(Perl5) ] });
 
   # Use any stock plugins, plus Example:

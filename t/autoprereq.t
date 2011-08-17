@@ -513,4 +513,30 @@ prereq_is(
 prereq_is( 'with;', {}, );
 prereq_is( 'with foo;', {} );
 
+# test cases for aliased.pm
+prereq_is(
+  q{use aliased 'Long::Custom::Class::Name'},
+  {
+    'aliased' => 0,
+    'Long::Custom::Class::Name' => 0,
+  },
+);
+
+prereq_is(
+  q{use aliased 0.30 'Long::Custom::Class::Name'},
+  {
+    'aliased' => '0.30',
+    'Long::Custom::Class::Name' => 0,
+  },
+);
+
+
+prereq_is(
+  q{use aliased 'Long::Custom::Class::Name' => 'Name'},
+  {
+    'aliased' => 0,
+    'Long::Custom::Class::Name' => 0,
+  },
+);
+
 done_testing;
