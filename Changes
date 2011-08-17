@@ -5,6 +5,8 @@ Revision history for Perl-PrereqScanner
 1.005     2011-08-17 18:39:22 America/New_York
   - stop stripping "always core" prereqs like strict and warnings
 
+  - add the Aliased scanner for aliased.pm (thanks, David Golden)
+
 1.004     2011-05-30 21:02:52 America/New_York
   - avoid calling a method on undef (i.e., cope with PPI doing surprising
     things)
