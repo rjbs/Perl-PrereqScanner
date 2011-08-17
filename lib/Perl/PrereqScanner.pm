@@ -146,10 +146,6 @@ find the following prereqs:
 
 =end :list
 
-It will trim the following pragamata: C<strict>, C<warnings>, and C<lib>.
-C<base> is trimmed unless a specific version is required.  C<parent> is kept,
-since it's only recently become a core library.
-
 =head2 Scanner Plugins
 
 Perl::PrereqScanner works by running a series of scanners over a PPI::Document

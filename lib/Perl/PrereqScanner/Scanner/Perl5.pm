@@ -32,8 +32,10 @@ sub scan_for_prereqs {
       next;
     }
 
-    # skipping pragmata
-    next if grep { $_ eq $node->module } qw{ strict warnings lib feature };
+    # skip lib.pm
+    # lib.pm is not indexed in 02packages, so listing it as a prereq is not a
+    # good idea. -- rjbs, 2011-08-17
+    next if grep { $_ eq $node->module } qw{ lib };
 
     # inheritance
     if (grep { $_ eq $node->module } qw{ base parent }) {
@@ -49,9 +51,6 @@ sub scan_for_prereqs {
 
     # regular modules
     my $version = $node->module_version ? $node->module_version->content : 0;
-
-    # base has been core since perl 5.0
-    next if $node->module eq 'base' and not $version;
 
     # rt#55851: 'require $foo;' shouldn't add any prereq
     $req->add_minimum($node->module, $version) if $node->module;
