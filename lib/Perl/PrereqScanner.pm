@@ -43,7 +43,7 @@ sub __prepare_scanners {
 sub BUILD {
   my ($self, $arg) = @_;
 
-  my @scanners = @{ $arg->{scanners} || [ qw(Perl5 TestMore Moose Aliased) ] };
+  my @scanners = @{ $arg->{scanners} || [ qw(Perl5 TestMore Moose Aliased POE) ] };
   my @extra_scanners = @{ $arg->{extra_scanners} || [] };
 
   my $scanners = $self->__prepare_scanners([ @scanners, @extra_scanners ]);
@@ -151,8 +151,8 @@ find the following prereqs:
 =head2 Scanner Plugins
 
 Perl::PrereqScanner works by running a series of scanners over a PPI::Document
-representing the code to scan.  By default the "Perl5", "Moose", "TestMore"
-and "Aliased" scanners are run.  You can supply your own scanners when
+representing the code to scan.  By default the "Perl5", "Moose", "TestMore",
+"POE", and "Aliased" scanners are run.  You can supply your own scanners when
 constructing your PrereqScanner:
 
   # Us only the Perl5 scanner:

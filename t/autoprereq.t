@@ -539,4 +539,23 @@ prereq_is(
   },
 );
 
+# test cases for POE
+prereq_is(
+  q{use POE 'Component::IRC'},
+  {
+    'POE' => 0,
+    'POE::Component::IRC' => 0,
+  },
+);
+
+prereq_is(
+  q{use POE qw/Component::IRC Component::Server::NNTP/},
+  {
+    'POE' => 0,
+    'POE::Component::IRC' => 0,
+    'POE::Component::Server::NNTP' => 0,
+  },
+);
+
+
 done_testing;
