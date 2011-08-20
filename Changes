@@ -1,6 +1,8 @@
 Revision history for Perl-PrereqScanner
 
 {{$NEXT}}
+
+1.006     2011-08-20 14:03:24 Europe/Paris
   - add the POE scanner for POE components (David Golden)
 
 1.005     2011-08-17 18:39:22 America/New_York
