@@ -31,6 +31,16 @@ strict      = 0
 warnings    = 0
 OUTPUT
 
+    [combined => '--combine' => <<OUTPUT],
+Exporter    = 0
+File::Spec  = 0
+File::Temp  = 0.12
+IO::File    = 1.08
+Time::Local = 0
+strict      = 0
+warnings    = 0
+OUTPUT
+
 ) {
     my ( $name, $args, $exp ) = @$test;
     my $command = "$^X $script $args $files";

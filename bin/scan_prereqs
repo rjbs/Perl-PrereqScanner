@@ -11,10 +11,33 @@ use lib catdir( $Bin, updir, 'lib' );
 
 use List::Util qw{ max };
 use Perl::PrereqScanner;
+use Version::Requirements ();
+
+use Getopt::Long qw{ GetOptions };
+my %options;
+GetOptions(
+  \%options,
+  'combine!',
+);
+my $combined = $options{combine} && Version::Requirements->new;
 
 foreach my $file ( @ARGV ) {
-    print "* $file\n";
-    my $prereqs = Perl::PrereqScanner->new->scan_file($file)->as_string_hash;
+    my $prereqs = Perl::PrereqScanner->new->scan_file($file);
+    if( $options{combine} ){
+        $combined->add_requirements($prereqs);
+    }
+    else {
+        print "* $file\n";
+        print_prereqs($prereqs);
+    }
+}
+
+if( $options{combine} ){
+    print_prereqs($combined);
+}
+
+sub print_prereqs {
+    my $prereqs = shift->as_string_hash;
     my $max = max map { length } keys %$prereqs;
     printf( "%-${max}s = %s\n", $_, $prereqs->{$_} )
         for sort keys %$prereqs;
