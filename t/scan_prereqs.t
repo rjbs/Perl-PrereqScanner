@@ -12,18 +12,18 @@ use Test::More;
 
 # try to be cross-platform
 my $script = catfile(qw(bin scan_prereqs));
-my $files = join(' ', map { catfile(qw(t scan), "$_.pl") } qw(foo bar));
+my $files = join(' ', map { catfile(qw(corpus scan), "$_.pl") } qw(foo bar));
 
 # depending on exact output match is a bit fragile and may become cumbersome
 # but we'll try it for now.
 foreach my $test (
     [default => '' => <<OUTPUT],
-* ${\catfile(qw( t scan foo.pl ))}
+* ${\catfile(qw( corpus scan foo.pl ))}
 File::Spec = 0
 IO::File   = 1.08
 strict     = 0
 warnings   = 0
-* ${\catfile(qw( t scan bar.pl ))}
+* ${\catfile(qw( corpus scan bar.pl ))}
 Exporter    = 0
 File::Temp  = 0.12
 Time::Local = 0
