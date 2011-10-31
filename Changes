@@ -1,6 +1,8 @@
 Revision history for Perl-PrereqScanner
 
 {{$NEXT}}
+ - fix rt#72062 - look for "require Module; Module->VERSION(min);"
+   (Christopher J. Madsen)
 
 1.007     2011-08-31 09:22:12 Europe/Paris
  - new option --combine for scan_prereqs script (randy stauner)

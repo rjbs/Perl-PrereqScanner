@@ -70,6 +70,45 @@ prereq_is(
   { 'Import::IgnoreAPI' => 0 },
 );
 
+prereq_is('require Require; Require->VERSION(0.50);', { Require => '0.50' });
+
+prereq_is('require Require; Require->VERSION(+0.50);', { Require => 0 });
+
+prereq_is('require Require; foo(); Require->VERSION(1.00);', { Require => 0 });
+
+prereq_is(
+  'require Require; Require->VERSION(v1.0.50);',
+  { Require => 'v1.0.50' }
+);
+
+prereq_is(
+  q{require Require; Require->VERSION('v1.0.50');},
+  { Require => 'v1.0.50' }
+);
+
+prereq_is(
+  'require Require; Require->VERSION(q[1.00]);',
+  { Require => '1.00' }
+);
+
+prereq_is(
+  'require Require; Require::Other->VERSION(1.00);',
+  { Require => 0 }
+);
+
+prereq_is(
+  <<'END REQUIRE WITH COMMENT',
+require Require::This; # this comment shouldn't matter
+Require::This->VERSION(0.450);
+END REQUIRE WITH COMMENT
+  { 'Require::This' => '0.450' }, 'require with comment'
+);
+
+prereq_is(
+  'require Require; Require->VERSION(0.450) if some_condition; ',
+  { 'Require' => 0 }
+);
+
 
 # Moose features
 prereq_is(
