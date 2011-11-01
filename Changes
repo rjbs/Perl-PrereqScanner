@@ -1,6 +1,8 @@
 Revision history for Perl-PrereqScanner
 
 {{$NEXT}}
+
+1.008     2011-11-01 10:35:46 Europe/Paris
  - fix rt#72062 - look for "require Module; Module->VERSION(min);"
    (Christopher J. Madsen)
 
