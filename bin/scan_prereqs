@@ -11,7 +11,7 @@ use lib catdir( $Bin, updir, 'lib' );
 
 use List::Util qw{ max };
 use Perl::PrereqScanner;
-use Version::Requirements ();
+use CPAN::Meta::Requirements ();
 
 use Getopt::Long qw{ GetOptions };
 my %options;
@@ -19,7 +19,7 @@ GetOptions(
   \%options,
   'combine!',
 );
-my $combined = $options{combine} && Version::Requirements->new;
+my $combined = $options{combine} && CPAN::Meta::Requirements->new;
 
 foreach my $file ( @ARGV ) {
     my $prereqs = Perl::PrereqScanner->new->scan_file($file);

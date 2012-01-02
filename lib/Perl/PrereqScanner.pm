@@ -15,7 +15,7 @@ use String::RewritePrefix 0.005 rewrite => {
   prefixes => { '' => 'Perl::PrereqScanner::Scanner::', '=' => '' },
 };
 
-use Version::Requirements 0.100630; # merge with 0-min bug fixed
+use CPAN::Meta::Requirements;
 
 use namespace::autoclean;
 
@@ -56,7 +56,7 @@ sub BUILD {
   my $prereqs = $scanner->scan_string( $perl_code );
 
 Given a string containing Perl source code, this method returns a
-Version::Requirements object describing the modules it requires.
+CPAN::Meta::Requirements object describing the modules it requires.
 
 This method will throw an exception if PPI fails to parse the code.
 
@@ -76,7 +76,7 @@ sub scan_string {
   my $prereqs = $scanner->scan_file( $path );
 
 Given a file path to a Perl document, this method returns a
-Version::Requirements object describing the modules it requires.
+CPAN::Meta::Requirements object describing the modules it requires.
 
 This method will throw an exception if PPI fails to parse the code.
 
@@ -95,7 +95,7 @@ sub scan_file {
 
   my $prereqs = $scanner->scan_ppi_document( $ppi_doc );
 
-Given a L<PPI::Document>, this method returns a Version::Requirements object
+Given a L<PPI::Document>, this method returns a CPAN::Meta::Requirements object
 describing the modules it requires.
 
 =cut
@@ -103,7 +103,7 @@ describing the modules it requires.
 sub scan_ppi_document {
   my ($self, $ppi_doc) = @_;
 
-  my $req = Version::Requirements->new;
+  my $req = CPAN::Meta::Requirements->new;
 
   for my $scanner (@{ $self->{scanners} }) {
     $scanner->scan_for_prereqs($ppi_doc, $req);
