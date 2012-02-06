@@ -578,6 +578,14 @@ prereq_is(
   },
 );
 
+# rolsky says this is a problem case
+prereq_is(
+  q{use Test::Requires 'Foo'},
+  {
+    'Test::Requires' => 0,
+  },
+);
+
 # test cases for POE
 prereq_is(
   q{use POE 'Component::IRC'},
