@@ -156,9 +156,9 @@ representing the code to scan.  By default the "Perl5", "Moose", "TestMore",
 constructing your PrereqScanner:
 
   # Us only the Perl5 scanner:
-  my $scanner = Perl::PrereqScanner->new({ plugins => [ qw(Perl5) ] });
+  my $scanner = Perl::PrereqScanner->new({ scanners => [ qw(Perl5) ] });
 
-  # Use any stock plugins, plus Example:
-  my $scanner = Perl::PrereqScanner->new({ extra_plugins => [ qw(Example) ] });
+  # Use any stock scanners, plus Example:
+  my $scanner = Perl::PrereqScanner->new({ extra_scanners => [ qw(Example) ] });
 
 =cut

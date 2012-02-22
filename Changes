@@ -1,6 +1,8 @@
 Revision history for Perl-PrereqScanner
 
 {{$NEXT}}
+  - fix documentation bug (thanks to Marius Olsthoorn for the report)
+
   - add a test case to prove someone wrong on the internet
 
 1.009     2012-01-01 23:11:51 America/New_York
