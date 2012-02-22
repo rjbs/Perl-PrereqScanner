@@ -1,6 +1,8 @@
 Revision history for Perl-PrereqScanner
 
 {{$NEXT}}
+
+1.010     2012-02-22 10:07:46 America/New_York
   - fix documentation bug (thanks to Marius Olsthoorn for the report)
 
   - add a test case to prove someone wrong on the internet
