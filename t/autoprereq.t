@@ -604,5 +604,23 @@ prereq_is(
   },
 );
 
+# test cases for MooseXTypesCombine
+prereq_is(
+  <<MXTC,
+use parent 'MooseX::Types::Combine';
+
+__PACKAGE__->provide_types_from(qw(
+  MooseX::Types::Moose
+  MooseX::Types::Path::Class
+));
+MXTC
+  {
+    'parent' => '0', # this gets picked up by other scanners
+    'MooseX::Types::Combine' => 0,
+    'MooseX::Types::Moose' => 0,
+    'MooseX::Types::Path::Class' => 0,
+  }
+);
+
 
 done_testing;
