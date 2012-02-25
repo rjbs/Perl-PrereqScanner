@@ -622,5 +622,17 @@ MXTC
   }
 );
 
+prereq_is(
+  <<'MXTC',
+our @ISA = qw{ MooseX::Types::Combine };
+__PACKAGE__ -> provide_types_from ( "MooseX::Types::Moose", 'MooseX::Types::Common::String' );
+MXTC
+  {
+    #'MooseX::Types::Combine' => 0, # FIXME
+    'MooseX::Types::Moose' => 0,
+    'MooseX::Types::Common::String' => 0,
+  }
+);
+
 
 done_testing;

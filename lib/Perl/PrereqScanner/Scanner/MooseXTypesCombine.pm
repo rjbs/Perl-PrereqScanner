@@ -6,7 +6,7 @@ use Moose;
 with 'Perl::PrereqScanner::Scanner';
 # ABSTRACT: scan for type libraries exported with MooseX::Types::Combine
 
-use List::Util qw( first );
+use Params::Util ();
 
 =head1 DESCRIPTION
 
@@ -35,7 +35,6 @@ sub scan_for_prereqs {
   # * find provide_types_from
   # * find quoted words
 
-    use Data::Dumper;
   # foreach $package {
     # TODO: is this the most optimal query to perform first?
     # TODO: is this the only way to use MXTC?
@@ -56,9 +55,8 @@ sub scan_for_prereqs {
 
 sub _parse_mxtypes_from_statement {
   my ($self, $statement) = @_;
-  my @mxtypes;
 
-  # this is naieve and very specific but it matches the MXTC synopsis
+  # this is naive and very specific but it matches the MXTC synopsis
   my $wanted = [
     [ Word     => '__PACKAGE__' ],
     [ Operator => '->' ],
@@ -80,16 +78,15 @@ sub _parse_mxtypes_from_statement {
   return
     unless $list && $list->isa('PPI::Structure::List');
 
-  # surely TIMTOWTDI, but we'll start with this one
-  # TODO: look at the Moose scanner
-  my $expr = $list->find('PPI::Statement::Expression');
-  $expr &&= [ $expr->[0]->children ];
+  my $words = $list->find(sub {
+    $_[1]->isa('PPI::Token::QuoteLike::Words') ||
+    $_[1]->isa('PPI::Token::Quote')
+  }) || [];
 
-  if( @$expr == 1 and $expr->[0]->isa('PPI::Token::QuoteLike::Words') ){
-    push @mxtypes, $expr->[0]->literal;
-  }
-
-  return @mxtypes;
+  return
+    grep { Params::Util::_CLASS($_) }
+    map  { $self->_q_contents($_) }
+      @$words;
 }
 
 1;
