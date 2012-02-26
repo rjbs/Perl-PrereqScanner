@@ -634,5 +634,13 @@ MXTC
   }
 );
 
+prereq_is(
+  <<'MXTC',
+# this package doesn't inherit from MXTC, it just has a similar method call
+__PACKAGE__ -> provide_types_from ( "MooseX::Types::Moose", 'MooseX::Types::Common::String' );
+MXTC
+  {
+  }
+);
 
 done_testing;
