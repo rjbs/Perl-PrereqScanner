@@ -26,55 +26,82 @@ exported via L<MooseX::Types::Combine>.
 
 sub scan_for_prereqs {
   my ($self, $ppi_doc, $req) = @_;
-  my @mxtypes;
 
-  # NOTE: The docs for PPI::Statement say that the package/namespace stuff is not there yet.
-
-  # TODO: What we probably should be doing:
-  # * find package declaration
+  # * split doc into chunks by package (very tricky - PPI does not support this yet)
+  # * for each package:
   # * check for base/parent/isa
   # * find provide_types_from
   # * find quoted words
 
-  # TODO: make sure MXTC is included in the prereqs
-  return unless $self->_inherits_from_moosex_types_combine($ppi_doc);
+  foreach my $chunk ( $ppi_doc ){
+    my @prereqs = $self->_determine_inheritance_from_mxtc($chunk);
 
-  # foreach $package {
-    # TODO: is this the most optimal query to perform first?
-    # TODO: is this the only way to use MXTC?
-    # TODO: find all Statements, then look for this beneath?
+    # short-circuit if it doesn't look like this package isa mxtc
+    next unless @prereqs;
 
     # find the method call that sets the types being exported
-    my $methods = $ppi_doc->find(sub {
+    my $methods = $chunk->find(sub {
       $_[1]->isa('PPI::Token::Word') and $_[1]->content eq 'provide_types_from'
     }) || [];
 
-    # TODO: confirm we're in a package that inherits from MXTC
-
     # parse the statements that contain the method call we just searched for
-    push @mxtypes, $self->_parse_mxtypes_from_statement($_)
+    push @prereqs, $self->_parse_mxtypes_from_statement($_)
       for map { $_->parent } @$methods;
 
-    $req->add_minimum($_ => 0) for @mxtypes;
-  #}
+    $req->add_minimum($_ => 0) for @prereqs;
+  }
 }
 
 # There should be a 'use base', 'use parent', or '@ISA = ' (or 'push @ISA')
 # somewhere that includes MooseX::Types::Combine.
-sub _inherits_from_moosex_types_combine {
+sub _determine_inheritance_from_mxtc {
   my ($self, $ppi_doc) = @_;
+  my @modules;
+  my $mxtc = 'MooseX::Types::Combine';
 
-  # FIXME: this is incredibly naive and should be way more robust.
-  # FIXME: is it in fact better than nothing?
+  # NOTE: Similar logic is found in some of the scanners;
+  # perhaps this could be refactored into something reusable.
 
-  # Short-circuit if that class name doesn't appear in the doc.
-  return $ppi_doc->find_any(sub {
-    (
-      $_[1]->isa('PPI::Token::QuoteLike::Words') ||
-      $_[1]->isa('PPI::Token::Quote')
-    ) &&
-      first { $_ eq 'MooseX::Types::Combine' } $self->_q_contents($_[1])
-  });
+  # find "use base" or "use parent"
+  my $includes = $ppi_doc->find('Statement::Include') || [];
+  for my $node ( @$includes ) {
+    if (grep { $_ eq $node->module } qw{ base parent }) {
+      my @meat = grep {
+           $_->isa('PPI::Token::QuoteLike::Words')
+        || $_->isa('PPI::Token::Quote')
+      } $node->arguments;
+
+      my @parents = map { $self->_q_contents($_) } @meat;
+
+      # the main scanner should pick up base/parent and mxtc
+      # but it's easy enough to add them here, so do it for completeness
+      push @modules, $node->module, $mxtc
+        if first { $_ eq $mxtc } @parents;
+    }
+  }
+
+  return @modules if @modules;
+
+  # if there was no base/parent, look for any statement that mentions @ISA
+  my $isa = $ppi_doc->find(sub {
+    $_[1]->isa('PPI::Token::Symbol') && $_[1]->content eq '@ISA'
+  }) || [];
+  $isa = [ map { $_->parent } @$isa ];
+
+  # See if any of those @ISA statements include our module.
+  # This is far from foolproof, but probably good enough.
+  @modules = $mxtc
+    if first { $_->find_any(sub {
+        (
+          $_[1]->isa('PPI::Token::QuoteLike::Words') ||
+          $_[1]->isa('PPI::Token::Quote')
+        ) &&
+          first { $_ eq $mxtc } $self->_q_contents($_[1])
+      });
+    } @$isa;
+
+  # take care to always return a list
+  return @modules;
 }
 
 sub _parse_mxtypes_from_statement {
@@ -89,6 +116,7 @@ sub _parse_mxtypes_from_statement {
 
   my @tokens = $statement->schildren;
   my $i = 0;
+  # check that the statement matches $wanted
   foreach my $token ( @tokens ){
     my ($type, $content) = @{ $wanted->[$i++] };
     return
@@ -102,6 +130,7 @@ sub _parse_mxtypes_from_statement {
   return
     unless $list && $list->isa('PPI::Structure::List');
 
+  # this expects quoted module names and won't work if vars are passed
   my $words = $list->find(sub {
     $_[1]->isa('PPI::Token::QuoteLike::Words') ||
     $_[1]->isa('PPI::Token::Quote')

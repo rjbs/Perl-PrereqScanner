@@ -615,7 +615,7 @@ __PACKAGE__->provide_types_from(qw(
 ));
 MXTC
   {
-    'parent' => '0', # this gets picked up by other scanners
+    'parent' => '0',
     'MooseX::Types::Combine' => 0,
     'MooseX::Types::Moose' => 0,
     'MooseX::Types::Path::Class' => 0,
@@ -628,7 +628,7 @@ our @ISA = qw{ MooseX::Types::Combine };
 __PACKAGE__ -> provide_types_from ( "MooseX::Types::Moose", 'MooseX::Types::Common::String' );
 MXTC
   {
-    #'MooseX::Types::Combine' => 0, # FIXME
+    'MooseX::Types::Combine' => 0,
     'MooseX::Types::Moose' => 0,
     'MooseX::Types::Common::String' => 0,
   }
