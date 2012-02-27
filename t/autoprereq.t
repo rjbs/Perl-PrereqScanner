@@ -625,7 +625,8 @@ MXTC
 prereq_is(
   <<'MXTC',
 our @ISA = qw{ MooseX::Types::Combine };
-__PACKAGE__ -> provide_types_from ( "MooseX::Types::Moose", 'MooseX::Types::Common::String' );
+__PACKAGE__ -> provide_types_from ( "MooseX::Types::Moose",
+  ('MooseX::Types::Common::String', $var_that_wont_match) );
 MXTC
   {
     'MooseX::Types::Combine' => 0,
