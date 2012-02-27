@@ -6,7 +6,7 @@ use Moose;
 with 'Perl::PrereqScanner::Scanner';
 # ABSTRACT: scan for type libraries exported with MooseX::Types::Combine
 
-use List::Util qw( first );
+use List::MoreUtils qw( any );
 use Params::Util ();
 
 =head1 DESCRIPTION
@@ -76,7 +76,7 @@ sub _determine_inheritance_from_mxtc {
       # the main scanner should pick up base/parent and mxtc
       # but it's easy enough to add them here, so do it for completeness
       push @modules, $node->module, $mxtc
-        if first { $_ eq $mxtc } @parents;
+        if any { $_ eq $mxtc } @parents;
     }
   }
 
@@ -91,12 +91,12 @@ sub _determine_inheritance_from_mxtc {
   # See if any of those @ISA statements include our module.
   # This is far from foolproof, but probably good enough.
   @modules = $mxtc
-    if first { $_->find_any(sub {
+    if any { $_->find_any(sub {
         (
           $_[1]->isa('PPI::Token::QuoteLike::Words') ||
           $_[1]->isa('PPI::Token::Quote')
         ) &&
-          first { $_ eq $mxtc } $self->_q_contents($_[1])
+          any { $_ eq $mxtc } $self->_q_contents($_[1])
       });
     } @$isa;
 
