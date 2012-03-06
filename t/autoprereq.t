@@ -325,7 +325,7 @@ prereq_is(
 prereq_is(
   'extends "Foo::Bar" => { -version => "4.3.2" }, "Foo::Baz" => { -version => 2.44894 };',
   {
-    'Foo::Bar' => '4.3.2',
+    'Foo::Bar' => 'v4.3.2',
     'Foo::Baz' => 2.44894,
   },
 );
@@ -333,7 +333,7 @@ prereq_is(
 prereq_is(
   'with "With::Single" => { -excludes => "method", -version => "1.1.1" }, "With::Double";',
   {
-    'With::Single' => '1.1.1',
+    'With::Single' => 'v1.1.1',
     'With::Double' => 0,
   },
 );
@@ -341,7 +341,7 @@ prereq_is(
 prereq_is(
   'with "With::Single" => { -wow => { -wow => { a => b } }, -version => "1.1.1" }, "With::Double";',
   {
-    'With::Single' => '1.1.1',
+    'With::Single' => 'v1.1.1',
     'With::Double' => 0,
   },
 );
@@ -350,7 +350,7 @@ prereq_is(
   'with "With::Single" => { -exclude => "method", -version => "1.1.1" },
   "With::Double" => { -exclude => "foo" };',
   {
-    'With::Single' => '1.1.1',
+    'With::Single' => 'v1.1.1',
     'With::Double' => 0,
   },
 );

@@ -15,7 +15,7 @@ use String::RewritePrefix 0.005 rewrite => {
   prefixes => { '' => 'Perl::PrereqScanner::Scanner::', '=' => '' },
 };
 
-use CPAN::Meta::Requirements;
+use CPAN::Meta::Requirements 2.120630; # normalized v-strings
 
 use namespace::autoclean;
 
