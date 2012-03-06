@@ -1,6 +1,8 @@
 Revision history for Perl-PrereqScanner
 
 {{$NEXT}}
+  - require CPAN::Meta::Requirements 2.120630 and fix tests to reflect
+    its v-string normalizing behavior
 
 1.010     2012-02-22 10:07:46 America/New_York
   - fix documentation bug (thanks to Marius Olsthoorn for the report)
