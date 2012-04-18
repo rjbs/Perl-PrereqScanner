@@ -1,6 +1,8 @@
 Revision history for Perl-PrereqScanner
 
 {{$NEXT}}
+ - if PPI parsing fails, include PPI::Document->errstr in error message
+   (Christopher J. Madsen)
 
 1.012     2012-06-27 16:17:28 America/New_York
   - fix "with (...)" where spaces occur between with and parenthesized list
