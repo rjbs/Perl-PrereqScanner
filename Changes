@@ -1,6 +1,8 @@
 Revision history for Perl-PrereqScanner
 
 {{$NEXT}}
+ - if PPI parsing fails, include PPI::Document->errstr in error message
+   (Christopher J. Madsen)
 
 1.011     2012-03-07 13:08:49 Europe/Paris
   - require CPAN::Meta::Requirements 2.120630 and fix tests to reflect
