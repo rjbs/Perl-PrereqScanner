@@ -5,6 +5,7 @@ package Perl::PrereqScanner::App;
 use strict;
 use warnings;
 
+use File::Find;
 use File::Spec::Functions qw{ catdir updir };
 use FindBin qw{ $Bin };
 use lib catdir( $Bin, updir, 'lib' );
@@ -21,7 +22,19 @@ GetOptions(
 );
 my $combined = $options{combine} && CPAN::Meta::Requirements->new;
 
-foreach my $file ( @ARGV ) {
+foreach my $file ( @ARGV ? @ARGV : '.' ) {
+    -d $file ? scan_dir( $file ) : scan_file( $file );
+}
+
+sub scan_dir {
+    find( {
+        no_chdir => 1, 
+        wanted => sub { scan_file($_) if /\.(pl|pm|psgi)$/; }
+    }, shift );
+}
+
+sub scan_file {
+    my $file = shift;
     my $prereqs = Perl::PrereqScanner->new->scan_file($file);
     if( $options{combine} ){
         $combined->add_requirements($prereqs);
@@ -44,3 +57,13 @@ sub print_prereqs {
 }
 
 exit;
+
+=head1 SYNOPSIS
+
+    scan_prerequs [--combine] [FILES]
+
+Directories are traversed with L<File::Find> to collect all C<.pl>, C<.pm>, and
+C<.psgi> files. If no files are specified, the current working directory is
+scanned.
+
+=cut
