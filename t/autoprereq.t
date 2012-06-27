@@ -152,16 +152,13 @@ prereq_is(
   },
 );
 
-TODO: {
-  local $TODO = 'fix space-between-with-and-()';
-  prereq_is(
-    'with ("With::QW1", "With::QW2");',
-    {
-      'With::QW1' => 0,
-      'With::QW2' => 0,
-    },
-  );
-}
+prereq_is(
+  'with ("With::QW1", "With::QW2");',
+  {
+    'With::QW1' => 0,
+    'With::QW2' => 0,
+  },
+);
 
 prereq_is(
   "with('Paren::Role');",
