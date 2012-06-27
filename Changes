@@ -2,6 +2,10 @@ Revision history for Perl-PrereqScanner
 
 {{$NEXT}}
 
+1.012     2012-06-27 16:17:28 America/New_York
+  - fix "with (...)" where spaces occur between with and parenthesized list
+    (thanks to celogeek for the failing test)
+
 1.011     2012-03-07 13:08:49 Europe/Paris
   - require CPAN::Meta::Requirements 2.120630 and fix tests to reflect
     its v-string normalizing behavior
