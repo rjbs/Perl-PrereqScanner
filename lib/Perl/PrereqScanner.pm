@@ -65,7 +65,7 @@ This method will throw an exception if PPI fails to parse the code.
 sub scan_string {
   my ($self, $str) = @_;
   my $ppi = PPI::Document->new( \$str );
-  confess "PPI parse failed" unless defined $ppi;
+  confess "PPI parse failed: " . PPI::Document->errstr unless defined $ppi;
 
   return $self->scan_ppi_document( $ppi );
 }
@@ -85,7 +85,8 @@ This method will throw an exception if PPI fails to parse the code.
 sub scan_file {
   my ($self, $path) = @_;
   my $ppi = PPI::Document->new( $path );
-  confess "PPI failed to parse '$path'" unless defined $ppi;
+  confess "PPI failed to parse '$path': " . PPI::Document->errstr
+      unless defined $ppi;
 
   return $self->scan_ppi_document( $ppi );
 }
