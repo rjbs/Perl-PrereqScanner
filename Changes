@@ -1,6 +1,8 @@
 Revision history for Perl-PrereqScanner
 
 {{$NEXT}}
+  - require a more recent PPI for various bugfixes that broke tests
+    (thanks for the report, Salve J. Nilsen)
 
 1.013     2012-07-01 17:21:25 America/New_York
  - make scan_prereqs scan directories recursively (thanks, Jakob Voss)
