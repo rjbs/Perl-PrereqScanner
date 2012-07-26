@@ -1,6 +1,8 @@
 Revision history for Perl-PrereqScanner
 
 {{$NEXT}}
+
+1.014     2012-07-26 13:22:02 America/New_York
   - require a more recent PPI for various bugfixes that broke tests
     (thanks for the report, Salve J. Nilsen)
 
