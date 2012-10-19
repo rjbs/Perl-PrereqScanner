@@ -3,6 +3,8 @@ Revision history for Perl-PrereqScanner
 {{$NEXT}}
   - add Superclass scanner for superclass.pm (thanks, David Golden)
   - make scan_prereqs scan .t files (thanks, David Golden)
+  - udpate scan_prereqs output to produce output that can be piped into cpanm
+    (John SJ Anderson provided this as --cpanm; rjbs made it default)
 
 1.015     2012-12-14 22:07:55 America/New_York
   - document that "no Module" also works (thanks for the report, Toby Inkster)

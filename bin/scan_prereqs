@@ -19,7 +19,12 @@ my %options;
 GetOptions(
   \%options,
   'combine!',
+  'cpanm!',
 );
+
+# --cpanm implies --combine
+$options{combine}++ if $options{cpanm};
+
 my $combined = $options{combine} && CPAN::Meta::Requirements->new;
 
 foreach my $file ( @ARGV ? @ARGV : '.' ) {
@@ -46,24 +51,41 @@ sub scan_file {
 }
 
 if( $options{combine} ){
-    print_prereqs($combined);
+    print_prereqs($combined, $options{cpanm});
 }
 
 sub print_prereqs {
     my $prereqs = shift->as_string_hash;
-    my $max = max map { length } keys %$prereqs;
-    printf( "%-${max}s = %s\n", $_, $prereqs->{$_} )
-        for sort keys %$prereqs;
+    my $cpanm_output = shift;
+
+    if ( $cpanm_output ) {
+        ### FIXME grossly insufficient filtering, should refactor/backport
+        ### filtering from Dist::Zilla::Plugin::AutoPrereqs or something
+        foreach ( sort keys %$prereqs ) {
+            next if $_ eq 'perl';
+            print "$_\n"
+        }
+    }
+    else {
+        my $max = max map { length } keys %$prereqs;
+        printf( "%-${max}s = %s\n", $_, $prereqs->{$_} )
+          for sort keys %$prereqs;
+    }
 }
 
 exit;
 
 =head1 SYNOPSIS
 
-    scan_prereqs [--combine] [DIRS|FILES]
+    scan_prereqs [--combine] [--cpanm] [DIRS | FILES]
 
 Directories are traversed with L<File::Find> to collect all C<.pl>, C<.pm>,
 C<.psgi> and C<.t> files. If no directories or files are specified, the current
 working directory is scanned.
+
+The default is to output requirements on a per-file basis. Specifying
+C<--combine> will instead output a combined listing for all scanned
+files. Specifying C<--cpanm> has the same behavior as C<--combine> but
+produces output suitable for piping into L<App::cpanminus>
 
 =cut
