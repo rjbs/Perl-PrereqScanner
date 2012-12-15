@@ -70,6 +70,11 @@ prereq_is(
   { 'Import::IgnoreAPI' => 0 },
 );
 
+prereq_is(
+  'no Import::IgnoreAPI require => 1;',
+  { 'Import::IgnoreAPI' => 0 },
+);
+
 prereq_is('require Require; Require->VERSION(0.50);', { Require => '0.50' });
 
 prereq_is('require Require; Require->VERSION(+0.50);', { Require => 0 });

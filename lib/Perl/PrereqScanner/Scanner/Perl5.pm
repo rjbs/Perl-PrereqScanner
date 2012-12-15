@@ -12,7 +12,7 @@ This scanner will look for the following indicators:
 
 =begin :list
 
-* plain lines beginning with C<use> or C<require> in your perl modules and scripts, including minimum perl version
+* plain lines beginning with C<use>, C<require>, or C<no> in your perl modules and scripts, including minimum perl version
 
 * regular inheritance declared with the C<base> and C<parent> pragmata
 
@@ -40,7 +40,7 @@ following requirements:
 sub scan_for_prereqs {
   my ($self, $ppi_doc, $req) = @_;
 
-  # regular use and require
+  # regular use, require, and no
   my $includes = $ppi_doc->find('Statement::Include') || [];
   for my $node ( @$includes ) {
     # minimum perl version

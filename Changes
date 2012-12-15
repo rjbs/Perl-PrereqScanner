@@ -1,6 +1,7 @@
 Revision history for Perl-PrereqScanner
 
 {{$NEXT}}
+  - document that "no Module" also works (thanks for the report, Toby Inkster)
 
 1.014     2012-07-26 13:22:02 America/New_York
   - require a more recent PPI for various bugfixes that broke tests
