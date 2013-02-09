@@ -274,6 +274,66 @@ prereq_is(
   },
 );
 
+prereq_is(
+  'use inherit "inherit::QQ1";',
+  {
+    'inherit::QQ1' => 0,
+    inherit => 0,
+  },
+);
+
+prereq_is(
+  'use inherit 10 "inherit::QQ1", 1.23;',
+  {
+    'inherit::QQ1' => 1.23,
+    inherit => 10,
+  },
+);
+
+prereq_is(
+  'use inherit 2 "inherit::QQ1"; use inherit 2 "inherit::QQ2"',
+  {
+    'inherit::QQ1' => 0,
+    'inherit::QQ2' => 0,
+    inherit => 2,
+  },
+);
+
+prereq_is(
+  'use inherit 2 "inherit::QQ1", "v1.2.3"; use inherit 1 "inherit::QQ1", "v1.2.4"',
+  {
+    'inherit::QQ1' => "v1.2.4",
+    inherit => 2,
+  },
+);
+
+prereq_is(
+  'use inherit qw{ inherit::QW1 1.23 };',
+  {
+    'inherit::QW1' => 1.23,
+    inherit => 0,
+  },
+);
+
+# test case for #55713: support for use inherit -norequire
+prereq_is(
+  'use inherit -norequire, qw{ inherit::QW1 inherit::QW2 };',
+  {
+    'inherit::QW1' => 0,
+    'inherit::QW2' => 0,
+    inherit => 0,
+  },
+);
+
+prereq_is(
+  'use inherit -norequire, "inherit::QW1" => 1.23,  "inherit::QW2";',
+  {
+    'inherit::QW1' => 1.23,
+    'inherit::QW2' => 0,
+    inherit => 0,
+  },
+);
+
 # test case for #55851: require $foo
 prereq_is(
   'my $foo = "Carp"; require $foo',
