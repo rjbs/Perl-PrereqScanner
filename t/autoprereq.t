@@ -274,6 +274,66 @@ prereq_is(
   },
 );
 
+prereq_is(
+  'use superclass "superclass::QQ1";',
+  {
+    'superclass::QQ1' => 0,
+    superclass => 0,
+  },
+);
+
+prereq_is(
+  'use superclass 10 "superclass::QQ1", 1.23;',
+  {
+    'superclass::QQ1' => 1.23,
+    superclass => 10,
+  },
+);
+
+prereq_is(
+  'use superclass 2 "superclass::QQ1"; use superclass 2 "superclass::QQ2"',
+  {
+    'superclass::QQ1' => 0,
+    'superclass::QQ2' => 0,
+    superclass => 2,
+  },
+);
+
+prereq_is(
+  'use superclass 2 "superclass::QQ1", "v1.2.3"; use superclass 1 "superclass::QQ1", "v1.2.4"',
+  {
+    'superclass::QQ1' => "v1.2.4",
+    superclass => 2,
+  },
+);
+
+prereq_is(
+  'use superclass qw{ superclass::QW1 1.23 };',
+  {
+    'superclass::QW1' => 1.23,
+    superclass => 0,
+  },
+);
+
+# test case for #55713: support for use superclass -norequire
+prereq_is(
+  'use superclass -norequire, qw{ superclass::QW1 superclass::QW2 };',
+  {
+    'superclass::QW1' => 0,
+    'superclass::QW2' => 0,
+    superclass => 0,
+  },
+);
+
+prereq_is(
+  'use superclass -norequire, "superclass::QW1" => 1.23,  "superclass::QW2";',
+  {
+    'superclass::QW1' => 1.23,
+    'superclass::QW2' => 0,
+    superclass => 0,
+  },
+);
+
 # test case for #55851: require $foo
 prereq_is(
   'my $foo = "Carp"; require $foo',
