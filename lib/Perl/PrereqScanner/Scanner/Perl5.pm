@@ -52,7 +52,7 @@ sub scan_for_prereqs {
     # skip lib.pm
     # lib.pm is not indexed in 02packages, so listing it as a prereq is not a
     # good idea. -- rjbs, 2011-08-17
-    next if grep { $_ eq $node->module } qw{ lib };
+    # next if grep { $_ eq $node->module } qw{ lib };
 
     # inheritance
     if (grep { $_ eq $node->module } qw{ base parent }) {
