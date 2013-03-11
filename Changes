@@ -22,7 +22,7 @@ Revision history for Perl-PrereqScanner
 
 1.011     2012-03-07 13:08:49 Europe/Paris
   - require CPAN::Meta::Requirements 2.120630 and fix tests to reflect
-    its v-string normalizing behavior
+    its v-string normalizing behaviour
 
 1.010     2012-02-22 10:07:46 America/New_York
   - fix documentation bug (thanks to Marius Olsthoorn for the report)
