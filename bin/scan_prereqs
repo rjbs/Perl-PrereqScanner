@@ -60,10 +60,10 @@ exit;
 
 =head1 SYNOPSIS
 
-    scan_prereqs [--combine] [FILES]
+    scan_prereqs [--combine] [DIRS|FILES]
 
 Directories are traversed with L<File::Find> to collect all C<.pl>, C<.pm>,
-C<.psgi> and C<.t> files. If no files are specified, the current working
-directory is scanned.
+C<.psgi> and C<.t> files. If no directories or files are specified, the current
+working directory is scanned.
 
 =cut
