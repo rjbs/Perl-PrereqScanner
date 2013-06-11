@@ -2,7 +2,7 @@ use strict;
 use warnings;
 
 package Perl::PrereqScanner::Scanner::TestRequires;
-use Moose;
+use Moo;
 with 'Perl::PrereqScanner::Scanner';
 # ABSTRACT: scan for Moose sugar indicators of required modules
 

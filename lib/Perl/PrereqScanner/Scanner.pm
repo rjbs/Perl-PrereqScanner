@@ -2,7 +2,8 @@ use strict;
 use warnings;
 
 package Perl::PrereqScanner::Scanner;
-use Moose::Role;
+##use Moose::Role;
+use Moo::Role;
 # ABSTRACT: something that scans for prereqs in a Perl document
 
 =head1 DESCRIPTION
@@ -20,7 +21,7 @@ its findings about the PPI document.
 
 =cut
 
-requires 'scan_for_prereqs';
+requires qw( scan_for_prereqs );
 
 # DO NOT RELY ON THIS EXISTING OUTSIDE OF CORE!
 # THIS MIGHT GO AWAY WITHOUT NOTICE!

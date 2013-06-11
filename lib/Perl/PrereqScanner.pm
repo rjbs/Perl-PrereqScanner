@@ -3,52 +3,97 @@ use strict;
 use warnings;
 
 package Perl::PrereqScanner;
-use Moose;
+# use Moose;
+use Moo;
+use Types::Standard qw( ArrayRef );
+# use Perl::PrereqScanner::Types;
+# we need this due to confess test
+use Carp;
 # ABSTRACT: a tool to scan your Perl code for its prerequisites
 
 use List::Util qw(max);
 use Params::Util qw(_CLASS);
 use Perl::PrereqScanner::Scanner;
 use PPI 1.215; # module_version, bug fixes
+
 use String::RewritePrefix 0.005 rewrite => {
-  -as => '__rewrite_scanner',
-  prefixes => { '' => 'Perl::PrereqScanner::Scanner::', '=' => '' },
+	-as      => '__rewrite_scanner',
+	prefixes => { '' => 'Perl::PrereqScanner::Scanner::', '=' => '' },
 };
 
 use CPAN::Meta::Requirements 2.120630; # normalized v-strings
-
 use namespace::autoclean;
 
-has scanners => (
-  is  => 'ro',
-  isa => 'ArrayRef[Perl::PrereqScanner::Scanner]',
-  init_arg => undef,
-  writer   => '_set_scanners',
+#kpd
+use Data::Printer { caller_info => 1, colored => 1, };
+use Compiler::Lexer;
+
+# has avaible_scanners => (
+	# is       => 'ro',
+	# isa      => 'ArrayRef[Perl::PrereqScanner::Scanner]',
+	# init_arg => undef,
+	# writer   => '_set_avaible_scanners',
+# );
+
+has 'avaible_scanners' => (
+	is       => 'rw',
+	isa      => ArrayRef[],
+	init_arg => undef,
+	writer   => '_set_avaible_scanners',
 );
 
+## used by BUILD hence duble prefex __
 sub __scanner_from_str {
-  my $class = __rewrite_scanner($_[0]);
-  confess "illegal class name: $class" unless _CLASS($class);
-  eval "require $class; 1" or die $@;
-  return $class->new;
+
+	# p $_[0];
+
+	# prefix Perl::PrereqScanner::Scanner::
+	my $class = __rewrite_scanner( $_[0] );
+
+	# p $class;
+	# p _CLASS($class);
+
+## _CLASS from Prams::Util tests for "normalised" form ie: A::B::C
+# it is also doing -> use $class
+	confess "illegal class name: $class" unless _CLASS($class);
+	eval "require $class; 1" or die $@;
+
+	# p $class->new;
+
+	return $class->new;
 }
 
+## used by BUILD hence duble prefex __
 sub __prepare_scanners {
-  my ($self, $specs) = @_;
-  my @scanners = map {; ref $_ ? $_ : __scanner_from_str($_) } @$specs;
+	my ( $self, $specs ) = @_;
 
-  return \@scanners;
+	my @scanners = map { ; ref $_ ? $_ : __scanner_from_str($_) } @$specs;
+
+	# p @scanners;
+	return \@scanners;
 }
+
 
 sub BUILD {
-  my ($self, $arg) = @_;
+	my ( $self, $arg ) = @_;
 
-  my @scanners = @{ $arg->{scanners} || [ qw(Perl5 TestMore Moose Aliased POE TestRequires UseOk) ] };
-  my @extra_scanners = @{ $arg->{extra_scanners} || [] };
+## All
+##  my @scanners = @{ $arg->{scanners} || [ qw(Perl5 TestMore Moose Aliased POE TestRequires UseOk) ] };
 
-  my $scanners = $self->__prepare_scanners([ @scanners, @extra_scanners ]);
+## core
+	my @scanners = @{ $arg->{scanners} || [qw( Perl5 Moose )] };
 
-  $self->_set_scanners($scanners);
+## these are just bastards modifiers, fixing drud, should be run LAST
+	my @bastards = @{ $arg->{scanners} || [ qw( TestMore Aliased POE ) ] };
+
+  my @extra = @{ [ qw( TestRequires UseOk ) ] };
+
+	my @extra_scanners = @{ $arg->{extra_scanners} || [] };
+
+	my $scanners = $self->__prepare_scanners( [ @scanners, @bastards, @extra, @extra_scanners ] );
+
+	$self->_set_avaible_scanners($scanners);
+#	p $self->avaible_scanners;
 }
 
 =method scan_string
@@ -63,11 +108,11 @@ This method will throw an exception if PPI fails to parse the code.
 =cut
 
 sub scan_string {
-  my ($self, $str) = @_;
-  my $ppi = PPI::Document->new( \$str );
-  confess "PPI parse failed: " . PPI::Document->errstr unless defined $ppi;
+	my ( $self, $str ) = @_;
+	my $ppi = PPI::Document->new( \$str );
+	confess "PPI parse failed: " . PPI::Document->errstr unless defined $ppi;
 
-  return $self->scan_ppi_document( $ppi );
+	return $self->scan_ppi_document($ppi);
 }
 
 
@@ -83,12 +128,21 @@ This method will throw an exception if PPI fails to parse the code.
 =cut
 
 sub scan_file {
-  my ($self, $path) = @_;
-  my $ppi = PPI::Document->new( $path );
-  confess "PPI failed to parse '$path': " . PPI::Document->errstr
-      unless defined $ppi;
+	my ( $self, $path ) = @_;
+	my $ppi = PPI::Document->new($path);
+	confess "PPI failed to parse '$path': " . PPI::Document->errstr
+		unless defined $ppi;
 
-  return $self->scan_ppi_document( $ppi );
+	return $self->scan_ppi_document($ppi);
+}
+
+sub scan_file_fast {
+	my ( $self, $path ) = @_;
+	my $ppi = PPI::Document->new($path);
+	confess "PPI failed to parse '$path': " . PPI::Document->errstr
+		unless defined $ppi;
+
+	return $self->scan_ppi_document($ppi);
 }
 
 
@@ -102,15 +156,28 @@ describing the modules it requires.
 =cut
 
 sub scan_ppi_document {
-  my ($self, $ppi_doc) = @_;
+	my ( $self, $ppi_doc ) = @_;
 
-  my $req = CPAN::Meta::Requirements->new;
+	my $req = CPAN::Meta::Requirements->new;
+#	p $req;
+	# p $self->avaible_scanners;
+	for my $scanner ( @{ $self->avaible_scanners } ) {
+		$scanner->scan_for_prereqs( $ppi_doc, $req );
+	}
+# p $req;
+	return $req;
+}
 
-  for my $scanner (@{ $self->{scanners} }) {
-    $scanner->scan_for_prereqs($ppi_doc, $req);
-  }
+sub scan_comp_lex_document {
+	my ( $self, $ppi_doc ) = @_;
 
-  return $req;
+	my $req = CPAN::Meta::Requirements->new;
+
+	for my $scanner ( @{ $self->avaible_scanners } ) {
+		$scanner->scan_for_prereqs( $ppi_doc, $req );
+	}
+
+	return $req;
 }
 
 1;
