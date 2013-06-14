@@ -1,122 +1,123 @@
 Revision history for Perl-PrereqScanner
 
 {{$NEXT}}
+ - remove skip for 'lib', tweak tests to comply (bowtie)
+ - switch to Moo (bowtie)
 
-1.015     2012-12-14 22:07:55 America/New_York
-  - document that "no Module" also works (thanks for the report, Toby Inkster)
+1.015 2012-12-14T22:07:55Z
+ - document that "no Module" also works (thanks for the report, Toby
+   Inkster)
 
-1.014     2012-07-26 13:22:02 America/New_York
-  - require a more recent PPI for various bugfixes that broke tests
-    (thanks for the report, Salve J. Nilsen)
+1.014 2012-07-26T13:22:02Z
+ - require a more recent PPI for various bugfixes that broke tests (thanks
+   for the report, Salve J. Nilsen)
 
-1.013     2012-07-01 17:21:25 America/New_York
+1.013 2012-07-01T17:21:25Z
  - make scan_prereqs scan directories recursively (thanks, Jakob Voss)
-
  - if PPI parsing fails, include PPI::Document->errstr in error message
    (Christopher J. Madsen)
 
-1.012     2012-06-27 16:17:28 America/New_York
-  - fix "with (...)" where spaces occur between with and parenthesized list
-    (thanks to celogeek for the failing test)
+1.012 2012-06-27T16:17:28Z
+ - fix "with (...)" where spaces occur between with and parenthesized list
+   (thanks to celogeek for the failing test)
 
-1.011     2012-03-07 13:08:49 Europe/Paris
-  - require CPAN::Meta::Requirements 2.120630 and fix tests to reflect
-    its v-string normalizing behavior
+1.011 2012-03-07T13:08:49Z
+ - require CPAN::Meta::Requirements 2.120630 and fix tests to reflect its
+   v-string normalizing behaviour
 
-1.010     2012-02-22 10:07:46 America/New_York
-  - fix documentation bug (thanks to Marius Olsthoorn for the report)
+1.010 2012-02-22T10:07:46Z
+ - fix documentation bug (thanks to Marius Olsthoorn for the report)
+ - add a test case to prove someone wrong on the internet
 
-  - add a test case to prove someone wrong on the internet
-
-1.009     2012-01-01 23:11:51 America/New_York
+1.009 2012-01-01T23:11:51Z
  - switch from Version::Requirements to CPAN::Meta::Requirements
 
-1.008     2011-11-01 10:35:46 Europe/Paris
+1.008 2011-11-01T10:35:46Z
  - fix rt#72062 - look for "require Module; Module->VERSION(min);"
    (Christopher J. Madsen)
 
-1.007     2011-08-31 09:22:12 Europe/Paris
+1.007 2011-08-31T09:22:12Z
  - new option --combine for scan_prereqs script (randy stauner)
 
-1.006     2011-08-20 14:03:24 Europe/Paris
-  - add the POE scanner for POE components (David Golden)
+1.006 2011-08-20T14:03:24Z
+ - add the POE scanner for POE components (David Golden)
 
-1.005     2011-08-17 18:39:22 America/New_York
-  - stop stripping "always core" prereqs like strict and warnings
+1.005 2011-08-17T18:39:22Z
+ - stop stripping "always core" prereqs like strict and warnings
+ - add the Aliased scanner for aliased.pm (thanks, David Golden)
 
-  - add the Aliased scanner for aliased.pm (thanks, David Golden)
+1.004 2011-05-30T21:02:52Z
+ - avoid calling a method on undef (i.e., cope with PPI doing surprising
+   things)
 
-1.004     2011-05-30 21:02:52 America/New_York
-  - avoid calling a method on undef (i.e., cope with PPI doing surprising
-    things)
+1.003 2011-05-16T15:46:02Z
+ - fix a bug that caused things like "within" and "trextends" to trigger
+   the Moose scanner
 
-1.003     2011-05-16 15:46:02 America/New_York
-  - fix a bug that caused things like "within" and "trextends" to trigger
-    the Moose scanner
-
-1.002     2011-02-02 10:21:55 Europe/Paris
+1.002 2011-02-02T10:21:55Z
  - fix rt#61608 - missing description in whatisentry for TestMore.pm
 
-1.001     2011-01-05 16:35:26 Europe/Paris
+1.001 2011-01-05T16:35:26Z
  - fix bin/prereqs (randy stauner)
 
-1.000     2010-12-06 17:54:20 Europe/Paris
+1.000 2010-12-06T17:54:20Z
  - fix rt#59016 - support for moose 1.03 version declarations (apocalypse)
 
-0.101892  2010-12-03 17:15:25 Europe/Paris
+0.101892 2010-12-03T17:15:25Z
  - throw an exception if PPI fails to parse code (vyacheslav matjukhin)
 
-0.101891  2010-09-05 15:31:49 America/New_York
+0.101891 2010-09-05T15:31:49Z
  - add a core scanner for Test::More's done_testing
  - do not detect prereqs for invalid class names in Moose scanner
  - added TODO tests for "with('Name')" -- note the parens
 
-0.101890  2010-07-08 18:45:57 Europe/Paris
+0.101890 2010-07-08T18:45:57Z
  - fix rt#59121 - remove lurking temp files
 
-0.101480  2010-05-28 08:41:56 America/New_York
+0.101480 2010-05-28T08:41:56Z
  - bump prereq version of String::RewritePrefix
 
-0.101250  2010-05-05 09:32:19 America/New_York
+0.101250 2010-05-05T09:32:19Z
  - convert to Moose object system
  - add the Scanner role and pluggable scanners
 
-0.100960  2010-04-06 17:03:46 Europe/Paris
+0.100960 2010-04-06T17:03:46Z
  - add 'feature' pragma to skip list (mark gardner)
  - added some tests (mark gardner)
 
-0.100830  2010-03-24 13:37:31 Europe/Paris
+0.100830 2010-03-24T13:37:31Z
  - fix rt#55713: support for use parent -norequire
  - fix rt#55851: 'require $foo;' shouldn't add any prereq
 
-0.100690  2010-03-10 21:06:49 America/New_York
+0.100690 2010-03-10T21:06:49Z
  - remove another 5.10-ism
 
-0.100680  2010-03-09 19:10:27 America/New_York
+0.100680 2010-03-09T19:10:27Z
  - fix PPI version required (thanks, Christopher J. Madsen)
 
-0.100630  2010-03-04 22:58:55 America/New_York
+0.100630 2010-03-04T22:58:55Z
  - work on perl 5.8
  - require a newer Version::Requirements with critical bugfix
 
-0.100521  2010-02-21 23:20:55 America/New_York
+0.100521 2010-02-21T23:20:55Z
  - scanning methods now return Version::Requirements objects
 
-0.100520  2010-02-21 15:55:31 America/New_York
+0.100520 2010-02-21T15:55:31Z
  - add perl prereq to Makefile.PL to stop test failures
 
-0.100510  2010-02-20 17:38:59 America/New_York
+0.100510 2010-02-20T17:38:59Z
  - typo fixes (ricardo signes)
  - new script scan_prereqs
  - prereq accounting now managed by Version::Requirements
  - easier-to-link-to Pod
 
-0.100491  2010-02-18 19:16:15 Europe/Paris
+0.100491 2010-02-18T19:16:15Z
  - added a changelog (this file)
 
-0.100490 2010-02-18 19:10:32 Europe/Paris
+0.100490 2010-02-18T19:10:32Z
  - factored out from dist-zilla-plugin-autoprereq
  - fix qw and base-ver parent-ver (ricardo signes)
  - require base if version given (ricardo signes)
  - refactor with/extends (ricardo signes)
  - new methods scan_string() / scan_file()
+

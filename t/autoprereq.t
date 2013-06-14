@@ -282,7 +282,7 @@ prereq_is(
 
 prereq_is(
   q{use strict; use warnings; use lib '.'; use feature ':5.10';},
-  { strict => 0, warnings => 0, feature => 0 },
+  { strict => 0, warnings => 0, lib => 0, feature => 0 },
 );
 
 prereq_is(
