@@ -3,13 +3,14 @@ use strict;
 use warnings;
 
 package Perl::PrereqScanner;
+# ABSTRACT: a tool to scan your Perl code for its prerequisites
+
 # use Moose;
 use Moo;
 use Types::Standard qw( ArrayRef );
 # use Perl::PrereqScanner::Types;
 # we need this due to confess test
 use Carp;
-# ABSTRACT: a tool to scan your Perl code for its prerequisites
 
 use List::Util qw(max);
 use Params::Util qw(_CLASS);
@@ -36,10 +37,10 @@ use Compiler::Lexer;
 # );
 
 has 'avaible_scanners' => (
-	is       => 'rw',
+	is       => 'rwp',
 	isa      => ArrayRef[],
 	init_arg => undef,
-	writer   => '_set_avaible_scanners',
+#	writer   => '_set_avaible_scanners', # done by rwp
 );
 
 ## used by BUILD hence duble prefex __
