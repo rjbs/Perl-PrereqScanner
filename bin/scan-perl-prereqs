@@ -1,0 +1,93 @@
+#!/usr/bin/perl
+package Perl::PrereqScanner::App;
+# ABSTRACT: scan your working dir for likely prereqs
+
+use strict;
+use warnings;
+
+use File::Find;
+use File::Spec::Functions qw{ catdir updir };
+use FindBin qw{ $Bin };
+use lib catdir( $Bin, updir, 'lib' );
+
+use List::Util qw{ max };
+use Perl::PrereqScanner;
+use CPAN::Meta::Requirements ();
+use Scalar::Util qw(looks_like_number);
+
+use Getopt::Long::Descriptive;
+
+my ($opt, $usage) = describe_options(
+  'scan-perl-prereqs %o [DIR|FILES]',
+  [ 'pretty'  => 'format for human consumption, not toolchain' ],
+  [ 'by-file' => 'emit one stanza per file'  ],
+);
+
+foreach my $file ( @ARGV ? @ARGV : '.' ) {
+    -d $file ? scan_dir( $file ) : scan_file( $file );
+}
+
+my %result;
+
+sub scan_dir {
+    find( {
+        no_chdir => 1,
+        wanted => sub { scan_file($_) if /\.(pl|pm|psgi|t)$/; }
+    }, shift );
+}
+
+sub scan_file {
+    my $file = shift;
+
+    my $key = $opt->by_file ? $file : '';
+    $result{ $key } ||= CPAN::Meta::Requirements->new;
+
+    $result{ $key }->add_requirements(
+        Perl::PrereqScanner->new->scan_file($file)
+    );
+}
+
+for my $file (sort keys %result) {
+    print "## $file\n" if length $file and keys(%result) > 1;
+    print_prereqs($result{$file});
+}
+
+sub print_prereqs {
+    my $prereqs = shift->as_string_hash;
+
+    if( $opt->pretty ) {
+        my $max = max map { length } keys %$prereqs;
+        printf( "%-${max}s = %s\n", $_, $prereqs->{$_} )
+          for sort keys %$prereqs;
+    } else {
+        ### FIXME grossly insufficient filtering, should refactor/backport
+        ### filtering from Dist::Zilla::Plugin::AutoPrereqs or something
+        foreach ( sort keys %$prereqs ) {
+            next if $_ eq 'perl';
+            my $v = $prereqs->{$_} || 0;
+            $v = qq{"$v"} unless looks_like_number($v);
+            print($v eq '0' ? qq{$_\n} : qq{$_~$v\n});
+        }
+    }
+}
+
+exit;
+
+=head1 SYNOPSIS
+
+    scan-perl-prereqs [--by-file] [--pretty] [DIRS | FILES]
+
+Directories are traversed with L<File::Find> to collect all C<.pl>, C<.pm>,
+C<.psgi> and C<.t> files. If no directories or files are specified, the current
+working directory is scanned.
+
+The default is to print a single combined list suitable for piping to C<cpanm>
+or similar tools.
+
+The C<--by-file> switch will print results grouped by the files in which they
+were found.
+
+The C<--pretty> swith will print results in a more human-friendly format, with
+names and versions vertically aligned.
+
+=cut
