@@ -23,7 +23,7 @@ use String::RewritePrefix 0.005 rewrite => {
 };
 
 use CPAN::Meta::Requirements 2.120630; # normalized v-strings
-use namespace::autoclean;
+# use namespace::autoclean;
 
 #kpd
 use Data::Printer { caller_info => 1, colored => 1, };
