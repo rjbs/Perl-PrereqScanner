@@ -30,6 +30,8 @@ GetOptions(
 ) or pod2usage(2);
 pod2usage(1) if $help;
 
+# ToDo add help for explict --no-combine
+#
 #######
 
 
