@@ -2,6 +2,7 @@ Revision history for Perl-PrereqScanner
 
 {{$NEXT}}
  - remove skip for 'lib', tweak tests to comply (bowtie)
+ - switch to Moo (bowtie)
 
 1.015 2012-12-14T22:07:55Z
  - document that "no Module" also works (thanks for the report, Toby
