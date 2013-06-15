@@ -7,9 +7,7 @@ package Perl::PrereqScanner;
 
 use Moo;
 use Types::Standard qw( ArrayRef );
-# we need this due to confess test
 use Carp;
-
 
 use List::Util qw(max);
 use Params::Util qw(_CLASS);
@@ -22,25 +20,12 @@ use String::RewritePrefix 0.005 rewrite => {
 
 use CPAN::Meta::Requirements 2.120630; # normalized v-strings
 
-#use namespace::autoclean;
-
-#has scanners => (
-#  is  => 'ro',
-#  isa => 'ArrayRef[Perl::PrereqScanner::Scanner]',
-#  init_arg => undef,
-#  writer   => '_set_scanners',
-#);
-
-# change name for readablity
 has 'avaible_scanners' => (
 	is       => 'rwp',
 	isa      => ArrayRef[],
 	init_arg => undef,
-#	writer   => '_set_avaible_scanners', # done by rwp
 );
 
-
-## used by BUILD hence duble prefex __
 sub __scanner_from_str {
   my $class = __rewrite_scanner($_[0]);
   confess "WARNING: Illegal class name: $class" unless _CLASS($class);
@@ -48,7 +33,6 @@ sub __scanner_from_str {
   return $class->new;
 }
 
-## used by BUILD hence duble prefex __
 sub __prepare_scanners {
   my ($self, $specs) = @_;
   my @scanners = map {; ref $_ ? $_ : __scanner_from_str($_) } @$specs;
