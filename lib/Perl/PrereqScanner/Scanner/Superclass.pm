@@ -2,7 +2,7 @@ use strict;
 use warnings;
 
 package Perl::PrereqScanner::Scanner::Superclass;
-use Moose;
+use Moo;
 with 'Perl::PrereqScanner::Scanner';
 # ABSTRACT: scan for modules loaded with superclass.pm
 

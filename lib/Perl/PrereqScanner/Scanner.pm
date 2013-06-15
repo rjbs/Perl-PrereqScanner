@@ -2,7 +2,7 @@ use strict;
 use warnings;
 
 package Perl::PrereqScanner::Scanner;
-use Moose::Role;
+use Moo::Role;
 # ABSTRACT: something that scans for prereqs in a Perl document
 
 =head1 DESCRIPTION

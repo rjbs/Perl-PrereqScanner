@@ -3,8 +3,11 @@ use strict;
 use warnings;
 
 package Perl::PrereqScanner;
-use Moose;
 # ABSTRACT: a tool to scan your Perl code for its prerequisites
+
+use Moo;
+use Types::Standard qw( ArrayRef );
+use Carp;
 
 use List::Util qw(max);
 use Params::Util qw(_CLASS);
@@ -17,18 +20,15 @@ use String::RewritePrefix 0.005 rewrite => {
 
 use CPAN::Meta::Requirements 2.120630; # normalized v-strings
 
-use namespace::autoclean;
-
-has scanners => (
-  is  => 'ro',
-  isa => 'ArrayRef[Perl::PrereqScanner::Scanner]',
-  init_arg => undef,
-  writer   => '_set_scanners',
+has 'avaible_scanners' => (
+	is       => 'rwp',
+	isa      => ArrayRef[],
+	init_arg => undef,
 );
 
 sub __scanner_from_str {
   my $class = __rewrite_scanner($_[0]);
-  confess "illegal class name: $class" unless _CLASS($class);
+  confess "WARNING: Illegal class name: $class" unless _CLASS($class);
   eval "require $class; 1" or die $@;
   return $class->new;
 }
@@ -48,7 +48,7 @@ sub BUILD {
 
   my $scanners = $self->__prepare_scanners([ @scanners, @extra_scanners ]);
 
-  $self->_set_scanners($scanners);
+  $self->_set_avaible_scanners($scanners);
 }
 
 =method scan_string
@@ -106,7 +106,7 @@ sub scan_ppi_document {
 
   my $req = CPAN::Meta::Requirements->new;
 
-  for my $scanner (@{ $self->{scanners} }) {
+  for my $scanner (@{ $self->avaible_scanners }) {
     $scanner->scan_for_prereqs($ppi_doc, $req);
   }
 
