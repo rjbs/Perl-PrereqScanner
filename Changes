@@ -1,10 +1,13 @@
 Revision history for Perl-PrereqScanner
 
 {{$NEXT}}
+  - new executable is bundled, scan-perl-prereqs, to take the plae of
+    scan_prereqs;  it has cpanm-friendly output by default, but supports
+    --pretty and --by-file (thanks to John SJ Anderson for some of the work on
+    this!)
+
   - add Superclass scanner for superclass.pm (thanks, David Golden!)
   - make scan_prereqs scan .t files (thanks, David Golden!)
-  - udpate scan_prereqs output to produce output that can be piped into cpanm
-    (John SJ Anderson provided this as --cpanm; rjbs made it default)
   - add scan_module method (thanks, Neil Bowers!)
   - lib.pm is now indexed in 02packages; stop skipping it (thanks, Kevin
     Dawson!)
