@@ -3,8 +3,9 @@ use strict;
 use warnings;
 
 package Perl::PrereqScanner;
-use Moose;
 # ABSTRACT: a tool to scan your Perl code for its prerequisites
+
+use Moose;
 
 use List::Util qw(max);
 use Params::Util qw(_CLASS);
