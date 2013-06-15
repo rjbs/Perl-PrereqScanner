@@ -71,7 +71,6 @@ sub scan_string {
   return $self->scan_ppi_document( $ppi );
 }
 
-
 =method scan_file
 
   my $prereqs = $scanner->scan_file( $path );
@@ -91,7 +90,6 @@ sub scan_file {
 
   return $self->scan_ppi_document( $ppi );
 }
-
 
 =method scan_ppi_document
 

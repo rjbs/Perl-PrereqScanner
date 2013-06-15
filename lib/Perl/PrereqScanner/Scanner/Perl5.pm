@@ -7,7 +7,6 @@ package Perl::PrereqScanner::Scanner::Perl5;
 use Moose;
 with 'Perl::PrereqScanner::Scanner';
 
-
 =head1 DESCRIPTION
 
 This scanner will look for the following indicators:
@@ -113,6 +112,5 @@ sub _check_required_version {
 
   return;                       # No minimum version found
 } # end _check_required_version
-
 
 1;

@@ -7,7 +7,6 @@ package Perl::PrereqScanner::Scanner::Superclass;
 use Moose;
 with 'Perl::PrereqScanner::Scanner';
 
-
 =head1 DESCRIPTION
 
 This scanner will look for dependencies from the L<superclass> module:
