@@ -2,9 +2,11 @@ use strict;
 use warnings;
 
 package Perl::PrereqScanner::Scanner::Perl5;
+# ABSTRACT: scan for core Perl 5 language indicators of required modules
+
 use Moose;
 with 'Perl::PrereqScanner::Scanner';
-# ABSTRACT: scan for core Perl 5 language indicators of required modules
+
 
 =head1 DESCRIPTION
 

@@ -2,9 +2,10 @@ use strict;
 use warnings;
 
 package Perl::PrereqScanner::Scanner::Aliased;
+# ABSTRACT: scan for OO module aliases via aliased.pm
+
 use Moose;
 with 'Perl::PrereqScanner::Scanner';
-# ABSTRACT: scan for OO module aliases via aliased.pm
 
 =head1 DESCRIPTION
 

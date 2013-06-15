@@ -2,9 +2,10 @@ use strict;
 use warnings;
 
 package Perl::PrereqScanner::Scanner::Moose;
+# ABSTRACT: scan for Moose sugar indicators of required modules
+
 use Moose;
 with 'Perl::PrereqScanner::Scanner';
-# ABSTRACT: scan for Moose sugar indicators of required modules
 
 =head1 DESCRIPTION
 
