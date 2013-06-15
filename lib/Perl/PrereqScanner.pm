@@ -28,7 +28,7 @@ has scanners => (
 
 sub __scanner_from_str {
   my $class = __rewrite_scanner($_[0]);
-  confess "WARNING: Illegal class name: $class" unless _CLASS($class);
+  confess "Illegal class name: $class" unless _CLASS($class);
   eval "require $class; 1" or die $@;
   return $class->new;
 }
