@@ -14,13 +14,25 @@ use List::Util qw{ max };
 use Perl::PrereqScanner;
 use CPAN::Meta::Requirements ();
 
-use Getopt::Long qw{ GetOptions };
-my %options;
+#######
+# Options and Menu
+#######
+use Getopt::Long;
+Getopt::Long::Configure('bundling');
+use Pod::Usage;
+my $help;
+my $combine = 0;
 GetOptions(
-  \%options,
-  'combine!',
-);
-my $combined = $options{combine} && CPAN::Meta::Requirements->new;
+	'combine!' => \$combine,
+	'help|h|?' => \$help,
+) or pod2usage(2);
+pod2usage(1) if $help;
+
+# ToDo add help for explict --no-combine
+
+#######
+
+my $combined = $combine && CPAN::Meta::Requirements->new;
 
 foreach my $file ( @ARGV ? @ARGV : '.' ) {
     -d $file ? scan_dir( $file ) : scan_file( $file );
@@ -36,7 +48,7 @@ sub scan_dir {
 sub scan_file {
     my $file = shift;
     my $prereqs = Perl::PrereqScanner->new->scan_file($file);
-    if( $options{combine} ){
+    if( $combine ){
         $combined->add_requirements($prereqs);
     }
     else {
@@ -45,7 +57,7 @@ sub scan_file {
     }
 }
 
-if( $options{combine} ){
+if( $combine ){
     print_prereqs($combined);
 }
 
