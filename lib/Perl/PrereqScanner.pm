@@ -6,7 +6,7 @@ package Perl::PrereqScanner;
 # ABSTRACT: a tool to scan your Perl code for its prerequisites
 
 use Moo;
-use Types::Standard qw( ArrayRef );
+use MooX::Types::MooseLike::Base qw( ArrayRef );
 use Carp;
 
 use List::Util qw(max);
@@ -20,7 +20,7 @@ use String::RewritePrefix 0.005 rewrite => {
 
 use CPAN::Meta::Requirements 2.120630; # normalized v-strings
 
-has 'avaible_scanners' => (
+has scanners => (
 	is       => 'rwp',
 	isa      => ArrayRef[],
 	init_arg => undef,
@@ -48,7 +48,7 @@ sub BUILD {
 
   my $scanners = $self->__prepare_scanners([ @scanners, @extra_scanners ]);
 
-  $self->_set_avaible_scanners($scanners);
+  $self->_set_scanners($scanners);
 }
 
 =method scan_string
@@ -106,7 +106,7 @@ sub scan_ppi_document {
 
   my $req = CPAN::Meta::Requirements->new;
 
-  for my $scanner (@{ $self->avaible_scanners }) {
+  for my $scanner (@{ $self->{scanners} }) {
     $scanner->scan_for_prereqs($ppi_doc, $req);
   }
 
