@@ -6,6 +6,8 @@ Revision history for Perl-PrereqScanner
   - udpate scan_prereqs output to produce output that can be piped into cpanm
     (John SJ Anderson provided this as --cpanm; rjbs made it default)
   - add scan_module method (thanks, Neil Bowers!)
+  - lib.pm is now indexed in 02packages; stop skipping it (thanks, Kevin
+    Dawson!)
 
 1.015     2012-12-14 22:07:55 America/New_York
   - document that "no Module" also works (thanks for the report, Toby Inkster)
