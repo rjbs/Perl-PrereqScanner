@@ -2,9 +2,10 @@ use strict;
 use warnings;
 
 package Perl::PrereqScanner::Scanner::Perl5;
+# ABSTRACT: scan for core Perl 5 language indicators of required modules
+
 use Moose;
 with 'Perl::PrereqScanner::Scanner';
-# ABSTRACT: scan for core Perl 5 language indicators of required modules
 
 =head1 DESCRIPTION
 
@@ -48,11 +49,6 @@ sub scan_for_prereqs {
       $req->add_minimum(perl => $node->version);
       next;
     }
-
-    # skip lib.pm
-    # lib.pm is not indexed in 02packages, so listing it as a prereq is not a
-    # good idea. -- rjbs, 2011-08-17
-    next if grep { $_ eq $node->module } qw{ lib };
 
     # inheritance
     if (grep { $_ eq $node->module } qw{ base parent }) {
@@ -116,6 +112,5 @@ sub _check_required_version {
 
   return;                       # No minimum version found
 } # end _check_required_version
-
 
 1;

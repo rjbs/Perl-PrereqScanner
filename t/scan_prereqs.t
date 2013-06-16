@@ -41,16 +41,6 @@ strict      = 0
 warnings    = 0
 OUTPUT
 
-    [cpanm => '--cpanm' => <<OUTPUT],
-Exporter
-File::Spec
-File::Temp
-IO::File
-Time::Local
-strict
-warnings
-OUTPUT
-
 ) {
     my ( $name, $args, $exp ) = @$test;
     my $command = "$^X $script $args $files";

@@ -21,7 +21,15 @@ my ($opt, $usage) = describe_options(
   'scan-perl-prereqs %o [DIR|FILES]',
   [ 'pretty'  => 'format for human consumption, not toolchain' ],
   [ 'by-file' => 'emit one stanza per file'  ],
+
+  [ 'version' => 'print usage message and exit' ],
+  [ 'help'    => 'print version and exit' ],
 );
+
+print('scan-perl-prereqs v' . (Perl::PrereqScanner->VERSION || 'DEV') . "\n")
+  if $opt->version;
+print($usage->text) if $opt->help;
+exit if $opt->version or $opt->help;
 
 foreach my $file ( @ARGV ? @ARGV : '.' ) {
     -d $file ? scan_dir( $file ) : scan_file( $file );

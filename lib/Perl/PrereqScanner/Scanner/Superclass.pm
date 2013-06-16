@@ -2,9 +2,10 @@ use strict;
 use warnings;
 
 package Perl::PrereqScanner::Scanner::Superclass;
+# ABSTRACT: scan for modules loaded with superclass.pm
+
 use Moose;
 with 'Perl::PrereqScanner::Scanner';
-# ABSTRACT: scan for modules loaded with superclass.pm
 
 =head1 DESCRIPTION
 

@@ -3,8 +3,9 @@ use strict;
 use warnings;
 
 package Perl::PrereqScanner;
-use Moose;
 # ABSTRACT: a tool to scan your Perl code for its prerequisites
+
+use Moose;
 
 use List::Util qw(max);
 use Params::Util qw(_CLASS);
@@ -70,7 +71,6 @@ sub scan_string {
   return $self->scan_ppi_document( $ppi );
 }
 
-
 =method scan_file
 
   my $prereqs = $scanner->scan_file( $path );
@@ -90,7 +90,6 @@ sub scan_file {
 
   return $self->scan_ppi_document( $ppi );
 }
-
 
 =method scan_ppi_document
 
@@ -113,6 +112,27 @@ sub scan_ppi_document {
   return $req;
 }
 
+=method scan_module
+
+  my $prereqs = $scanner->scan_module( $module_name );
+
+Given the name of a module, eg C<'PPI::Document'>,
+this method returns a CPAN::Meta::Requirements object
+describing the modules it requires.
+
+=cut
+
+sub scan_module {
+  my ($self, $module_name) = @_;
+
+  require Module::Path;
+  if (defined(my $path = Module::Path::module_path($module_name))) {
+    return $self->scan_file($path);
+  }
+
+  confess "Failed to find file for module '$module_name'";
+}
+
 1;
 __END__
 
@@ -126,6 +146,7 @@ __END__
   my $prereqs = $scanner->scan_ppi_document( $ppi_doc );
   my $prereqs = $scanner->scan_file( $file_path );
   my $prereqs = $scanner->scan_string( $perl_code );
+  my $prereqs = $scanner->scan_module( $module_name );
 
 =head1 DESCRIPTION
 
