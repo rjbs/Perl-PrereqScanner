@@ -1,6 +1,8 @@
 Revision history for Perl-PrereqScanner
 
 {{$NEXT}}
+
+1.016     2013-06-19 21:27:44 America/New_York
   - new executable is bundled, scan-perl-prereqs, to take the plae of
     scan_prereqs;  it has cpanm-friendly output by default, but supports
     --pretty and --by-file (thanks to John SJ Anderson for some of the work on
