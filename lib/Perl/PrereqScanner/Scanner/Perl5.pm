@@ -4,7 +4,7 @@ use warnings;
 package Perl::PrereqScanner::Scanner::Perl5;
 # ABSTRACT: scan for core Perl 5 language indicators of required modules
 
-use Moose;
+use Moo;
 with 'Perl::PrereqScanner::Scanner';
 
 =head1 DESCRIPTION

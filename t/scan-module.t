@@ -50,9 +50,11 @@ module_prereq_is(
   'Perl::PrereqScanner',
   {
     'CPAN::Meta::Requirements'      => '2.120630',
+	'Carp'                          => '1.20',
     'List::Util'                    => 0,
     'Module::Path'                  => 0,
-    'Moose'                         => 0,
+    'Moo'                           => '1.002',
+    'MooX::Types::MooseLike::Base'  => 0,
     'PPI'                           => '1.215',
     'Params::Util'                  => 0,
     'Perl::PrereqScanner::Scanner'  => 0,
@@ -65,3 +67,5 @@ module_prereq_is(
 );
 
 done_testing;
+
+

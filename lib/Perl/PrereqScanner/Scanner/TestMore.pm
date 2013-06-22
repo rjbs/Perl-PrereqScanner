@@ -4,9 +4,9 @@ use warnings;
 package Perl::PrereqScanner::Scanner::TestMore;
 # ABSTRACT: scanner to find recent Test::More usage
 
-use Moose;
-use List::MoreUtils 'none';
+use Moo;
 with 'Perl::PrereqScanner::Scanner';
+use List::MoreUtils 'none';
 
 sub scan_for_prereqs {
   my ($self, $ppi_doc, $req) = @_;

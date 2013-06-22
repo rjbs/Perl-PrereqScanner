@@ -5,7 +5,9 @@ use warnings;
 package Perl::PrereqScanner;
 # ABSTRACT: a tool to scan your Perl code for its prerequisites
 
-use Moose;
+use Moo 1.002;
+use MooX::Types::MooseLike::Base qw( ArrayRef );
+use Carp 1.20;
 
 use List::Util qw(max);
 use Params::Util qw(_CLASS);
@@ -21,10 +23,9 @@ use CPAN::Meta::Requirements 2.120630; # normalized v-strings
 use namespace::autoclean;
 
 has scanners => (
-  is  => 'ro',
-  isa => 'ArrayRef[Perl::PrereqScanner::Scanner]',
-  init_arg => undef,
-  writer   => '_set_scanners',
+	is       => 'rwp',
+	isa      => ArrayRef[],
+	init_arg => undef,
 );
 
 sub __scanner_from_str {
