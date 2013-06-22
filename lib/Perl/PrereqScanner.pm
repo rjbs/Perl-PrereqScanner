@@ -44,7 +44,7 @@ sub __prepare_scanners {
 sub BUILD {
   my ($self, $arg) = @_;
 
-  my @scanners = @{ $arg->{scanners} || [ qw(Perl5 Superclass TestMore Moose Aliased POE) ] };
+  my @scanners = @{ $arg->{scanners} || [ qw(Perl5 Superclass TestMore Moose Extends Aliased POE) ] };
   my @extra_scanners = @{ $arg->{extra_scanners} || [] };
 
   my $scanners = $self->__prepare_scanners([ @scanners, @extra_scanners ]);
