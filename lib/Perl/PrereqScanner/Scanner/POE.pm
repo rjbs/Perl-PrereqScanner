@@ -2,7 +2,7 @@ use strict;
 use warnings;
 
 package Perl::PrereqScanner::Scanner::POE;
-use Moo;
+use Moose;
 with 'Perl::PrereqScanner::Scanner';
 # ABSTRACT: scan for POE components
 
