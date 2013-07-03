@@ -7,6 +7,8 @@ package Perl::PrereqScanner::Scanner::Eval;
 
 use Moo;
 with 'Perl::PrereqScanner::Scanner';
+use version 0.9902;
+use Try::Tiny 0.12;
 
 =head1 DESCRIPTION
 
@@ -38,10 +40,10 @@ sub scan_for_prereqs {
   #    PPI::Token::Quote::Double  	'"require Test::Kwalitee::Extra $mod_ver"'
   #    PPI::Token::Structure  	';'
 
-  my @chunks =
-    map  { [$_->schildren] }
-    grep { $_->child(0)->literal =~ m{\A(?:eval)\z} }
-    grep { $_->child(0)->isa('PPI::Token::Word') }
+  my @chunks
+    = map { [$_->schildren] }
+    grep  { $_->child(0)->literal =~ m{\A(?:eval)\z} }
+    grep  { $_->child(0)->isa('PPI::Token::Word') }
     @{$ppi_doc->find('PPI::Statement') || []};
 
   foreach my $hunk (@chunks) {
@@ -78,8 +80,15 @@ sub scan_for_prereqs {
             my $version_number = $eval_line;
             $version_number =~ s/$module_name\s*//;
             $version_number =~ s/\s*$//;
-			$version_number =~ s/[A-Z_a-z]|\$//g;
-            push @version_strings, $version_number || 0;
+            $version_number =~ s/[A-Z_a-z]|\s|\$|s|:|;//g;
+
+            try {
+              push @version_strings, $version_number
+                if version->parse($version_number)->is_lax;
+            }
+            catch {
+              push @version_strings, 0 if $_;
+            }
           }
         }
       }
@@ -97,3 +106,4 @@ sub scan_for_prereqs {
 
 __END__
 
+110:	To save a full .LOG file rerun with -g

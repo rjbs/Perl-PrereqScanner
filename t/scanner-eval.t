@@ -89,6 +89,15 @@ prereq_is('eval { my $term = Term::ReadLine->new(\'none\') };',
 #  { 'Locale::Msgfmt' => 0 }
 #);
 
+# we can now handle stuff like:
+# my $ver=1.22;
+# eval "use Test::Pod $ver;"
+prereq_is('
+my $ver=1.22;
+eval "use Test::Pod $ver";',
+{'Test::Pod' => 0,'Test::Pod' => 0,}
+);
+
 done_testing;
 
 __END__
