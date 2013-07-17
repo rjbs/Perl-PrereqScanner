@@ -95,8 +95,25 @@ prereq_is('eval { my $term = Term::ReadLine->new(\'none\') };',
 prereq_is('
 my $ver=1.22;
 eval "use Test::Pod $ver";',
-{'Test::Pod' => 0,'Test::Pod' => 0,}
+{'Test::Pod' => 0,}, 'eval "use Test::Pod $ver";',
 );
+
+prereq_is(
+  'eval "use Test::Pod::No404s";',
+  {'Test::Pod::No404s' => 0,},
+);
+
+prereq_is(
+  'eval "use Test::Script 1.05; 1;"',
+  {'Test::Script' => '1.05'},
+);
+
+prereq_is(
+  'eval "use Test::Spelling 0.12; use Pod::Wordlist::hanekomu; 1;"',
+  {'Test::Spelling' => '0.12', 'Pod::Wordlist::hanekomu' => 0, },
+);
+
+
 
 done_testing;
 
