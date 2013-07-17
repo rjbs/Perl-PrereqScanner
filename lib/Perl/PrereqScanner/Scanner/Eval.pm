@@ -27,7 +27,6 @@ note all lines start with eval:
 
 =cut
 
-
 sub scan_for_prereqs {
   my ($self, $ppi_doc, $req) = @_;
   my @modules;
@@ -58,6 +57,7 @@ sub scan_for_prereqs {
 
       # hack for List
       my @hunkdata = @$hunk;
+
       foreach my $element (@hunkdata) {
         if ( $element->isa('PPI::Token::Quote::Double')
           || $element->isa('PPI::Token::Quote::Single'))
@@ -66,28 +66,34 @@ sub scan_for_prereqs {
           my $eval_line = $element->content;
           $eval_line =~ s/(?:'|"|{|})//g;
 
-          if ($eval_line =~ /::/ && $eval_line =~ /^\s*[use|require|no]/) {
+          my @eval_includes = split /;/, $eval_line;
+          foreach my $eval_include (@eval_includes) {
 
-            $eval_line =~ s/^\s*(?:use|require|no)\s*//;
+#            if ( $eval_include =~ /::/
+#              && $eval_include =~ /^\s*[use|require|no]/)
+            if ( $eval_include =~ /^\s*[use|require|no]/) {
 
-            my $module_name = $eval_line;
+              $eval_include =~ s/^\s*(?:use|require|no)\s*//;
 
-            $module_name =~ s/(?:\s[\s|\w|\n|.|;]+)$//;
-            $module_name =~ s/\s+(?:[\$|\w|\n]+)$//;
-            $module_name =~ s/\s+$//;
-            push @modules, $module_name;
+              my $module_name = $eval_include;
 
-            my $version_number = $eval_line;
-            $version_number =~ s/$module_name\s*//;
-            $version_number =~ s/\s*$//;
-            $version_number =~ s/[A-Z_a-z]|\s|\$|s|:|;//g;
+              $module_name =~ s/(?:\s[\s|\w|\n|.|;]+)$//;
+              $module_name =~ s/\s+(?:[\$|\w|\n]+)$//;
+              $module_name =~ s/\s+$//;
+              push @modules, $module_name;
 
-            try {
-              push @version_strings, $version_number
-                if version->parse($version_number)->is_lax;
-            }
-            catch {
-              push @version_strings, 0 if $_;
+              my $version_number = $eval_include;
+              $version_number =~ s/$module_name\s*//;
+              $version_number =~ s/\s*$//;
+              $version_number =~ s/[A-Z_a-z]|\s|\$|s|:|;//g;
+
+              try {
+                push @version_strings, $version_number
+                  if version->parse($version_number)->is_lax;
+              }
+              catch {
+                push @version_strings, 0 if $_;
+              };
             }
           }
         }
@@ -106,4 +112,3 @@ sub scan_for_prereqs {
 
 __END__
 
-110:	To save a full .LOG file rerun with -g
