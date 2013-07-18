@@ -69,9 +69,9 @@ sub scan_for_prereqs {
           my @eval_includes = split /;/, $eval_line;
           foreach my $eval_include (@eval_includes) {
 
-            if ( $eval_include =~ /::/
-              && $eval_include =~ /^\s*[use|require|no]/)
-            {
+#            if ( $eval_include =~ /::/
+#              && $eval_include =~ /^\s*[use|require|no]/)
+            if ( $eval_include =~ /^\s*[use|require|no]/) {
 
               $eval_include =~ s/^\s*(?:use|require|no)\s*//;
 
