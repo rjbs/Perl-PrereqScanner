@@ -49,7 +49,6 @@ sub prereq_is {
   };
 }
 
-
 prereq_is('', {}, '(empty string)');
 
 prereq_is(
@@ -130,17 +129,57 @@ prereq_is(
 );
 
 prereq_is(
+  'eval { require Moose; 1; };',
+  {'Moose' => '0'},
+);
+
+prereq_is(
+  'eval { no Moose; 1; };',
+  {'Moose' => '0'},
+);
+
+prereq_is(
   'eval { use Moose 2.000 };',
   {'Moose' => '2.000'},
 );
 
+prereq_is(
+  'eval "require Moose";',
+  {'Moose' => 0},
+);
+
+prereq_is(
+  'eval { use Moose 2.000; 1; };',
+  {'Moose' => '2.000'},
+);
+
+prereq_is(
+  'my $HAVE_MOOSE = eval { require Moose };',
+  {'Moose' => 0},
+);
+
+prereq_is(
+  'my $HAVE_MOOSE = eval { require Moose; 1; };',
+  {'Moose' => 0},
+);
+
+prereq_is(
+  'my $HAVE_MOOSE = eval { use Moose 2.000; 1; };',
+  {'Moose' => '2.000'},
+);
+
+prereq_is(
+  'my $HAVE_MOOSE = eval { no Moose; };',
+  {'Moose' => 0},
+);
+
+prereq_is(
+  'my $HAVE_MOOSE = eval " require Moose ";',
+  {'Moose' => 0},
+);
+
 
 # ToDo support the following if enough requests
-#prereq_is(
-#  'my $HAVE_MOOSE = eval { require Moose };',
-#  {'Moose' => 0},
-#);
-
 
 
 done_testing;

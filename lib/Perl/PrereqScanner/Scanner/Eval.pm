@@ -9,7 +9,6 @@ use Moo;
 with 'Perl::PrereqScanner::Scanner';
 use version 0.9902;
 use Try::Tiny 0.12;
-use Data::Printer {caller_info => 1, colored => 1,};
 
 
 =head1 DESCRIPTION
@@ -40,13 +39,12 @@ sub scan_for_prereqs {
   #    PPI::Token::Quote::Double  	'"require Test::Kwalitee::Extra $mod_ver"'
   #    PPI::Token::Structure  	';'
 
+try{
   my @chunks
     = map { [$_->schildren] }
     grep  { $_->child(0)->literal =~ m{\A(?:eval)\z} }
     grep  { $_->child(0)->isa('PPI::Token::Word') }
     @{$ppi_doc->find('PPI::Statement') || []};
-
-#  p @chunks;
 
   foreach my $hunk (@chunks) {
 
@@ -58,8 +56,6 @@ sub scan_for_prereqs {
       } @$hunk
       )
     {
-
-      # hack for List
       my @hunkdata = @$hunk;
 
       foreach my $element (@hunkdata) {
@@ -68,10 +64,7 @@ sub scan_for_prereqs {
         {
 
           my $eval_line = $element->content;
-
-#          p $eval_line;
           $eval_line =~ s/(?:'|"|{|})//g;
-
           my @eval_includes = split /;/, $eval_line;
 
           foreach my $eval_include (@eval_includes) {
@@ -89,8 +82,6 @@ sub scan_for_prereqs {
             if ($child_element->isa('PPI::Statement::Include')) {
 
               my $eval_line = $child_element->content;
-
-#          p $eval_line;
               my @eval_includes = split /;/, $eval_line;
 
               foreach my $eval_include (@eval_includes) {
@@ -102,8 +93,69 @@ sub scan_for_prereqs {
       }
     }
   }
+};
 
-  return;
+#######
+# my $HAVE_MOOSE = eval { require Moose };
+# # my $HAVE_MOOSE = eval '|" require Moose '|";
+#######
+try {
+  my @chunk2
+    = map { [$_->schildren] }
+    grep  { $_->child(6)->literal =~ m{\A(?:eval)\z} }
+    grep  { $_->child(6)->isa('PPI::Token::Word') }
+    @{$ppi_doc->find('PPI::Statement::Variable') || []};
+
+  foreach my $hunk2 (@chunk2) {
+
+    if (
+      grep {
+             $_->isa('PPI::Token::Quote::Double')
+          || $_->isa('PPI::Token::Quote::Single')
+          || $_->isa('PPI::Structure::Block')
+      } @$hunk2
+      )
+    {
+      my @hunkdata = @$hunk2;
+
+      foreach my $element_block (@hunkdata) {
+        if ($element_block->isa('PPI::Structure::Block')) {
+          my @children = $element_block->children;
+
+          foreach my $child_element (@children) {
+            if ($child_element->isa('PPI::Statement::Include')) {
+
+              my $eval_line = $child_element->content;
+              my @eval_includes = split /;/, $eval_line;
+
+              foreach my $eval_include (@eval_includes) {
+                $self->mod_ver($req, $eval_include);
+              }
+            }
+          }
+        }
+      }
+      foreach my $element (@hunkdata) {
+        if ( $element->isa('PPI::Token::Quote::Double')
+          || $element->isa('PPI::Token::Quote::Single'))
+        {
+
+          my $eval_line = $element->content;
+          $eval_line =~ s/(?:'|"|{|})//g;
+          my @eval_includes = split /;/, $eval_line;
+
+          foreach my $eval_include (@eval_includes) {
+            $self->mod_ver($req, $eval_include);
+          }
+        }
+      }
+    }
+  }
+};
+
+
+return;
+
 }
 
 #######
@@ -112,20 +164,15 @@ sub scan_for_prereqs {
 sub mod_ver {
   my ($self, $req, $eval_include) = @_;
 
-
   if ($eval_include =~ /^\s*[use|require|no]/) {
 
     $eval_include =~ s/^\s*(?:use|require|no)\s*//;
 
-
-# p $eval_include;
     my $module_name = $eval_include;
 
     $module_name =~ s/(?:\s[\s|\w|\n|.|;]+)$//;
     $module_name =~ s/\s+(?:[\$|\w|\n]+)$//;
     $module_name =~ s/\s+$//;
-
-# p $module_name;
 
     my $version_number = $eval_include;
     $version_number =~ s/$module_name\s*//;
@@ -139,7 +186,6 @@ sub mod_ver {
       $version_number = 0 if $_;
     };
 
-# p $version_number;
     $req->add_minimum($module_name => $version_number);
 
   }
