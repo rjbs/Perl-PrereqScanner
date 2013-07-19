@@ -4,19 +4,13 @@ use warnings;
 package Perl::PrereqScanner::Scanner::Eval;
 
 # ABSTRACT: scan for module names in an eval EXPR
-use Types::Standard qw( ArrayRef );
+
 use Moo;
 with 'Perl::PrereqScanner::Scanner';
 use version 0.9902;
 use Try::Tiny 0.12;
 use Data::Printer {caller_info => 1, colored => 1,};
 
-has 'modules' => (
-	is      => 'rw',
-	isa     => ArrayRef,
-	init_arg => undef,
-	clearer => '_clear_modules',
-);
 
 =head1 DESCRIPTION
 
@@ -35,17 +29,9 @@ note all lines start with eval:
 
 =cut
 
-#my @modules;
-#my @version_strings;
-
 
 sub scan_for_prereqs {
   my ($self, $ppi_doc, $req) = @_;
-
-  my @modules;
-$self->_clear_modules;
-
-  my @version_strings;
 
   #PPI::Document
   #  PPI::Statement
@@ -82,125 +68,39 @@ $self->_clear_modules;
         {
 
           my $eval_line = $element->content;
-          p $eval_line;
+
+#          p $eval_line;
           $eval_line =~ s/(?:'|"|{|})//g;
 
           my @eval_includes = split /;/, $eval_line;
 
           foreach my $eval_include (@eval_includes) {
-
-#            if ( $eval_include =~ /::/
-#              && $eval_include =~ /^\s*[use|require|no]/)
-#
-
-
-            if ($eval_include =~ /^\s*[use|require|no]/) {
-
-              $eval_include =~ s/^\s*(?:use|require|no)\s*//;
-
-              $self->mod_ver( $req, $eval_include);
-## consider composed method theory start
-
-#              my $module_name = $eval_include;
-#
-#              $module_name =~ s/(?:\s[\s|\w|\n|.|;]+)$//;
-#              $module_name =~ s/\s+(?:[\$|\w|\n]+)$//;
-#              $module_name =~ s/\s+$//;
-#              push @modules, $module_name;
-#
-#              my $version_number = $eval_include;
-#              $version_number =~ s/$module_name\s*//;
-#              $version_number =~ s/\s*$//;
-#              $version_number =~ s/[A-Z_a-z]|\s|\$|s|:|;//g;
-#
-#              try {
-#                push @version_strings, $version_number
-#                  if version->parse($version_number)->is_lax;
-#              }
-#              catch {
-#                push @version_strings, 0 if $_;
-#              };
-
-
-## consider composed method theory end
-
-            }
+            $self->mod_ver($req, $eval_include);
           }
         }
       }
-#      p @hunkdata;
+
       foreach my $element_block (@hunkdata) {
         if ($element_block->isa('PPI::Structure::Block')) {
 
-#          p $element_block;
           my @children = $element_block->children;
-
-#          p @children;
 
           foreach my $child_element (@children) {
             if ($child_element->isa('PPI::Statement::Include')) {
 
               my $eval_line = $child_element->content;
 
-          my @eval_includes = split /;/, $eval_line;
+#          p $eval_line;
+              my @eval_includes = split /;/, $eval_line;
 
-          foreach my $eval_include (@eval_includes) {
-
-
-
-#              p $eval_include;
-              if ($eval_include =~ /^\s*[use|require|no]/) {
-
-                $eval_include =~ s/^\s*(?:use|require|no)\s*//;
-                p $eval_include;
-
-                $self->mod_ver( $req, $eval_include);
-
-#              my $module_name = $eval_include;
-#
-#              $module_name =~ s/(?:\s[\s|\w|\n|.|;]+)$//;
-#              $module_name =~ s/\s+(?:[\$|\w|\n]+)$//;
-#              $module_name =~ s/\s+$//;
-##              push @modules, $module_name;
-##              push @{$self->modules}, $module_name ;
-##@modules = @{$self->modules};
-##p @modules;
-##p $self->modules;
-#
-##return;
-#              my $version_number = $eval_include;
-#              $version_number =~ s/$module_name\s*//;
-#              $version_number =~ s/\s*$//;
-#              $version_number =~ s/[A-Z_a-z]|\s|\$|s|:|;//g;
-#
-#              try {
-#				 version->parse($version_number)->is_lax;
-#              }
-#              catch {
-#                $version_number =0 if $_;
-#              };
-#
-#p $version_number;
-#$req->add_minimum($module_name => $version_number);
-
+              foreach my $eval_include (@eval_includes) {
+                $self->mod_ver($req, $eval_include);
               }
-
-}
-
             }
           }
-
-
         }
       }
-
     }
-  }
-
-#p $self->modules;
-
-  foreach (0 .. $#modules) {
-    $req->add_minimum($modules[$_] => $version_strings[$_]);
   }
 
   return;
@@ -211,38 +111,38 @@ $self->_clear_modules;
 #######
 sub mod_ver {
   my ($self, $req, $eval_include) = @_;
-p $eval_include;
-  my $module_name = $eval_include;
 
-  $module_name =~ s/(?:\s[\s|\w|\n|.|;]+)$//;
-  $module_name =~ s/\s+(?:[\$|\w|\n]+)$//;
-  $module_name =~ s/\s+$//;
-#  push @modules, $module_name;
-#  p @modules;
-p $module_name;
 
-  my $version_number = $eval_include;
-  $version_number =~ s/$module_name\s*//;
-  $version_number =~ s/\s*$//;
-  $version_number =~ s/[A-Z_a-z]|\s|\$|s|:|;//g;
+  if ($eval_include =~ /^\s*[use|require|no]/) {
 
-#  try {
-#    push @version_strings, $version_number
-#      if version->parse($version_number)->is_lax;
-#  }
-#  catch {
-#    push @version_strings, 0 if $_;
-#  };
-#  p @version_strings;
-              try {
-				 version->parse($version_number)->is_lax;
-              }
-              catch {
-                $version_number =0 if $_;
-              };
+    $eval_include =~ s/^\s*(?:use|require|no)\s*//;
 
-p $version_number;
-$req->add_minimum($module_name => $version_number);
+
+# p $eval_include;
+    my $module_name = $eval_include;
+
+    $module_name =~ s/(?:\s[\s|\w|\n|.|;]+)$//;
+    $module_name =~ s/\s+(?:[\$|\w|\n]+)$//;
+    $module_name =~ s/\s+$//;
+
+# p $module_name;
+
+    my $version_number = $eval_include;
+    $version_number =~ s/$module_name\s*//;
+    $version_number =~ s/\s*$//;
+    $version_number =~ s/[A-Z_a-z]|\s|\$|s|:|;//g;
+
+    try {
+      version->parse($version_number)->is_lax;
+    }
+    catch {
+      $version_number = 0 if $_;
+    };
+
+# p $version_number;
+    $req->add_minimum($module_name => $version_number);
+
+  }
 
   return;
 }
