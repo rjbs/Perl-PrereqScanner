@@ -49,6 +49,7 @@ sub prereq_is {
   };
 }
 
+
 prereq_is('', {}, '(empty string)');
 
 prereq_is(
@@ -118,18 +119,23 @@ prereq_is(
   {'Moo' => '1.002'},
 );
 
+prereq_is(
+'eval { require Locale::Msgfmt; Locale::Msgfmt->import(); };',
+  { 'Locale::Msgfmt' => 0 }
+);
+
+prereq_is(
+  'eval { require Moose };',
+  {'Moose' => '0'},
+);
+
+prereq_is(
+  'eval { use Moose 2.000 };',
+  {'Moose' => '2.000'},
+);
+
+
 # ToDo support the following if enough requests
-#prereq_is(
-#'eval { require Locale::Msgfmt; Locale::Msgfmt->import(); };',
-#  { 'Locale::Msgfmt' => 0 }
-#);
-
-
-#prereq_is(
-#  'eval { require Moose };',
-#  {'Moose' => 0},
-#);
-
 #prereq_is(
 #  'my $HAVE_MOOSE = eval { require Moose };',
 #  {'Moose' => 0},
