@@ -51,12 +51,21 @@ sub prereq_is {
 
 prereq_is('', {}, '(empty string)');
 
-prereq_is("use Test::Requires { 'Test::Pod' => 1.46 }", {'Test::Pod' => 0 });
+prereq_is("use Test::Requires { 'Test::Pod' => 1.46 }",
+  {'Test::Pod' => 0 }
+);
 
 prereq_is("use Test::Requires { 'Test::Extra' => 1.46 }",
-  {'Test::Extra' => 0 });
+  {'Test::Extra' => 0 }
+);
 
-prereq_is('use Test::Requires qw[MIME::Types] }', {'MIME::Types' => 0});
+prereq_is("use Test::Requires { 'Try::Tiny' }",
+  {'Try::Tiny' => 0 }
+);
+
+prereq_is('use Test::Requires qw[MIME::Types] }',
+  {'MIME::Types' => 0}
+);
 
 prereq_is(
   'use Test::Requires qw(IO::Handle::Util LWP::Protocol::http10)',
@@ -72,6 +81,14 @@ prereq_is(
 'Test::Test1' => 0,
 'Test::Test2' => 0,
 }
+);
+
+prereq_is("use Test::Requires { Moose => '2.000' }",
+  {'Moose' => 0 }
+);
+
+prereq_is("use Test::Requires { Moo };",
+  {'Moo' => 0 }
 );
 
 
