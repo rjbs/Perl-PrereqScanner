@@ -16,7 +16,7 @@ like this:
 
   $scanner->scan_for_prereqs($ppi_doc, $version_requirements);
 
-The scanner should alter alter the L<CPAN::Meta::Requirements> object to reflect
+The scanner should alter the L<CPAN::Meta::Requirements> object to reflect
 its findings about the PPI document.
 
 =cut
