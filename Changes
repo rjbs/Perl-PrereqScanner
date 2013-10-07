@@ -1,6 +1,8 @@
 Revision history for Perl-PrereqScanner
 
 {{$NEXT}}
+
+1.017     2013-10-07 17:56:34 America/New_York
   - eliminate testing of Carp for its prereqs, which *did* change from older
     5.8.8 installs
 
