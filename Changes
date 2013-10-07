@@ -1,6 +1,8 @@
 Revision history for Perl-PrereqScanner
 
 {{$NEXT}}
+  - eliminate testing of Carp for its prereqs, which *did* change from older
+    5.8.8 installs
 
 1.016     2013-06-19 21:27:44 America/New_York
   - new executable is bundled, scan-perl-prereqs, to take the plae of
