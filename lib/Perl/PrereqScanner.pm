@@ -183,4 +183,8 @@ constructing your PrereqScanner:
   # Use any stock scanners, plus Example:
   my $scanner = Perl::PrereqScanner->new({ extra_scanners => [ qw(Example) ] });
 
+=head1 SEE ALSO
+
+L<scan-perl-prereqs>, in this distribution, is a command-line interface to the scanner
+
 =cut
