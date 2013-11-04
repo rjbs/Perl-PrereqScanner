@@ -125,6 +125,7 @@ describing the modules it requires.
 sub scan_module {
   my ($self, $module_name) = @_;
 
+  # consider rewriting to use Module::Which -- rjbs, 2013-11-03
   require Module::Path;
   if (defined(my $path = Module::Path::module_path($module_name))) {
     return $self->scan_file($path);
