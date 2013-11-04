@@ -1,6 +1,9 @@
 Revision history for Perl-PrereqScanner
 
 {{$NEXT}}
+  - make the scan-perl-prereqs program also scan .PL and .cgi files
+  - also check for "Foo->VERSION(x)" after "require Foo"
+  - doc improvements from David Steinbrunner and Karen Etheridge
 
 1.017     2013-10-07 17:56:34 America/New_York
   - eliminate testing of Carp for its prereqs, which *did* change from older
