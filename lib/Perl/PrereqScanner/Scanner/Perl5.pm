@@ -70,7 +70,7 @@ sub scan_for_prereqs {
 
     # See if the next statement after require is Module->VERSION(min):
     $version = $self->_check_required_version($node) || 0
-        if not $version and $node->type eq 'require';
+        if not $version and ( $node->type eq 'require' || $node->type eq 'use');
 
     $req->add_minimum($node->module, $version);
   }
