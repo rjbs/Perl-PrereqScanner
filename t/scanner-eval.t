@@ -178,9 +178,7 @@ prereq_is(
   {'Moose' => 0},
 );
 
-
-####
-
+## try tests
 prereq_is(
 'try { require Locale::Msgfmt; Locale::Msgfmt->import(); };',
   { 'Locale::Msgfmt' => 0 }
@@ -231,11 +229,11 @@ prereq_is(
   {'Moose' => 0},
 );
 
-####
-
-
-# ToDo support the following if enough requests
-
+## test for #issue38
+prereq_is(
+  'do { try { require MooseX::Getopt; (traits => [\'Getopt\']) } };',
+  { 'MooseX::Getopt' => 0},
+);
 
 done_testing;
 
