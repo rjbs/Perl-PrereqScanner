@@ -42,7 +42,7 @@ sub scan_for_prereqs {
 try{
   my @chunks
     = map { [$_->schildren] }
-    grep  { $_->child(0)->literal =~ m{\A(?:eval)\z} }
+    grep  { $_->child(0)->literal =~ m{\A(?:eval|try)\z} }
     grep  { $_->child(0)->isa('PPI::Token::Word') }
     @{$ppi_doc->find('PPI::Statement') || []};
 
@@ -102,7 +102,7 @@ try{
 try {
   my @chunk2
     = map { [$_->schildren] }
-    grep  { $_->child(6)->literal =~ m{\A(?:eval)\z} }
+    grep  { $_->child(6)->literal =~ m{\A(?:eval|try)\z} }
     grep  { $_->child(6)->isa('PPI::Token::Word') }
     @{$ppi_doc->find('PPI::Statement::Variable') || []};
 
