@@ -6,7 +6,7 @@ package Perl::PrereqScanner;
 # ABSTRACT: a tool to scan your Perl code for its prerequisites
 
 use Moo 1.002;
-use MooX::Types::MooseLike::Base qw( ArrayRef );
+use MooX::Types::MooseLike::Base qw( ArrayRef ConsumerOf);
 use Carp 1.20;
 
 use List::Util qw(max);
@@ -24,7 +24,7 @@ use namespace::autoclean;
 
 has scanners => (
 	is       => 'rwp',
-	isa      => ArrayRef[],
+	isa      => ArrayRef[ ConsumerOf['Perl::PrereqScanner::Scanner'] ],
 	init_arg => undef,
 );
 
