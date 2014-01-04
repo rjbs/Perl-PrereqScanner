@@ -65,6 +65,10 @@ $bi = use_module("Math::BigInt", 1.31)->new("1_234");
 ', {'Math::BigInt' => 0}, '("Math::BigInt", 1.31)');
 
 prereq_is('use Module::Runtime;
+$bi = use_package_optimistically("Math::BigInto", 1.234)->new("1_234");
+', {'Math::BigInto' => 0}, '("Math::BigInto", 1.234)');
+
+prereq_is('use Module::Runtime;
 return use_module(\'App::SCS::PageSet\')->new(
 base_dir => $self->share_dir->catdir(\'pages\'),
 plugin_config => $self->page_plugin_config,
@@ -72,42 +76,36 @@ plugin_config => $self->page_plugin_config,
 ', {'App::SCS::PageSet' => 0}, '("App::SCS::PageSet", 0)');
 
 prereq_is('use Module::Runtime;
-return use_module("App::SCS::Web")->new(
-app => $self
+return use_package_optimistically(\'App::SCS::PageSeto\')->new(
+base_dir => $self->share_dir->catdir(\'pages\'),
+plugin_config => $self->page_plugin_config,
 );
+', {'App::SCS::PageSeto' => 0}, '("App::SCS::PageSeto", 0)');
+
+prereq_is('use Module::Runtime;
+return use_module("App::SCS::Web")->new(app => $self);
 ', {'App::SCS::Web' => 0}, '("App::SCS::Web", 0)');
 
 prereq_is('use Module::Runtime;
-    my @specs = do {
-      if (ref($hspec) eq \'ARRAY\') {
-        map [ $_ => $_ ], @$hspec;
-      } elsif (ref($hspec) eq \'HASH\') {
-        map [ $_ => ref($hspec->{$_}) ? @{$hspec->{$_}} : $hspec->{$_} ],
-          keys %$hspec;
-      } elsif (!ref($hspec)) {
-        map [ $_ => $_ ], use_module(\'Moo::Role\')->methods_provided_by(use_module($hspec))
-      } else {
-        die "You gave me a handles of ${hspec} and I have no idea why";
-      }
-    };
-', {'Moo::Role' => 0}, '("Moo::Role", 0)');
+return use_package_optimisticall("App::SCS::Webo")->new(app => $self);
+', {'App::SCS::Webo' => 0}, '("App::SCS::Webo", 0)');
 
-#prereq_is(
-#  'BEGIN {
-#		use_ok( \'Term::ReadKey\', \'2.30\' );
-#		use_ok( \'Term::ReadLine\', \'1.10\' );
-#	}', {'Term::ReadKey' => 0, 'Term::ReadLine' => 0,}
-#);
-#
-#prereq_is(
-#  'BEGIN {
-#		use_ok( \'Fred::BloggsOne\', \'1.01\' );
-#		use_ok( "Fred::BloggsTwo", "2.02" );
-#		use_ok( \'Fred::BloggsThree\', 3.03 );
-#
-#	}',
-#  {'Fred::BloggsOne' => 0, 'Fred::BloggsTwo' => 0, 'Fred::BloggsThree' => 0,}
-#);
+
+#prereq_is('use Module::Runtime;
+#    my @specs = do {
+#      if (ref($hspec) eq \'ARRAY\') {
+#        map [ $_ => $_ ], @$hspec;
+#      } elsif (ref($hspec) eq \'HASH\') {
+#        map [ $_ => ref($hspec->{$_}) ? @{$hspec->{$_}} : $hspec->{$_} ],
+#          keys %$hspec;
+#      } elsif (!ref($hspec)) {
+#        map [ $_ => $_ ], use_module(\'Moo::Role\')->methods_provided_by(use_module($hspec))
+#      } else {
+#        die "You gave me a handles of ${hspec} and I have no idea why";
+#      }
+#    };
+#', {'Moo::Role' => 0}, '("Moo::Role", 0)');
+
 
 done_testing;
 
