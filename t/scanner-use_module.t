@@ -77,7 +77,20 @@ app => $self
 );
 ', {'App::SCS::Web' => 0}, '("App::SCS::Web", 0)');
 
-
+prereq_is('use Module::Runtime;
+    my @specs = do {
+      if (ref($hspec) eq \'ARRAY\') {
+        map [ $_ => $_ ], @$hspec;
+      } elsif (ref($hspec) eq \'HASH\') {
+        map [ $_ => ref($hspec->{$_}) ? @{$hspec->{$_}} : $hspec->{$_} ],
+          keys %$hspec;
+      } elsif (!ref($hspec)) {
+        map [ $_ => $_ ], use_module(\'Moo::Role\')->methods_provided_by(use_module($hspec))
+      } else {
+        die "You gave me a handles of ${hspec} and I have no idea why";
+      }
+    };
+', {'Moo::Role' => 0}, '("Moo::Role", 0)');
 
 #prereq_is(
 #  'BEGIN {
