@@ -1,4 +1,3 @@
-use v5.16;
 use strict;
 use warnings;
 
@@ -10,7 +9,7 @@ package Perl::PrereqScanner::Scanner::UseModule;
 use Moo;
 with 'Perl::PrereqScanner::Scanner';
 
-use Data::Printer; # caller_info => 1;
+#use Data::Printer; # caller_info => 1;
 use Try::Tiny;
 
 =head1 DESCRIPTION
@@ -60,9 +59,9 @@ sub scan_for_prereqs {
 
 #	p $module_runtime_include_found;
 	return if $module_runtime_include_found eq FALSE;
-	say 'checking for use_module';
+#	say 'checking for use_module';
 
-say 'Option 1';
+#say 'Option 1';
 try {
 #
 # $bi = use_module("Math::BigInt", 1.31)->new("1_234");
@@ -148,7 +147,7 @@ try {
 	}
 };
 
-say 'Option 2';
+#say 'Option 2';
 try{
 #	say 'lets check for require use_module';
 #
@@ -259,7 +258,7 @@ try{
 	foreach (0 .. $#modules) {
 		$req->add_minimum($modules[$_] => 0);
 	}
-	p @modules;
+#	p @modules;
 	return;
 }
 
