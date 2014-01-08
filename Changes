@@ -2,6 +2,9 @@ Revision history for Perl-PrereqScanner
 
 {{$NEXT}}
 
+1.019     2014-01-07 19:37:41-05:00 America/New_York
+  - add a warning about PPI's unclear interpretation of strings
+
 1.018     2013-11-03 21:53:46 America/New_York
   - make the scan-perl-prereqs program also scan .PL and .cgi files
   - also check for "Foo->VERSION(x)" after "require Foo"
