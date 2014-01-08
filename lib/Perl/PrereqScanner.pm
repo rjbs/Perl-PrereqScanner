@@ -61,6 +61,10 @@ CPAN::Meta::Requirements object describing the modules it requires.
 
 This method will throw an exception if PPI fails to parse the code.
 
+B<Warning!>  It isn't entirely clear whether PPI prefers to receive
+strings as octet strings or character strings.  For now, my advice
+is to pass octet strings.
+
 =cut
 
 sub scan_string {
