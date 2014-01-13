@@ -138,6 +138,19 @@ plugin_config => $self->page_plugin_config,
 ', {'App::SCS::PageSet' => 0}, '("return use_module( M::N )...")'
 );
 
+prereq_is(
+'use Module::Runtime;
+sub _build_web {
+  my ($self) = @_;
+  return use_module(\'App::SCS::Web\')->new(
+    app => $self
+  );
+}
+', {'App::SCS::Web' => 0}, 'return use_module(\'App::SCS::Web\')'
+);
+
+
+
 #prereq_is(
 #	'use Module::Runtime;
 #return use_package_optimistically(\'App::SCS::PageSeto\')->new(
@@ -145,12 +158,6 @@ plugin_config => $self->page_plugin_config,
 #plugin_config => $self->page_plugin_config,
 #);
 #', {'App::SCS::PageSeto' => 0}, '("App::SCS::PageSeto", 0)'
-#);
-#
-#prereq_is(
-#	'use Module::Runtime;
-#return use_module("App::SCS::Web")->new(app => $self);
-#', {'App::SCS::Web' => 0}, '("App::SCS::Web", 0)'
 #);
 #
 #prereq_is(
