@@ -235,6 +235,28 @@ prereq_is(
   { 'MooseX::Getopt' => 0},
 );
 
+### test for false positive - oliver++
+prereq_is(
+'ok(eval{ $p2->execute ;1}, \'execute method does not blow up\');',
+  { }, ('false positive - execute')
+);
+
+prereq_is(
+'ok(eval{ $p2->apply_params ;1}, \'empty apply_params\');',
+  { }, ('false positive - empty')
+);
+
+prereq_is(
+'ok( try{ $p2->execute };, \'execute method does not blow up\');',
+  { }, ('false positive - execute')
+);
+
+prereq_is(
+'ok( try{ $p2->apply_params };, \'empty apply_params\');',
+  { }, ('false positive - empty')
+);
+### ^^
+
 done_testing;
 
 __END__

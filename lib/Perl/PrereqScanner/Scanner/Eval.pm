@@ -10,7 +10,6 @@ with 'Perl::PrereqScanner::Scanner';
 use version 0.9902;
 use Try::Tiny 0.12;
 
-
 =head1 DESCRIPTION
 
 This scanner will look for the following formats or variations there in,
@@ -68,7 +67,7 @@ try{
           my @eval_includes = split /;/, $eval_line;
 
           foreach my $eval_include (@eval_includes) {
-            $self->mod_ver($req, $eval_include);
+            $self->mod_ver($req, $eval_include);# if $eval_include =~ m/\A\s*(?:[A-Z]|use|require|no)/;
           }
         }
       }
@@ -173,6 +172,9 @@ sub mod_ver {
     $module_name =~ s/(?:\s[\s|\w|\n|.|;]+)$//;
     $module_name =~ s/\s+(?:[\$|\w|\n]+)$//;
     $module_name =~ s/\s+$//;
+
+	# check for first char upper
+	next if not $module_name =~ m/\A(?:[A-Z])/;
 
     my $version_number = $eval_include;
     $version_number =~ s/$module_name\s*//;
