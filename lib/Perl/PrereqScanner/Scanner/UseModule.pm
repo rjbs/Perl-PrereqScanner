@@ -115,35 +115,88 @@ sub scan_for_prereqs {
 #  PPI::Token::Whitespace  	'\n'
 
 	try {
-		my @chunks2 =
+		# let's extract all ppi_sv
+		my @chunks2 = @{$self->ppi_document->find('PPI::Statement::Variable')};
 
-			map { [$_->schildren] }
+		foreach my $chunk (@chunks2) {
 
-			grep {
-			$_->{children}[6]->content
-				=~ m{\A(?:use_module|use_package_optimistically)\z}
-			} grep { $_->child(6)->isa('PPI::Token::Word') }
+			# test for my
+			if (
+				$chunk->find(
+					sub {
+						$_[1]->isa('PPI::Token::Word')
+							and $_[1]->content =~ m{\A(?:my)\z};
+					}
+				)
+				)
+			{
+				# test for module-runtime key-word
+				if (
+					$chunk->find(
+						sub {
+							$_[1]->isa('PPI::Token::Word')
+								and $_[1]->content
+								=~ m{\A(?:use_module|use_package_optimistically)\z};
+						}
+					)
+					)
+				{
+					say 'Option 2: my $q = use_module( M::N )...';
 
-			grep { $_->child(4)->content eq '=' }
-			grep { $_->child(4)->isa('PPI::Token::Operator') }
+					foreach (keys $chunk->{children}) {
 
-			grep { $_->child(2)->isa('PPI::Token::Symbol') }
+						# find all ppi_sl
+						if ($chunk->{children}[$_]->isa('PPI::Structure::List')) {
 
-			grep { $_->{children}[0]->content eq 'my' }
-			grep { $_->child(0)->isa('PPI::Token::Word') }
+							my $ppi_sl = $chunk->{children}[$_]
+								if $chunk->{children}[$_]->isa('PPI::Structure::List');
 
-			@{$ppi_doc->find('PPI::Statement::Variable') || []}
-			;    # need for pps remove in midgen -> || {}
+							foreach my $ppi_se (@{$ppi_sl->{children}}) {
 
-		if ( @chunks2 ){
-		say 'Option 2: my $q = use_module( M::N )...';
-	
-#	p @chunks1;
-		push @modules, $self->_module_names_psi(@chunks2);
+							foreach ( keys $ppi_se->{children} ) {
+
+											if (   $ppi_se->{children}[$_]->isa('PPI::Token::Quote::Single')
+												|| $ppi_se->{children}[$_]->isa('PPI::Token::Quote::Double') )
+											{
+
+												my $module = $ppi_se->{children}[$_]->content;
+												$module =~ s/^['|"]//;
+												$module =~ s/['|"]$//;
+
+												if ( $module =~ m/\A[A-Z]/ ) {
+													warn 'found module - ' . $module if $self->debug;
+													push @modules, $module;
+												}
+
+											}
+
+
+											if (   $ppi_se->{children}[$_]->isa('PPI::Token::Number::Float')
+												|| $ppi_se->{children}[$_]->isa('PPI::Token::Quote::Single')
+												|| $ppi_se->{children}[$_]->isa('PPI::Token::Quote::Double') )
+											{
+												my $version_string = $ppi_se->{children}[$_]->content;
+												$version_string =~ s/^['|"]//;
+												$version_string =~ s/['|"]$//;
+												next if $version_string !~ m/\A[\d|v]/;
+												if ( $version_string =~ m/\A[\d|v]/ ) {
+
+													push @version_strings, $version_string;
+													say 'found version_string - ' . $version_string; # if $self->debug;
+												}
+											}
+
+
+
+							}
+							}
+						}
+					}
+				}
+			}
 		}
-
-
 	};
+
 
 ##	say 'Option 3: $q = use_module( M::N )...';
 
@@ -250,33 +303,6 @@ sub scan_for_prereqs {
 #      PPI::Token::Whitespace  	'  '
 #    PPI::Token::Structure  	';'
 
-#	try {
-#		my @chunks4 =
-#
-#			map { [$_->schildren] }
-#
-##		grep { $_->{children}[2]->content eq 'use_module' || 'use_package_optimistically' }
-##		grep { $_->child(2)->literal =~ m{\A(?:use_module|use_package_optimistically)\z} }
-#			grep {
-#			$_->{children}[2]->content
-#				=~ m{\A(?:use_module|use_package_optimistically)\z}
-#			}
-#
-#			grep { $_->child(2)->isa('PPI::Token::Word') }
-#
-##	    grep { $_->child(0)->content =~ m{\A(?:return)\z} }
-#			grep { $_->child(0)->content =~ m{(?:return)} }
-#			grep { $_->child(0)->isa('PPI::Token::Word') }
-#
-#			@{$ppi_doc->find('PPI::Statement::Break') || []};
-#
-#		if ( @chunks4 ){
-##	p @chunks4;
-#		say 'Option 4: return use_module( M::N )...';
-#		push @modules, $self->_module_names_psi(@chunks4);
-#		}
-#
-#	};
 
 	try {
 		my @chunks4 = @{$ppi_doc->find('PPI::Statement::Break') || []};
@@ -341,30 +367,10 @@ sub scan_for_prereqs {
 
 	};
 
-
-#	p @modules         if $self->debug;
-#	p @version_strings if $self->debug;
-
-	# if we found a module, process it with the correct catogery
-#	if (scalar @modules > 0) {
-
-#		if ( $self->format =~ /cpanfile|metajson/ ) {
-#			if ( $self->xtest eq 'test_requires' ) {
-#				$self->_process_found_modules( 'test_requires', \@modules );
-#			} elsif ( $self->develop && $self->xtest eq 'test_develop' ) {
-#				$self->_process_found_modules( 'test_develop', \@modules );
-#			}
-#		} else {
-#		$self->_process_found_modules('requires_suggests', \@modules);
-
-#		}
-#	}
-
-
 	foreach (0 .. $#modules) {
-		$req->add_minimum($modules[$_] => 0);
+		$req->add_minimum($modules[$_] => $version_strings[$_]);
 	}
-#	p @modules;
+
 	return;
 }
 
@@ -475,10 +481,4 @@ sub _module_names_psi {
 
 __END__
 
-181:	final indentation level: 1
 
-Final nesting depth of '{'s is 1
-The most recent un-matched '{' is on line 37
-37: sub scan_for_prereqs {
-                         ^
-181:	To save a full .LOG file rerun with -g

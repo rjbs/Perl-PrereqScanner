@@ -118,7 +118,7 @@ BEGIN {
 prereq_is(
 	'use Module::Runtime;
 my $bi = use_module("Math::BigInt", 1.31)->new("1_234");
-', {'Math::BigInt' => 0}, '("my $bi = use_module( M::N )...")'
+', {'Math::BigInt' => 1.31}, '("my $bi = use_module( M::N )...")'
 );
 
 prereq_is(
