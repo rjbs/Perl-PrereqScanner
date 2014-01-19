@@ -52,16 +52,29 @@ sub prereq_is {
 prereq_is('', {}, '(empty string)');
 
 prereq_is("use Test::Requires { 'Test::Pod' => 1.46 }",
-  {'Test::Pod' => 0 }
+  {'Test::Pod' => 1.46 }
 );
 
-prereq_is("use Test::Requires { 'Test::Extra' => 1.46 }",
-  {'Test::Extra' => 0 }
+prereq_is("use Test::Requires { \"Test::Pod\" => 1.47 }",
+  {"Test::Pod" => 1.47 }
+);
+
+prereq_is("use Test::Requires { 'Test::Pod' => '1.48' }",
+  {'Test::Pod' => 1.48 }
+);
+
+prereq_is("use Test::Requires { \"Test::Pod\" => \"1.49\" }",
+  {"Test::Pod" => 1.49 }
+);
+
+prereq_is("use Test::Requires { 'Test::Extra' => 1.5 }",
+  {'Test::Extra' => 1.5 }
 );
 
 prereq_is("use Test::Requires { 'Try::Tiny' }",
   {'Try::Tiny' => 0 }
 );
+
 
 prereq_is('use Test::Requires qw[MIME::Types] }',
   {'MIME::Types' => 0}
@@ -78,13 +91,13 @@ prereq_is(
   \'Test::Test2\' => 2.02,
   }',
 {
-'Test::Test1' => 0,
-'Test::Test2' => 0,
+'Test::Test1' => 1.01,
+'Test::Test2' => 2.02,
 }
 );
 
 prereq_is("use Test::Requires { Moose => '2.000' }",
-  {'Moose' => 0 }
+  {'Moose' => '2.000' }
 );
 
 prereq_is("use Test::Requires { Moo };",

@@ -8,6 +8,9 @@ package Perl::PrereqScanner::Scanner::TestRequires;
 use Moo;
 with 'Perl::PrereqScanner::Scanner';
 
+use version 0.9902;
+use Try::Tiny 0.12;
+
 =head1 DESCRIPTION
 
 This scanner is for identifying modules considered as suggests in test files
@@ -25,114 +28,139 @@ as per https://metacpan.org/module/CPAN::Meta::Spec
 use constant {BLANK => q{ }, NONE => q{}, TWO => 2, THREE => 3,};
 
 sub scan_for_prereqs {
-  my ($self, $ppi_doc, $req) = @_;
-  my @modules;
-  my @version_strings;
+	my ($self, $ppi_doc, $req) = @_;
+	my @modules;
+	my @version_strings;
 
 # looking for use Test::Requires { 'Test::Pod' => 1.46 };
-  my @chunks =
 
-    #  PPI::Statement::Include
-    #    PPI::Token::Word  	'use'
-    #    PPI::Token::Whitespace  	' '
-    #    PPI::Token::Word  	'Test::Requires'
-    #    PPI::Token::Whitespace  	' '
-    #    PPI::Structure::Constructor  	{ ... }
-    #      PPI::Token::Whitespace  	' '
-    #      PPI::Statement
-    #        PPI::Token::Quote::Single  	''Test::Pod''
-    #        PPI::Token::Whitespace  	' '
-    #        PPI::Token::Operator  	'=>'
-    #        PPI::Token::Whitespace  	' '
-    #        PPI::Token::Number::Float  	'1.46'
-    #      PPI::Token::Whitespace  	' '
-    #    PPI::Token::Structure  	';'
-    map { [$_->schildren] }
+	#  PPI::Statement::Include
+	#    PPI::Token::Word  	'use'
+	#    PPI::Token::Whitespace  	' '
+	#    PPI::Token::Word  	'Test::Requires'
+	#    PPI::Token::Whitespace  	' '
+	#    PPI::Structure::Constructor  	{ ... }
+	#      PPI::Token::Whitespace  	' '
+	#      PPI::Statement
+	#        PPI::Token::Quote::Single  	''Test::Pod''
+	#        PPI::Token::Whitespace  	' '
+	#        PPI::Token::Operator  	'=>'
+	#        PPI::Token::Whitespace  	' '
+	#        PPI::Token::Number::Float  	'1.46'
+	#      PPI::Token::Whitespace  	' '
+	#    PPI::Token::Structure  	';'
 
-    grep { $_->child(2)->literal =~ m{\A(?:Test::Requires)\z} }
-    grep { $_->child(2)->isa('PPI::Token::Word') }
+try {
+	my @chunks = @{$ppi_doc->find('PPI::Statement::Include') || []};
 
-    grep { $_->child(0)->literal =~ m{\A(?:use)\z} }
-    grep { $_->child(0)->isa('PPI::Token::Word') }
-    @{$ppi_doc->find('PPI::Statement::Include') || []};
+	foreach my $hunk (@chunks) {
 
-  foreach my $hunk (@chunks) {
+		# test for use
+		if (
+			$hunk->find(
+				sub {
+					$_[1]->isa('PPI::Token::Word') and $_[1]->content =~ m{\A(?:use)\z};
+				}
+			)
+			)
+		{
 
-    # looking for use Test::Requires { 'Test::Pod' => '1.46' };
-    if (grep { $_->isa('PPI::Structure::Constructor') } @$hunk) {
+			# test for Test::Requires
+			if (
+				$hunk->find(
+					sub {
+						$_[1]->isa('PPI::Token::Word')
+							and $_[1]->content =~ m{\A(?:Test::Requires)\z};
+					}
+				)
+				)
+			{
 
-      # hack for List
-      my @hunkdata = @$hunk;
-      foreach my $ppi_sc (@hunkdata) {
-        if ($ppi_sc->isa('PPI::Structure::Constructor')) {
-          foreach my $ppi_s (@{$ppi_sc->{children}}) {
+				foreach (keys $hunk->{children}) {
 
-            if ($ppi_s->isa('PPI::Statement')) {
-              foreach my $element (@{$ppi_s->{children}}) {
-                if ( $element->isa('PPI::Token::Quote::Single')
-                  || $element->isa('PPI::Token::Quote::Double')
-                  || $element->isa('PPI::Token::Word'))
-                {
-                  my $module = $element;
-                  $module =~ s/^['|"]//;
-                  $module =~ s/['|"]$//;
-                  if ($module =~ m/\A[A-Z]/) {
-                    push @modules, $module;
-                  }
-                }
-              }
-            }
+					# looking for use Test::Requires { 'Test::Pod' => '1.46' };
+					if ($hunk->{children}[$_]->isa('PPI::Structure::Constructor')) {
 
-            # use Test::Requires { Moose }; # Bare words
-            if ($ppi_s->isa('PPI::Statement::Expression')) {
-              foreach my $element (@{$ppi_s->{children}}) {
-                if ($element->isa('PPI::Token::Word')) {
-                  my $module = $element;
-                  $module =~ s/^['|"]//;
-                  $module =~ s/['|"]$//;
-                  if ($module =~ m/\A[A-Z]/) {
-                    push @modules, $module;
-                  }
-                }
-              }
-            }
-          }
-        }
-      }
-    }
+						my $ppi_sc = $hunk->{children}[$_]
+							if $hunk->{children}[$_]->isa('PPI::Structure::Constructor');
 
-    # looking for use Test::Requires qw(MIME::Types);
-    if (grep { $_->isa('PPI::Token::QuoteLike::Words') } @$hunk) {
+						foreach (keys @{$ppi_sc->{children}}) {
 
-      # hack for List
-      my @hunkdata = @$hunk;
+							if ($ppi_sc->{children}[$_]->isa('PPI::Statement')) {
 
-      foreach my $ppi_tqw (@hunkdata) {
-        if ($ppi_tqw->isa('PPI::Token::QuoteLike::Words')) {
+								my $ppi_s = $ppi_sc->{children}[$_]
+									if $ppi_sc->{children}[$_]->isa('PPI::Statement');
 
-          my $operator = $ppi_tqw->{operator};
-          my @type = split(//, $ppi_tqw->{sections}->[0]->{type});
+								foreach my $element (@{$ppi_s->{children}}) {
 
-          my $module = $ppi_tqw->{content};
-          $module =~ s/$operator//;
-          my $type_open = '\A\\' . $type[0];
+									# extract module name
+									if ( $element->isa('PPI::Token::Quote::Double')
+										|| $element->isa('PPI::Token::Quote::Single')
+										|| $element->isa('PPI::Token::Word'))
+									{
+										my $module_name = $element->content;
+										$module_name =~ s/(?:'|")//g;
 
-          $module =~ s{$type_open}{};
-          my $type_close = '\\' . $type[1] . '\Z';
+										push @modules, $module_name
+											if $module_name =~ m/\A(?:[A-Z])/;
+									}
 
-          $module =~ s{$type_close}{};
-          push @modules, split(BLANK, $module);
+									# extract version string
+									if ( $element->isa('PPI::Token::Number::Float')
+										|| $element->isa('PPI::Token::Quote::Double')
+										|| $element->isa('PPI::Token::Quote::Single'))
+									{
+										my $version_number = $element->content;
+										$version_number =~ s/(?:'|")//g;
+										if ($version_number =~ m/\A(?:[0-9])/) {
 
-        }
-      }
-    }
-  }
+											try {
+												version->parse($version_number)->is_lax;
+											}
+											catch {
+												$version_number = 0 if $_;
+											};
+											$version_strings[$#modules] = $version_number;
+										}
+									}
+								}
+							}
+						}
+					}
 
-  foreach (0 .. $#modules) {
-    $req->add_minimum($modules[$_] => 0); # $version_strings[$_]);
-  }
+					# looking for use Test::Requires qw(MIME::Types);
+					if ($hunk->{children}[$_]->isa('PPI::Token::QuoteLike::Words')) {
 
-  return;
+						my $ppi_tqw = $hunk->{children}[$_]
+							if $hunk->{children}[$_]->isa('PPI::Token::QuoteLike::Words');
+
+							my $operator = $ppi_tqw->{operator};
+							my @type = split(//, $ppi_tqw->{sections}->[0]->{type});
+
+							my $module = $ppi_tqw->{content};
+							$module =~ s/$operator//;
+							my $type_open = '\A\\' . $type[0];
+
+							$module =~ s{$type_open}{};
+							my $type_close = '\\' . $type[1] . '\Z';
+
+							$module =~ s{$type_close}{};
+							push @modules, split(BLANK, $module);
+
+					}
+				}
+			}
+		}
+	}
+
+	};
+
+	foreach (0 .. $#modules) {
+		$req->add_minimum(
+			$modules[$_] => $version_strings[$_] ? $version_strings[$_] : 0);
+	}
+
+	return;
 }
 
 
