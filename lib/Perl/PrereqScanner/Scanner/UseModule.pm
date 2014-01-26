@@ -20,11 +20,24 @@ inside BEGIN blocks in test files:
 
 =begin :list
 
-* use_module( 'Fred::BloggsOne', '1.01' );
+* use_module("Module::Name", x.xx)->new( ... );
 
-* use_module( "Fred::BloggsTwo", "2.02" );
+* require_module( 'Module::Name');
 
-* use_module( 'Fred::BloggsThree', 3.03 );
+* use_package_optimistically("Module::Name", x.xx)->new( ... );
+
+* my $abc = use_module("Module::Name", x.xx)->new( ... );
+
+* my $abc = use_package_optimistically("Module::Name", x.xx)->new( ... );
+
+* $abc = use_module("Module::Name", x.xx)->new( ... );
+
+* $abc = use_package_optimistically("Module::Name", x.xx)->new( ... );
+
+* return use_module( 'Module::Name', x,xx )->new( ... );
+
+* return use_package_optimisticall( 'Module::Name', x.xx )->new( ... );
+
 
 =end :list
 
@@ -65,27 +78,57 @@ sub scan_for_prereqs {
 #    PPI::Token::Structure  	';'
 #  PPI::Token::Whitespace  	'\n'
 
+
 	try {
-		my @chunks1 =
+		my @chunks1 = @{$ppi_doc->find('PPI::Statement') || []};
 
-			map { [$_->schildren] } grep {
-			$_->{children}[0]->content
-				=~ m{\A(?:use_module|use_package_optimistically|require_module)\z}
-			} grep { $_->child(0)->isa('PPI::Token::Word') }
+		foreach my $chunk (@chunks1) {
 
-			@{$ppi_doc->find('PPI::Statement') || []};
+			if (not $chunk->find(sub { $_[1]->isa('PPI::Token::Symbol') })) {
 
-		if ( @chunks1 ){
-	say 'Option 1: use_module( M::N )...';
+				# test for module-runtime key-words
+				if (
+					$chunk->find(
+						sub {
+							$_[1]->isa('PPI::Token::Word')
+								and $_[1]->content
+								=~ m{\A(?:use_module|use_package_optimistically|require_module)\z};
+						}
+					)
+					)
+				{
+					# exclude return for continuity and duplications
+					if (
+						not $chunk->find(
+							sub {
+								$_[1]->isa('PPI::Token::Word')
+									and $_[1]->content =~ m{\A(?:return)\z};
+							}
+						)
+						)
+					{
 
-#	p @chunks1;
-		push @modules, $self->_module_names_psi(@chunks1);
+						for (0 .. $#{$chunk->{children}}) {
+
+							# find all ppi_sl
+							if ($chunk->{children}[$_]->isa('PPI::Structure::List')) {
+
+								my $ppi_sl = $chunk->{children}[$_]
+									if $chunk->{children}[$_]->isa('PPI::Structure::List');
+
+								# say 'Option 1: use_module( M::N )...';
+								$self->_module_names_ppi_sl(\@modules, \@version_strings,
+									$ppi_sl);
+							}
+						}
+					}
+				}
+			}
 		}
-
 	};
 
 
-##	say 'Option 2: my $q = use_module( M::N )...';
+##	say 'Option 2: my $abc = use_module( M::N )...';
 
 
 #
@@ -116,8 +159,7 @@ sub scan_for_prereqs {
 
 	try {
 		# let's extract all ppi_sv
-		my @chunks2 = @{$self->ppi_document->find('PPI::Statement::Variable')};
-
+		my @chunks2 = @{$ppi_doc->find('PPI::Statement::Variable') || []};
 		foreach my $chunk (@chunks2) {
 
 			# test for my
@@ -130,7 +172,7 @@ sub scan_for_prereqs {
 				)
 				)
 			{
-				# test for module-runtime key-word
+				# test for module-runtime key-words
 				if (
 					$chunk->find(
 						sub {
@@ -141,9 +183,7 @@ sub scan_for_prereqs {
 					)
 					)
 				{
-					say 'Option 2: my $q = use_module( M::N )...';
-
-					foreach (keys $chunk->{children}) {
+					for (0 .. $#{$chunk->{children}}) {
 
 						# find all ppi_sl
 						if ($chunk->{children}[$_]->isa('PPI::Structure::List')) {
@@ -151,45 +191,10 @@ sub scan_for_prereqs {
 							my $ppi_sl = $chunk->{children}[$_]
 								if $chunk->{children}[$_]->isa('PPI::Structure::List');
 
-							foreach my $ppi_se (@{$ppi_sl->{children}}) {
+							# say 'Option 2: my $abc = use_module( M::N )...';
+							$self->_module_names_ppi_sl(\@modules, \@version_strings,
+								$ppi_sl);
 
-							foreach ( keys $ppi_se->{children} ) {
-
-											if (   $ppi_se->{children}[$_]->isa('PPI::Token::Quote::Single')
-												|| $ppi_se->{children}[$_]->isa('PPI::Token::Quote::Double') )
-											{
-
-												my $module = $ppi_se->{children}[$_]->content;
-												$module =~ s/^['|"]//;
-												$module =~ s/['|"]$//;
-
-												if ( $module =~ m/\A[A-Z]/ ) {
-													warn 'found module - ' . $module if $self->debug;
-													push @modules, $module;
-												}
-
-											}
-
-
-											if (   $ppi_se->{children}[$_]->isa('PPI::Token::Number::Float')
-												|| $ppi_se->{children}[$_]->isa('PPI::Token::Quote::Single')
-												|| $ppi_se->{children}[$_]->isa('PPI::Token::Quote::Double') )
-											{
-												my $version_string = $ppi_se->{children}[$_]->content;
-												$version_string =~ s/^['|"]//;
-												$version_string =~ s/['|"]$//;
-												next if $version_string !~ m/\A[\d|v]/;
-												if ( $version_string =~ m/\A[\d|v]/ ) {
-
-													push @version_strings, $version_string;
-													say 'found version_string - ' . $version_string; # if $self->debug;
-												}
-											}
-
-
-
-							}
-							}
 						}
 					}
 				}
@@ -225,32 +230,61 @@ sub scan_for_prereqs {
 #  PPI::Token::Whitespace  	'\n'
 
 	try {
-		my @chunks3 =
+		my @chunks1 = @{$ppi_doc->find('PPI::Statement') || []};
 
-			map { [$_->schildren] }
+		foreach my $chunk (@chunks1) {
 
-			grep {
-			$_->{children}[4]->content
-				=~ m{\A(?:use_module|use_package_optimistically)\z}
-			} grep { $_->child(4)->isa('PPI::Token::Word') }
+			# test for not my
+			if (
+				not $chunk->find(
+					sub {
+						$_[1]->isa('PPI::Token::Word')
+							and $_[1]->content =~ m{\A(?:my)\z};
+					}
+				)
+				)
+			{
 
-			grep { $_->child(2)->content eq '=' }
-			grep { $_->child(2)->isa('PPI::Token::Operator') }
+				if ($chunk->find(sub { $_[1]->isa('PPI::Token::Symbol') })) {
 
-			grep { $_->child(0)->isa('PPI::Token::Symbol') }
+					if (
+						$chunk->find(
+							sub {
+								$_[1]->isa('PPI::Token::Operator') and $_[1]->content eq '=';
+							}
+						)
+						)
+					{
 
-			@{$ppi_doc->find('PPI::Statement') || []}
-			;    # need for pps remove in midgen -> || {}
+						# test for module-runtime key-words
+						if (
+							$chunk->find(
+								sub {
+									$_[1]->isa('PPI::Token::Word')
+										and $_[1]->content
+										=~ m{\A(?:use_module|use_package_optimistically)\z};
+								}
+							)
+							)
+						{
+							for (0 .. $#{$chunk->{children}}) {
 
+								# find all ppi_sl
+								if ($chunk->{children}[$_]->isa('PPI::Structure::List')) {
 
-		if ( @chunks3 ){
-	say 'Option 3: $q = use_module( M::N )...';
+									my $ppi_sl = $chunk->{children}[$_]
+										if $chunk->{children}[$_]->isa('PPI::Structure::List');
 
-#	p @chunks3;
-		push @modules, $self->_module_names_psi(@chunks3);
+									# say 'Option 3: $q = use_module( M::N )...';
+									$self->_module_names_ppi_sl(\@modules, \@version_strings,
+										$ppi_sl);
+								}
+							}
+						}
+					}
+				}
+			}
 		}
-
-
 	};
 
 
@@ -303,7 +337,6 @@ sub scan_for_prereqs {
 #      PPI::Token::Whitespace  	'  '
 #    PPI::Token::Structure  	';'
 
-
 	try {
 		my @chunks4 = @{$ppi_doc->find('PPI::Statement::Break') || []};
 
@@ -318,6 +351,7 @@ sub scan_for_prereqs {
 				)
 				)
 			{
+
 				if (
 					$chunk->find(
 						sub {
@@ -328,44 +362,24 @@ sub scan_for_prereqs {
 					)
 					)
 				{
-#					p $chunk;
-#					p $chunk->{children}[3];
+					for (0 .. $#{$chunk->{children}}) {
 
-#					say 'found a PPI::Structure::List'
-#						if $chunk->{children}[3]->isa('PPI::Structure::List');
+						# find all ppi_sl
+						if ($chunk->{children}[$_]->isa('PPI::Structure::List')) {
+							my $ppi_sl = $chunk->{children}[$_]
+								if $chunk->{children}[$_]->isa('PPI::Structure::List');
 
-					my $ppi_sl = $chunk->{children}[3]
-						if $chunk->{children}[3]->isa('PPI::Structure::List');
+							# say 'Option 4: return use_module( M::N )...';
+							$self->_module_names_ppi_sl(\@modules, \@version_strings,
+								$ppi_sl);
 
-#					p $ppi_sl;
-					if ($ppi_sl->isa('PPI::Structure::List')) {
-
-#						p $ppi_sl;
-						foreach my $ppi_se (@{$ppi_sl->{children}}) {
-#							p $ppi_se;
-							if ($ppi_se->isa('PPI::Statement::Expression')) {
-								foreach my $element (@{$ppi_se->{children}}) {
-									if ( $element->isa('PPI::Token::Quote::Single')
-										|| $element->isa('PPI::Token::Quote::Double'))
-									{
-#										p $element;
-#										p $element->content;
-#										p $element->string;
-										say 'Option 4: return use_module( M::N )...';
-										push @modules, $element->string;
-										p @modules if $self->debug;
-
-									}
-
-								}
-							}
 						}
 					}
 				}
 			}
 		}
-
 	};
+
 
 	foreach (0 .. $#modules) {
 		$req->add_minimum($modules[$_] => $version_strings[$_]);
@@ -373,8 +387,6 @@ sub scan_for_prereqs {
 
 	return;
 }
-
-
 
 
 #######
@@ -412,68 +424,56 @@ sub _is_module_runtime {
 #######
 # composed method extract module name from PPI::Structure::List
 #######
-sub _module_names_psi {
-	my $self   = shift;
-	my @chunks = @_;
-	my @modules_psl;
-
-#    PPI::Structure::List  	( ... )
-#      PPI::Statement::Expression
-#        PPI::Token::Quote::Double  	'"Math::BigInt"'
-#        PPI::Token::Operator  	','
-#        PPI::Token::Whitespace  	' '
-#        PPI::Token::Number::Float  	'1.31'
-#    PPI::Token::Operator  	'->'
-#    PPI::Token::Word  	'new'
-#    PPI::Structure::List  	( ... )
-#      PPI::Statement::Expression
-#        PPI::Token::Quote::Double  	'"1_234"'
-#    PPI::Token::Structure  	';'
-#  PPI::Token::Whitespace  	'\n'
+sub _module_names_ppi_sl {
+	my ($self, $modules, $version_strings, $ppi_sl) = @_;
 
 
-	try {
-		foreach my $hunk (@chunks) {
+	if ($ppi_sl->isa('PPI::Structure::List')) {
 
-#		p $hunk;
+#		p $ppi_sl;
+		state $previous_module = undef;
+		foreach my $ppi_se (@{$ppi_sl->{children}}) {
+			for (0 .. $#{$ppi_se->{children}}) {
 
-			# looking for use Module::Runtime ...;
-			if (grep { $_->isa('PPI::Structure::List') } @$hunk) {
+				if ( $ppi_se->{children}[$_]->isa('PPI::Token::Quote::Single')
+					|| $ppi_se->{children}[$_]->isa('PPI::Token::Quote::Double'))
+				{
+					my $module = $ppi_se->{children}[$_]->content;
+					$module =~ s/(?:['|"])//g;
+					if ($module =~ m/\A[A-Z]/) {
 
-#			say 'found Module::Runtime';
-
-				# hack for List
-				my @hunkdata = @$hunk;
-
-				foreach my $ppi_sl (@hunkdata) {
-					if ($ppi_sl->isa('PPI::Structure::List')) {
-
-#					p $ppi_sl;
-						foreach my $ppi_se (@{$ppi_sl->{children}}) {
-							if ($ppi_se->isa('PPI::Statement::Expression')) {
-								foreach my $element (@{$ppi_se->{children}}) {
-									if ( $element->isa('PPI::Token::Quote::Single')
-										|| $element->isa('PPI::Token::Quote::Double'))
-									{
-										my $module = $element;
-										$module =~ s/^['|"]//;
-										$module =~ s/['|"]$//;
-										if ($module =~ m/\A[A-Z]/) {
-											push @modules_psl, $module;
-#											p @modules_psl;    #         if $self->debug;
-										}
-									}
-
-								}
-							}
-						}
+						# warn 'found module - ' . $module;
+						push @$modules, $module;
+						$previous_module = $module;
 					}
+				}
+				if ( $ppi_se->{children}[$_]->isa('PPI::Token::Number::Float')
+					|| $ppi_se->{children}[$_]->isa('PPI::Token::Number::Version')
+					|| $ppi_se->{children}[$_]->isa('PPI::Token::Quote::Single')
+					|| $ppi_se->{children}[$_]->isa('PPI::Token::Quote::Double'))
+				{
+					my $version_string = $ppi_se->{children}[$_]->content;
+					$version_string =~ s/(?:['|"])//g;
+					next if $version_string !~ m/\A[\d|v]/;
+
+
+					try {
+						version->parse($version_string)->is_lax;
+					}
+					catch {
+						$version_string = 0 if $_;
+					};
+
+					# warn 'found version_string - ' . $version_string;
+					try {
+						@$version_strings = $version_string if $previous_module;
+						$previous_module = undef;
+					};
 				}
 			}
 		}
-	};
+	}
 
-	return @modules_psl;
 
 }
 

@@ -67,26 +67,45 @@ use Foo::Bar;
 prereq_is(
 	'use Module::Runtime;
 use_module("Math::BigInt", 1.31)->new("1_234");
-', {'Math::BigInt' => 0}, '("use_module( M::N )...")'
-);
-
-prereq_is(
-	'use Module::Runtime;
-require_module("Math::BigInt");
-', {'Math::BigInt' => 0}, '("require_module( R::M )")'
+', {'Math::BigInt' => 1.31}, 'use_module( M::N, x.xx )...'
 );
 
 prereq_is(
 	'use Module::Runtime;
 use_package_optimistically("Math::BigInto", 1.234)->new("1_234");
-', {'Math::BigInto' => 0}, '("use_package_optimistically( P::M )...")'
+', {'Math::BigInto' => 1.234}, 'use_package_optimistically( M::N, x.xx )...'
 );
 
 prereq_is(
 	'use Module::Runtime;
     require_module(\'B::Hooks::EndOfScope::PP::HintHash\');
-', {'B::Hooks::EndOfScope::PP::HintHash' => 0}, '("require_module( B::Hooks::EndOfScope::PP::HintHash )"'
+', {'B::Hooks::EndOfScope::PP::HintHash' => 0}, 'require_module( M::N )'
 );
+
+prereq_is(
+	'use Module::Runtime;
+my $abc = use_module("Math::BigInt", 1.31)->new("1_234");
+', {'Math::BigInt' => 1.31}, 'my $abc = use_module( M::N, x.xx )...'
+);
+
+prereq_is(
+	'use Module::Runtime;
+my $abc = use_package_optimistically("Math::BigInto", 1.234)->new("1_234");
+', {'Math::BigInto' => 1.234}, 'my $abc = use_package_optimistically( M::N, x.xx )...'
+);
+
+prereq_is(
+	'use Module::Runtime;
+$abc = use_module("Math::BigInt", 1.31)->new("1_234");
+', {'Math::BigInt' => 1.31}, '$abc = use_module( M::N )...'
+);
+
+prereq_is(
+	'use Module::Runtime;
+$abc = use_package_optimistically("Math::BigInto", 1.234)->new("1_234");
+', {'Math::BigInto' => 1.234}, '$abc = use_package_optimistically( M::N, x.xx )..'
+);
+
 
 prereq_is(
 	'use Module::Runtime;
@@ -105,26 +124,7 @@ BEGIN {
   }
 }
 ',
-{'B::Hooks::EndOfScope::PP::HintHash' => 0, 'B::Hooks::EndOfScope::PP::FieldHash' => 0,}, '("require_module( B::Hooks )"'
-);
-
-#prereq_is(
-#	'use Module::Runtime;
-#$bi = use_package_optimistically("Math::BigInto", 1.234)->new("1_234");
-#', {'Math::BigInto' => 0}, '("Math::BigInto", 1.234)'
-#);
-
-
-prereq_is(
-	'use Module::Runtime;
-my $bi = use_module("Math::BigInt", 1.31)->new("1_234");
-', {'Math::BigInt' => 1.31}, '("my $bi = use_module( M::N )...")'
-);
-
-prereq_is(
-	'use Module::Runtime;
-$bi = use_module("Math::BigInt", 1.31)->new("1_234");
-', {'Math::BigInt' => 0}, '("$bi = use_module( M::N )...")'
+{'B::Hooks::EndOfScope::PP::HintHash' => 0, 'B::Hooks::EndOfScope::PP::FieldHash' => 0,}, 'require_module( "B::Hooks::EndOfScope::PP::HintHas" )'
 );
 
 
@@ -135,7 +135,7 @@ return use_module(\'App::SCS::PageSet\')->new(
 base_dir => $self->share_dir->catdir(\'pages\'),
 plugin_config => $self->page_plugin_config,
 );
-', {'App::SCS::PageSet' => 0}, '("return use_module( M::N )...")'
+', {'App::SCS::PageSet' => 0}, 'return use_module( M::N )...'
 );
 
 prereq_is(
@@ -146,36 +146,22 @@ sub _build_web {
     app => $self
   );
 }
-', {'App::SCS::Web' => 0}, 'return use_module(\'App::SCS::Web\')'
+', {'App::SCS::Web' => 0}, 'return use_module(\'App::SCS::Web\')...'
 );
 
 
 
-#prereq_is(
-#	'use Module::Runtime;
-#return use_package_optimistically(\'App::SCS::PageSeto\')->new(
-#base_dir => $self->share_dir->catdir(\'pages\'),
-#plugin_config => $self->page_plugin_config,
-#);
-#', {'App::SCS::PageSeto' => 0}, '("App::SCS::PageSeto", 0)'
-#);
-#
-#prereq_is(
-#	'use Module::Runtime;
-#return use_package_optimisticall("App::SCS::Webo")->new(app => $self);
-#', {'App::SCS::Webo' => 0}, '("App::SCS::Webo", 0)'
-#);
-#
-#prereq_is(
-#	'use Module::Runtime;
-#  return use_module(\'App::SCS::PageSetxx\')->new(
-#    base_dir => $self->share_dir->catdir(\' pages \'),
-#    plugin_config => $self->page_plugin_config,
-#  );
-#', {'App::SCS::PageSetxx' => 0}, '("App::SCS::Pagesetxx", 0)'
-#);
+prereq_is(
+	'use Module::Runtime;
+return use_package_optimistically(\'App::SCS::PageSeto\')->new(
+base_dir => $self->share_dir->catdir(\'pages\'),
+plugin_config => $self->page_plugin_config,
+);
+', {'App::SCS::PageSeto' => 0}, 'return use_package_optimisticall(\'App::SCS::PageSeto\')'
+);
 
 
+#out of scope
 #prereq_is('use Module::Runtime;
 #    my @specs = do {
 #      if (ref($hspec) eq \'ARRAY\') {
