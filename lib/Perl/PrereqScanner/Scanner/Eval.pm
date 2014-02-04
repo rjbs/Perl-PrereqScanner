@@ -29,174 +29,107 @@ note all lines start with eval:
 
 
 sub scan_for_prereqs {
-  my ($self, $ppi_doc, $req) = @_;
+	my ($self, $ppi_doc, $req) = @_;
 
-  #PPI::Document
-  #  PPI::Statement
-  #    PPI::Token::Word  	'eval'
-  #    PPI::Token::Whitespace  	' '
-  #    PPI::Token::Quote::Double  	'"require Test::Kwalitee::Extra $mod_ver"'
-  #    PPI::Token::Structure  	';'
-
-try{
-  my @chunks
-    = map { [$_->schildren] }
-    grep  { $_->child(0)->literal =~ m{\A(?:eval|try)\z} }
-    grep  { $_->child(0)->isa('PPI::Token::Word') }
-    @{$ppi_doc->find('PPI::Statement') || []};
-
-  foreach my $hunk (@chunks) {
-
-    if (
-      grep {
-             $_->isa('PPI::Token::Quote::Double')
-          || $_->isa('PPI::Token::Quote::Single')
-          || $_->isa('PPI::Structure::Block')
-      } @$hunk
-      )
-    {
-      my @hunkdata = @$hunk;
-
-      foreach my $element (@hunkdata) {
-        if ( $element->isa('PPI::Token::Quote::Double')
-          || $element->isa('PPI::Token::Quote::Single'))
-        {
-
-          my $eval_line = $element->content;
-          $eval_line =~ s/(?:'|"|{|})//g;
-          my @eval_includes = split /;/, $eval_line;
-
-          foreach my $eval_include (@eval_includes) {
-            $self->mod_ver($req, $eval_include);# if $eval_include =~ m/\A\s*(?:[A-Z]|use|require|no)/;
-          }
-        }
-      }
-
-      foreach my $element_block (@hunkdata) {
-        if ($element_block->isa('PPI::Structure::Block')) {
-
-          my @children = $element_block->children;
-
-          foreach my $child_element (@children) {
-            if ($child_element->isa('PPI::Statement::Include')) {
-
-              my $eval_line = $child_element->content;
-              my @eval_includes = split /;/, $eval_line;
-
-              foreach my $eval_include (@eval_includes) {
-                $self->mod_ver($req, $eval_include);
-              }
-            }
-          }
-        }
-      }
-    }
-  }
-};
-
-#######
-# my $HAVE_MOOSE = eval { require Moose };
-# # my $HAVE_MOOSE = eval '|" require Moose '|";
-#######
-try {
-  my @chunk2
-    = map { [$_->schildren] }
-    grep  { $_->child(6)->literal =~ m{\A(?:eval|try)\z} }
-    grep  { $_->child(6)->isa('PPI::Token::Word') }
-    @{$ppi_doc->find('PPI::Statement::Variable') || []};
-
-  foreach my $hunk2 (@chunk2) {
-
-    if (
-      grep {
-             $_->isa('PPI::Token::Quote::Double')
-          || $_->isa('PPI::Token::Quote::Single')
-          || $_->isa('PPI::Structure::Block')
-      } @$hunk2
-      )
-    {
-      my @hunkdata = @$hunk2;
-
-      foreach my $element_block (@hunkdata) {
-        if ($element_block->isa('PPI::Structure::Block')) {
-          my @children = $element_block->children;
-
-          foreach my $child_element (@children) {
-            if ($child_element->isa('PPI::Statement::Include')) {
-
-              my $eval_line = $child_element->content;
-              my @eval_includes = split /;/, $eval_line;
-
-              foreach my $eval_include (@eval_includes) {
-                $self->mod_ver($req, $eval_include);
-              }
-            }
-          }
-        }
-      }
-      foreach my $element (@hunkdata) {
-        if ( $element->isa('PPI::Token::Quote::Double')
-          || $element->isa('PPI::Token::Quote::Single'))
-        {
-
-          my $eval_line = $element->content;
-          $eval_line =~ s/(?:'|"|{|})//g;
-          my @eval_includes = split /;/, $eval_line;
-
-          foreach my $eval_include (@eval_includes) {
-            $self->mod_ver($req, $eval_include);
-          }
-        }
-      }
-    }
-  }
-};
+	#PPI::Document
+	#  PPI::Statement
+	#    PPI::Token::Word  	'eval'
+	#    PPI::Token::Whitespace  	' '
+	#    PPI::Token::Quote::Double  	'"require Test::Kwalitee::Extra $mod_ver"'
+	#    PPI::Token::Structure  	';'
 
 
-return;
+	try {
+		my @chunks1 = @{$ppi_doc->find('PPI::Statement')};
 
+		foreach my $chunk (@chunks1) {
+			if (
+				$chunk->find(
+					sub {
+						$_[1]->isa('PPI::Token::Word')
+							and $_[1]->content =~ m{\A(?:eval|try)\z};
+					}
+				)
+				)
+			{
+				for (0 .. $#{$chunk->{children}}) {
+
+					if ( $chunk->{children}[$_]->isa('PPI::Token::Quote::Double')
+						|| $chunk->{children}[$_]->isa('PPI::Token::Quote::Single'))
+					{
+						my $eval_line = $chunk->{children}[$_]->content;
+						$eval_line =~ s/(?:'|"|{|})//g;
+						my @eval_includes = split /;/, $eval_line;
+
+						foreach my $eval_include (@eval_includes) {
+							$self->mod_ver($req, $eval_include);
+						}
+					}
+
+					if ($chunk->{children}[$_]->isa('PPI::Structure::Block')) {
+						my @children = $chunk->{children}[$_]->children;
+
+						foreach my $child_element (@children) {
+							if ($child_element->isa('PPI::Statement::Include')) {
+
+								my $eval_line = $child_element->content;
+								my @eval_includes = split /;/, $eval_line;
+
+								foreach my $eval_include (@eval_includes) {
+									$self->mod_ver($req, $eval_include);
+								}
+							}
+						}
+					}
+				}
+			}
+		}
+	};
+
+	return;
 }
 
 #######
 # composed Method
 #######
 sub mod_ver {
-  my ($self, $req, $eval_include) = @_;
+	my ($self, $req, $eval_include) = @_;
 
-  if ($eval_include =~ /^\s*[use|require|no]/) {
+	if ($eval_include =~ /^\s*[use|require|no]/) {
 
-    $eval_include =~ s/^\s*(?:use|require|no)\s*//;
+		$eval_include =~ s/^\s*(?:use|require|no)\s*//;
 
-    my $module_name = $eval_include;
+		my $module_name = $eval_include;
 
-    $module_name =~ s/(?:\s[\s|\w|\n|.|;]+)$//;
-    $module_name =~ s/\s+(?:[\$|\w|\n]+)$//;
-    $module_name =~ s/\s+$//;
+		$module_name =~ s/(?:\s[\s|\w|\n|.|;]+)$//;
+		$module_name =~ s/\s+(?:[\$|\w|\n]+)$//;
+		$module_name =~ s/\s+$//;
 
-	# check for first char upper
-	next if not $module_name =~ m/\A(?:[A-Z])/;
+		# check for first char upper
+		next if not $module_name =~ m/\A(?:[A-Z])/;
 
-    my $version_number = $eval_include;
-    $version_number =~ s/$module_name\s*//;
-    $version_number =~ s/\s*$//;
-    $version_number =~ s/[A-Z_a-z]|\s|\$|s|:|;//g;
+		my $version_number = $eval_include;
+		$version_number =~ s/$module_name\s*//;
+		$version_number =~ s/\s*$//;
+		$version_number =~ s/[A-Z_a-z]|\s|\$|s|:|;//g;
 
-    try {
-      version->parse($version_number)->is_lax;
-    }
-    catch {
-      $version_number = 0 if $_;
-    };
+		try {
+			version->parse($version_number)->is_lax;
+		}
+		catch {
+			$version_number = 0 if $_;
+		};
 
-    $req->add_minimum($module_name => $version_number);
+		$req->add_minimum($module_name => $version_number);
 
-  }
+	}
 
-  return;
+	return;
 }
 
 
 1;
 
 __END__
+
 
