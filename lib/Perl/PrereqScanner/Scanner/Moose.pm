@@ -4,7 +4,7 @@ use warnings;
 package Perl::PrereqScanner::Scanner::Moose;
 # ABSTRACT: scan for Moose sugar indicators of required modules
 
-use Moose;
+use Moo;
 with 'Perl::PrereqScanner::Scanner';
 
 =head1 DESCRIPTION

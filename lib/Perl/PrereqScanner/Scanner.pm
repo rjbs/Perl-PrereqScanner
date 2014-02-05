@@ -4,7 +4,7 @@ use warnings;
 package Perl::PrereqScanner::Scanner;
 # ABSTRACT: something that scans for prereqs in a Perl document
 
-use Moose::Role;
+use Moo::Role;
 
 =head1 DESCRIPTION
 
