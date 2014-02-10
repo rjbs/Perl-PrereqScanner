@@ -9,8 +9,7 @@ package Perl::PrereqScanner::Scanner::UseModule;
 
 use Moo;
 with 'Perl::PrereqScanner::Scanner';
-
-use Data::Printer caller_info => 1;
+use version;
 use Try::Tiny;
 
 =head1 DESCRIPTION
@@ -458,7 +457,7 @@ sub _module_names_ppi_sl {
 
 
 					try {
-						version::is_lax($version_string);
+						version->parse($version_string)->is_lax;
 					}
 					catch {
 						$version_string = 0 if $_;
