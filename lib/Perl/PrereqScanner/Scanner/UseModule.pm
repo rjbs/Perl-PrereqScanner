@@ -92,7 +92,7 @@ sub scan_for_prereqs {
 						sub {
 							$_[1]->isa('PPI::Token::Word')
 								and $_[1]->content
-								=~ m{\A(?:use_module|use_package_optimistically|require_module)\z};
+								=~ m{\A[Module::Runtime::]*(?:use_module|use_package_optimistically|require_module)\z};
 						}
 					)
 					)
@@ -178,7 +178,7 @@ sub scan_for_prereqs {
 						sub {
 							$_[1]->isa('PPI::Token::Word')
 								and $_[1]->content
-								=~ m{\A(?:use_module|use_package_optimistically)\z};
+								=~ m{\A[Module::Runtime::]*(?:use_module|use_package_optimistically)\z};
 						}
 					)
 					)
@@ -262,7 +262,7 @@ sub scan_for_prereqs {
 								sub {
 									$_[1]->isa('PPI::Token::Word')
 										and $_[1]->content
-										=~ m{\A(?:use_module|use_package_optimistically)\z};
+										=~ m{\A[Module::Runtime::]*(?:use_module|use_package_optimistically)\z};
 								}
 							)
 							)
@@ -357,7 +357,7 @@ sub scan_for_prereqs {
 						sub {
 							$_[1]->isa('PPI::Token::Word')
 								and $_[1]->content
-								=~ m{\A(?:use_module|use_package_optimistically)\z};
+								=~ m{\A[Module::Runtime::]*(?:use_module|use_package_optimistically)\z};
 						}
 					)
 					)
@@ -458,7 +458,7 @@ sub _module_names_ppi_sl {
 
 
 					try {
-						version->parse($version_string)->is_lax;
+						version::is_lax($version_string);
 					}
 					catch {
 						$version_string = 0 if $_;

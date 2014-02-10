@@ -72,7 +72,13 @@ use_module("Math::BigInt", 1.31)->new("1_234");
 
 prereq_is(
 	'use Module::Runtime;
-use_package_optimistically("Math::BigInto", 1.234)->new("1_234");
+use_module("Math::BigInt", 1.31)->new("1_234");
+', {'Math::BigInt' => 1.31}, 'use_module( M::N, x.xx )...'
+);
+
+prereq_is(
+	'use Module::Runtime;
+Module::Runtime::use_package_optimistically("Math::BigInto", 1.234)->new("1_234");
 ', {'Math::BigInto' => 1.234}, 'use_package_optimistically( M::N, x.xx )...'
 );
 
@@ -84,7 +90,19 @@ prereq_is(
 
 prereq_is(
 	'use Module::Runtime;
+    Module::Runtime::require_module(\'B::Hooks::EndOfScope::PP::HintHash\');
+', {'B::Hooks::EndOfScope::PP::HintHash' => 0}, 'require_module( M::N )'
+);
+
+prereq_is(
+	'use Module::Runtime;
 my $abc = use_module("Math::BigInt", 1.31)->new("1_234");
+', {'Math::BigInt' => 1.31}, 'my $abc = use_module( M::N, x.xx )...'
+);
+
+prereq_is(
+	'use Module::Runtime;
+my $abc = Module::Runtime::use_module("Math::BigInt", 1.31)->new("1_234");
 ', {'Math::BigInt' => 1.31}, 'my $abc = use_module( M::N, x.xx )...'
 );
 
@@ -139,6 +157,15 @@ plugin_config => $self->page_plugin_config,
 );
 
 prereq_is(
+	'use Module::Runtime;
+return Module::Runtime::use_module(\'App::SCS::PageSet\')->new(
+base_dir => $self->share_dir->catdir(\'pages\'),
+plugin_config => $self->page_plugin_config,
+);
+', {'App::SCS::PageSet' => 0}, 'return use_module( M::N )...'
+);
+
+prereq_is(
 'use Module::Runtime;
 sub _build_web {
   my ($self) = @_;
@@ -182,4 +209,3 @@ done_testing;
 
 __END__
 
-# we are only checking for module names so version string will always be zero
