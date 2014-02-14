@@ -176,8 +176,6 @@ sub _build_web {
 ', {'App::SCS::Web' => 0}, 'return use_module(\'App::SCS::Web\')...'
 );
 
-
-
 prereq_is(
 	'use Module::Runtime;
 return use_package_optimistically(\'App::SCS::PageSeto\')->new(
@@ -204,6 +202,11 @@ plugin_config => $self->page_plugin_config,
 #    };
 #', {'Moo::Role' => 0}, '("Moo::Role", 0)');
 
+prereq_is(
+	'use Module::Runtime;
+$abc = use_module("Math::BigInt", "zero")->new("1_234");
+', {'Math::BigInt' => 0}, '$abc = use_module( M::N )...'
+);
 
 done_testing;
 
