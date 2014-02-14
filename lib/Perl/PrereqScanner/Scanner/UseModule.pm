@@ -1,4 +1,3 @@
-use v5.10;
 use strict;
 use warnings;
 
@@ -9,7 +8,7 @@ package Perl::PrereqScanner::Scanner::UseModule;
 
 use Moo;
 with 'Perl::PrereqScanner::Scanner';
-use version;
+use Tie::Static qw(static);
 use Try::Tiny;
 
 =head1 DESCRIPTION
@@ -430,7 +429,7 @@ sub _module_names_ppi_sl {
 	if ($ppi_sl->isa('PPI::Structure::List')) {
 
 #		p $ppi_sl;
-		state $previous_module = undef;
+		static \ my $previous_module;
 		foreach my $ppi_se (@{$ppi_sl->{children}}) {
 			for (0 .. $#{$ppi_se->{children}}) {
 
@@ -455,15 +454,9 @@ sub _module_names_ppi_sl {
 					$version_string =~ s/(?:['|"])//g;
 					next if $version_string !~ m/\A[\d|v]/;
 
+					$version_string
+						= version::is_lax($version_string) ? $version_string : 0;
 
-					try {
-						version->parse($version_string)->is_lax;
-					}
-					catch {
-						$version_string = 0 if $_;
-					};
-
-					# warn 'found version_string - ' . $version_string;
 					try {
 						@$version_strings = $version_string if $previous_module;
 						$previous_module = undef;
@@ -472,8 +465,6 @@ sub _module_names_ppi_sl {
 			}
 		}
 	}
-
-
 }
 
 1;
