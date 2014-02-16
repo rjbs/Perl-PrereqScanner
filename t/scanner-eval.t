@@ -220,6 +220,11 @@ prereq_is(
 );
 
 prereq_is(
+  'my $HAVE_MOOSE = try { require Moose; "zero"; };',
+  {'Moose' => 0},
+);
+
+prereq_is(
   'my $HAVE_MOOSE = try { use Moose 2.000; 1; };',
   {'Moose' => '2.000'},
 );
