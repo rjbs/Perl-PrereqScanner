@@ -7,8 +7,8 @@ package Perl::PrereqScanner::Scanner::Eval;
 
 use Moo;
 with 'Perl::PrereqScanner::Scanner';
-use version 0.9902;
-use Try::Tiny 0.12;
+
+use Try::Tiny;
 
 =head1 DESCRIPTION
 
@@ -108,19 +108,13 @@ sub mod_ver {
 		# check for first char upper
 		next if not $module_name =~ m/\A(?:[A-Z])/;
 
-		my $version_number = $eval_include;
-		$version_number =~ s/$module_name\s*//;
-		$version_number =~ s/\s*$//;
-		$version_number =~ s/[A-Z_a-z]|\s|\$|s|:|;//g;
+		my $version_string = $eval_include;
+		$version_string =~ s/$module_name\s*//;
+		$version_string =~ s/\s*$//;
+		$version_string =~ s/[A-Z_a-z]|\s|\$|s|:|;//g;
+		$version_string = version::is_lax($version_string) ? $version_string : 0;
 
-		try {
-			version->parse($version_number)->is_lax;
-		}
-		catch {
-			$version_number = 0 if $_;
-		};
-
-		$req->add_minimum($module_name => $version_number);
+		$req->add_minimum($module_name => $version_string);
 
 	}
 
