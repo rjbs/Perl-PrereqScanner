@@ -8,8 +8,7 @@ package Perl::PrereqScanner::Scanner::TestRequires;
 use Moo;
 with 'Perl::PrereqScanner::Scanner';
 
-use version 0.9902;
-use Try::Tiny 0.12;
+use Try::Tiny;
 
 =head1 DESCRIPTION
 
@@ -110,17 +109,11 @@ try {
 										|| $element->isa('PPI::Token::Quote::Double')
 										|| $element->isa('PPI::Token::Quote::Single'))
 									{
-										my $version_number = $element->content;
-										$version_number =~ s/(?:'|")//g;
-										if ($version_number =~ m/\A(?:[0-9])/) {
-
-											try {
-												version->parse($version_number)->is_lax;
-											}
-											catch {
-												$version_number = 0 if $_;
-											};
-											$version_strings[$#modules] = $version_number;
+										my $version_string = $element->content;
+										$version_string =~ s/(?:'|")//g;
+										if ($version_string =~ m/\A(?:[0-9])/) {
+											$version_string = version::is_lax($version_string) ? $version_string : 0;
+											$version_strings[$#modules] = $version_string;
 										}
 									}
 								}

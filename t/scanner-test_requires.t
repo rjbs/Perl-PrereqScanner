@@ -96,8 +96,23 @@ prereq_is(
 }
 );
 
+prereq_is(
+'use Test::Requires {
+  "Test::Test1" => \'one\',
+  \'Test::Test2\' => \'two\',
+  }',
+{
+'Test::Test1' => 0,
+'Test::Test2' => 0,
+}
+);
+
 prereq_is("use Test::Requires { Moose => '2.000' }",
   {'Moose' => '2.000' }
+);
+
+prereq_is("use Test::Requires { Moose => 'zero' }",
+  {'Moose' => 0 }
 );
 
 prereq_is("use Test::Requires { Moo };",
