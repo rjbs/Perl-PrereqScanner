@@ -55,7 +55,7 @@ prereq_is(
   'BEGIN {
 		use_ok( \'Term::ReadKey\', \'2.30\' );
 		use_ok( \'Term::ReadLine\', \'1.10\' );
-	}', {'Term::ReadKey' => 0, 'Term::ReadLine' => 0,}
+	}', {'Term::ReadKey' => '2.30', 'Term::ReadLine' => '1.10',}
 );
 
 prereq_is(
@@ -65,7 +65,17 @@ prereq_is(
 		use_ok( \'Fred::BloggsThree\', 3.03 );
 
 	}',
-  {'Fred::BloggsOne' => 0, 'Fred::BloggsTwo' => 0, 'Fred::BloggsThree' => 0,}
+  {'Fred::BloggsOne' => 1.01, 'Fred::BloggsTwo' => 2.02, 'Fred::BloggsThree' => 3.03,}
+);
+
+prereq_is(
+  'BEGIN {
+		use_ok( \'Fred::BloggsOne\');
+		use_ok( "Fred::BloggsTwo", "two" );
+		use_ok( \'Fred::BloggsThree\', 3.03 );
+
+	}',
+  {'Fred::BloggsOne' => 0, 'Fred::BloggsTwo' => 0, 'Fred::BloggsThree' => 3.03,}
 );
 
 done_testing;
