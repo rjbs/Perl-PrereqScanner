@@ -270,6 +270,7 @@ prereq_is(
 'eval {require PAR::Dist; PAR::Dist->VERSION(0.17)}',
   {'PAR::Dist' => 0.17},
 );
+
 prereq_is(
 'try {require PAR::Dist; PAR::Dist->VERSION(0.17)};',
   {'PAR::Dist' => 0.17},
