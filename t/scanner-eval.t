@@ -25,6 +25,7 @@ sub prereq_is {
     diag($_);
   };
 
+
   # scan_string
   try {
     my $result = $scanner->scan_string($str);
@@ -47,6 +48,7 @@ sub prereq_is {
     fail("scanner died on: $comment");
     diag($_);
   };
+
 }
 
 prereq_is('', {}, '(empty string)');
@@ -84,9 +86,9 @@ prereq_is('eval { my $term = Term::ReadLine->new(\'none\') };',
   {}, '(empty string)');
 
 
-# we can now handle stuff like:
-# my $ver=1.22;
-# eval "use Test::Pod $ver;"
+## we can now handle stuff like:
+## my $ver=1.22;
+## eval "use Test::Pod $ver;"
 prereq_is('
 my $ver=1.22;
 eval "use Test::Pod $ver";',
@@ -178,7 +180,7 @@ prereq_is(
   {'Moose' => 0},
 );
 
-## try tests
+### try tests
 prereq_is(
 'try { require Locale::Msgfmt; Locale::Msgfmt->import(); };',
   { 'Locale::Msgfmt' => 0 }
@@ -234,13 +236,13 @@ prereq_is(
   {'Moose' => 0},
 );
 
-## test for #issue38
+### test for #issue38
 prereq_is(
   'do { try { require MooseX::Getopt; (traits => [\'Getopt\']) } };',
   { 'MooseX::Getopt' => 0},
 );
 
-### test for false positive - oliver++
+#### test for false positive - oliver++
 prereq_is(
 'ok(eval{ $p2->execute ;1}, \'execute method does not blow up\');',
   { }, ('false positive - execute')
@@ -260,7 +262,39 @@ prereq_is(
 'ok( try{ $p2->apply_params };, \'empty apply_params\');',
   { }, ('false positive - empty')
 );
-### ^^
+#### ^^
+
+
+### xdg
+prereq_is(
+'eval {require PAR::Dist; PAR::Dist->VERSION(0.17)}',
+  {'PAR::Dist' => 0.17},
+);
+
+prereq_is(
+'try {require PAR::Dist; PAR::Dist->VERSION(0.17)};',
+  {'PAR::Dist' => 0.17},
+);
+
+prereq_is(
+'eval {require PAR::Dist; PAR::Dist->VERSION("three")}',
+  {'PAR::Dist' => 0},
+);
+
+prereq_is(
+"    eval { require IO::Socket::IP; IO::Socket::IP->VERSION(0.25) } ? 'IO::Socket::IP' :
+    'IO::Socket::INET';",
+  {'IO::Socket::IP' => 0.25},
+);
+
+prereq_is(
+"    eval { require IO::Socket::IP; IO::Socket::IP->VERSION('zero') } ? 'IO::Socket::IP' :
+    'IO::Socket::INET';",
+  {'IO::Socket::IP' => 0},
+);
+
+## 
+
 
 done_testing;
 
