@@ -1,4 +1,3 @@
-use v5.16;
 use strict;
 use warnings;
 
@@ -201,6 +200,8 @@ sub mod_ver {
 		$module_name =~ s/(?:\s[\s|\w|\n|.|;]+)$//;
 		$module_name =~ s/\s+(?:[\$|\w|\n]+)$//;
 		$module_name =~ s/\s+$//;
+		$module_name =~ m/\A([\w|:]+)\b/;
+		$module_name = $1;
 
 		# check for first char upper
 		next if not $module_name =~ m/\A(?:[A-Z])/;
