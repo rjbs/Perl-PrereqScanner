@@ -61,6 +61,10 @@ CPAN::Meta::Requirements object describing the modules it requires.
 
 This method will throw an exception if PPI fails to parse the code.
 
+B<Warning!>  It isn't entirely clear whether PPI prefers to receive
+strings as octet strings or character strings.  For now, my advice
+is to pass octet strings.
+
 =cut
 
 sub scan_string {
@@ -125,6 +129,7 @@ describing the modules it requires.
 sub scan_module {
   my ($self, $module_name) = @_;
 
+  # consider rewriting to use Module::Which -- rjbs, 2013-11-03
   require Module::Path;
   if (defined(my $path = Module::Path::module_path($module_name))) {
     return $self->scan_file($path);
@@ -182,5 +187,9 @@ constructing your PrereqScanner:
 
   # Use any stock scanners, plus Example:
   my $scanner = Perl::PrereqScanner->new({ extra_scanners => [ qw(Example) ] });
+
+=head1 SEE ALSO
+
+L<scan-perl-prereqs>, in this distribution, is a command-line interface to the scanner
 
 =cut

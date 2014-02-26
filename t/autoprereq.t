@@ -77,6 +77,8 @@ prereq_is(
 
 prereq_is('require Require; Require->VERSION(0.50);', { Require => '0.50' });
 
+prereq_is('use Require; Require->VERSION(0.50);', { Require => '0.50' });
+
 prereq_is('require Require; Require->VERSION(+0.50);', { Require => 0 });
 
 prereq_is('require Require; foo(); Require->VERSION(1.00);', { Require => 0 });
