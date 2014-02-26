@@ -7,6 +7,13 @@ package Perl::PrereqScanner::Scanner::Eval;
 
 use Moo;
 with 'Perl::PrereqScanner::Scanner';
+<<<<<<< HEAD
+=======
+use version 0.9902;
+use Try::Tiny 0.12;
+use Data::Printer {caller_info => 1, colored => 1,};
+
+>>>>>>> bd5153b... let's refactor in to composed method
 
 =head1 DESCRIPTION
 
@@ -28,8 +35,11 @@ note all lines start with eval:
 
 sub scan_for_prereqs {
   my ($self, $ppi_doc, $req) = @_;
+<<<<<<< HEAD
   my @modules;
   my @version_strings;
+=======
+>>>>>>> bd5153b... let's refactor in to composed method
 
   #PPI::Document
   #  PPI::Statement
@@ -62,6 +72,7 @@ sub scan_for_prereqs {
         {
 
           my $eval_line = $element->content;
+<<<<<<< HEAD
           $eval_line =~ s/(?:'|"|{|})//g;
 
           if ($eval_line =~ /::/ && $eval_line =~ /^\s*[use|require|no]/) {
@@ -93,6 +104,88 @@ sub scan_for_prereqs {
   return;
 }
 
+=======
+
+#          p $eval_line;
+          $eval_line =~ s/(?:'|"|{|})//g;
+
+          my @eval_includes = split /;/, $eval_line;
+
+          foreach my $eval_include (@eval_includes) {
+            $self->mod_ver($req, $eval_include);
+          }
+        }
+      }
+
+      foreach my $element_block (@hunkdata) {
+        if ($element_block->isa('PPI::Structure::Block')) {
+
+          my @children = $element_block->children;
+
+          foreach my $child_element (@children) {
+            if ($child_element->isa('PPI::Statement::Include')) {
+
+              my $eval_line = $child_element->content;
+
+#          p $eval_line;
+              my @eval_includes = split /;/, $eval_line;
+
+              foreach my $eval_include (@eval_includes) {
+                $self->mod_ver($req, $eval_include);
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+
+  return;
+}
+
+#######
+# composed Method
+#######
+sub mod_ver {
+  my ($self, $req, $eval_include) = @_;
+
+
+  if ($eval_include =~ /^\s*[use|require|no]/) {
+
+    $eval_include =~ s/^\s*(?:use|require|no)\s*//;
+
+
+# p $eval_include;
+    my $module_name = $eval_include;
+
+    $module_name =~ s/(?:\s[\s|\w|\n|.|;]+)$//;
+    $module_name =~ s/\s+(?:[\$|\w|\n]+)$//;
+    $module_name =~ s/\s+$//;
+
+# p $module_name;
+
+    my $version_number = $eval_include;
+    $version_number =~ s/$module_name\s*//;
+    $version_number =~ s/\s*$//;
+    $version_number =~ s/[A-Z_a-z]|\s|\$|s|:|;//g;
+
+    try {
+      version->parse($version_number)->is_lax;
+    }
+    catch {
+      $version_number = 0 if $_;
+    };
+
+# p $version_number;
+    $req->add_minimum($module_name => $version_number);
+
+  }
+
+  return;
+}
+
+
+>>>>>>> bd5153b... let's refactor in to composed method
 1;
 
 __END__
