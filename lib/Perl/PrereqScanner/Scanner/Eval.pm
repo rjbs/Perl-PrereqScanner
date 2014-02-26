@@ -9,8 +9,6 @@ use Moo;
 with 'Perl::PrereqScanner::Scanner';
 
 use Try::Tiny;
-use Data::Printer {caller_info => 1, colored => 1,};
-
 
 =head1 DESCRIPTION
 
@@ -54,7 +52,12 @@ sub scan_for_prereqs {
 				)
 				)
 			{
+
 				for (0 .. $#{$chunk->{children}}) {
+
+					# ignore sub blocks - false positive
+					last if $chunk->{children}[$_]->content eq 'sub';
+
 
 					if ( $chunk->{children}[$_]->isa('PPI::Token::Quote::Double')
 						|| $chunk->{children}[$_]->isa('PPI::Token::Quote::Single'))
@@ -108,6 +111,7 @@ sub scan_for_prereqs {
 #          PPI::Statement::Expression
 #            PPI::Token::Number::Float  	'0.17'
 
+
 	try {
 		my @chunks2 = @{$ppi_doc->find('PPI::Statement')};
 
@@ -144,8 +148,6 @@ sub scan_for_prereqs {
 
 									$mod_name = $ppi_si->{children}[2]->content
 										if $ppi_si->{children}[2]->isa('PPI::Token::Word');
-
-#									p $mod_name;
 								}
 							}
 
@@ -168,19 +170,19 @@ sub scan_for_prereqs {
 										if $ppi_s->{children}[3]->isa('PPI::Structure::List');
 
 									$mod_ver = $ppi_sl->{children}[0]->{children}[0]->content;
-#									p $mod_ver;
-
 								}
 							}
 						}
 					}
 
-		$req->add_minimum($mod_name => $mod_ver) if version::is_lax($mod_ver);
+					$req->add_minimum($mod_name => $mod_ver)
+						if version::is_lax($mod_ver);
 
 				}
 			}
 		}
 	};
+
 
 	return;
 }
