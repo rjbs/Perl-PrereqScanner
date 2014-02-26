@@ -7,13 +7,8 @@ package Perl::PrereqScanner::Scanner::Eval;
 
 use Moo;
 with 'Perl::PrereqScanner::Scanner';
-<<<<<<< HEAD
-=======
-use version 0.9902;
-use Try::Tiny 0.12;
-use Data::Printer {caller_info => 1, colored => 1,};
 
->>>>>>> bd5153b... let's refactor in to composed method
+use Try::Tiny;
 
 =head1 DESCRIPTION
 
@@ -34,158 +29,199 @@ note all lines start with eval:
 
 
 sub scan_for_prereqs {
-  my ($self, $ppi_doc, $req) = @_;
-<<<<<<< HEAD
-  my @modules;
-  my @version_strings;
-=======
->>>>>>> bd5153b... let's refactor in to composed method
+	my ($self, $ppi_doc, $req) = @_;
 
-  #PPI::Document
-  #  PPI::Statement
-  #    PPI::Token::Word  	'eval'
-  #    PPI::Token::Whitespace  	' '
-  #    PPI::Token::Quote::Double  	'"require Test::Kwalitee::Extra $mod_ver"'
-  #    PPI::Token::Structure  	';'
+	#PPI::Document
+	#  PPI::Statement
+	#    PPI::Token::Word  	'eval'
+	#    PPI::Token::Whitespace  	' '
+	#    PPI::Token::Quote::Double  	'"require Test::Kwalitee::Extra $mod_ver"'
+	#    PPI::Token::Structure  	';'
 
-  my @chunks =
-    map  { [$_->schildren] }
-    grep { $_->child(0)->literal =~ m{\A(?:eval)\z} }
-    grep { $_->child(0)->isa('PPI::Token::Word') }
-    @{$ppi_doc->find('PPI::Statement') || []};
 
-  foreach my $hunk (@chunks) {
+	try {
+		my @chunks1 = @{$ppi_doc->find('PPI::Statement')};
 
-    if (
-      grep {
-             $_->isa('PPI::Token::Quote::Double')
-          || $_->isa('PPI::Token::Quote::Single')
-      } @$hunk
-      )
-    {
+		foreach my $chunk (@chunks1) {
+			if (
+				$chunk->find(
+					sub {
+						$_[1]->isa('PPI::Token::Word')
+							and $_[1]->content =~ m{\A(?:eval|try)\z};
+					}
+				)
+				)
+			{
 
-      # hack for List
-      my @hunkdata = @$hunk;
-      foreach my $element (@hunkdata) {
-        if ( $element->isa('PPI::Token::Quote::Double')
-          || $element->isa('PPI::Token::Quote::Single'))
-        {
+				for (0 .. $#{$chunk->{children}}) {
 
-          my $eval_line = $element->content;
-<<<<<<< HEAD
-          $eval_line =~ s/(?:'|"|{|})//g;
+					# ignore sub blocks - false positive
+					last if $chunk->{children}[$_]->content eq 'sub';
 
-          if ($eval_line =~ /::/ && $eval_line =~ /^\s*[use|require|no]/) {
 
-            $eval_line =~ s/^\s*(?:use|require|no)\s*//;
+					if ( $chunk->{children}[$_]->isa('PPI::Token::Quote::Double')
+						|| $chunk->{children}[$_]->isa('PPI::Token::Quote::Single'))
+					{
+						my $eval_line = $chunk->{children}[$_]->content;
+						$eval_line =~ s/(?:'|"|{|})//g;
+						my @eval_includes = split /;/, $eval_line;
 
-            my $module_name = $eval_line;
+						foreach my $eval_include (@eval_includes) {
+							$self->mod_ver($req, $eval_include);
+						}
+					}
 
-            $module_name =~ s/(?:\s[\s|\w|\n|.|;]+)$//;
-            $module_name =~ s/\s+(?:[\$|\w|\n]+)$//;
-            $module_name =~ s/\s+$//;
-            push @modules, $module_name;
+					if ($chunk->{children}[$_]->isa('PPI::Structure::Block')) {
+						my @children = $chunk->{children}[$_]->children;
 
-            my $version_number = $eval_line;
-            $version_number =~ s/$module_name\s*//;
-            $version_number =~ s/\s*$//;
-			$version_number =~ s/[A-Z_a-z]|\$//g;
-            push @version_strings, $version_number || 0;
-          }
-        }
-      }
-    }
-  }
+						foreach my $child_element (@children) {
+							if ($child_element->isa('PPI::Statement::Include')) {
 
-  foreach (0 .. $#modules) {
-    $req->add_minimum($modules[$_] => $version_strings[$_]);
-  }
+								my $eval_line = $child_element->content;
+								my @eval_includes = split /;/, $eval_line;
 
-  return;
-}
+								foreach my $eval_include (@eval_includes) {
+									$self->mod_ver($req, $eval_include);
+								}
+							}
+						}
+					}
+				}
+			}
+		}
+	};
 
-=======
 
-#          p $eval_line;
-          $eval_line =~ s/(?:'|"|{|})//g;
+#PPI::Document
+#  PPI::Statement
+#    PPI::Token::Word  	'eval'
+#    PPI::Token::Whitespace  	' '
+#    PPI::Structure::Block  	{ ... }
+#      PPI::Statement::Include
+#        PPI::Token::Word  	'require'
+#        PPI::Token::Whitespace  	' '
+#        PPI::Token::Word  	'PAR::Dist'
+#        PPI::Token::Structure  	';'
+#      PPI::Token::Whitespace  	' '
+#      PPI::Statement
+#        PPI::Token::Word  	'PAR::Dist'
+#        PPI::Token::Operator  	'->'
+#        PPI::Token::Word  	'VERSION'
+#        PPI::Structure::List  	( ... )
+#          PPI::Statement::Expression
+#            PPI::Token::Number::Float  	'0.17'
 
-          my @eval_includes = split /;/, $eval_line;
 
-          foreach my $eval_include (@eval_includes) {
-            $self->mod_ver($req, $eval_include);
-          }
-        }
-      }
+	try {
+		my @chunks2 = @{$ppi_doc->find('PPI::Statement')};
 
-      foreach my $element_block (@hunkdata) {
-        if ($element_block->isa('PPI::Structure::Block')) {
+		foreach my $chunk (@chunks2) {
+			if (
+				$chunk->find(
+					sub {
+						$_[1]->isa('PPI::Token::Word')
+							and $_[1]->content =~ m{\A(?:eval|try)\z};
+					}
+				)
+				)
+			{
 
-          my @children = $element_block->children;
+				my $mod_name;
+				my $mod_ver;
+				for (0 .. $#{$chunk->{children}}) {
 
-          foreach my $child_element (@children) {
-            if ($child_element->isa('PPI::Statement::Include')) {
+					if ($chunk->{children}[$_]->isa('PPI::Structure::Block')) {
 
-              my $eval_line = $child_element->content;
+						my $ppi_sb = $chunk->{children}[$_]
+							if $chunk->{children}[$_]->isa('PPI::Structure::Block');
 
-#          p $eval_line;
-              my @eval_includes = split /;/, $eval_line;
+						for (0 .. $#{$ppi_sb->{children}}) {
 
-              foreach my $eval_include (@eval_includes) {
-                $self->mod_ver($req, $eval_include);
-              }
-            }
-          }
-        }
-      }
-    }
-  }
+							if ($ppi_sb->{children}[$_]->isa('PPI::Statement::Include')) {
 
-  return;
+								my $ppi_si = $ppi_sb->{children}[$_]
+									if $ppi_sb->{children}[$_]->isa('PPI::Statement::Include');
+
+								if ( $ppi_si->{children}[0]->isa('PPI::Token::Word')
+									&& $ppi_si->{children}[0]->content eq 'require')
+								{
+
+									$mod_name = $ppi_si->{children}[2]->content
+										if $ppi_si->{children}[2]->isa('PPI::Token::Word');
+								}
+							}
+
+							if ($ppi_sb->{children}[$_]->isa('PPI::Statement')) {
+
+								my $ppi_s = $ppi_sb->{children}[$_]
+									if $ppi_sb->{children}[$_]->isa('PPI::Statement');
+
+								if (
+									(
+										    $ppi_s->{children}[0]->isa('PPI::Token::Word')
+										and $ppi_s->{children}[0]->content eq $mod_name
+									)
+									&& (  $ppi_s->{children}[2]->isa('PPI::Token::Word')
+										and $ppi_s->{children}[2]->content eq 'VERSION')
+									)
+								{
+
+									my $ppi_sl = $ppi_s->{children}[3]
+										if $ppi_s->{children}[3]->isa('PPI::Structure::List');
+
+									$mod_ver = $ppi_sl->{children}[0]->{children}[0]->content;
+								}
+							}
+						}
+					}
+
+					$req->add_minimum($mod_name => $mod_ver)
+						if version::is_lax($mod_ver);
+
+				}
+			}
+		}
+	};
+
+
+	return;
 }
 
 #######
 # composed Method
 #######
 sub mod_ver {
-  my ($self, $req, $eval_include) = @_;
+	my ($self, $req, $eval_include) = @_;
 
+	if ($eval_include =~ /^\s*[use|require|no]/) {
 
-  if ($eval_include =~ /^\s*[use|require|no]/) {
+		$eval_include =~ s/^\s*(?:use|require|no)\s*//;
 
-    $eval_include =~ s/^\s*(?:use|require|no)\s*//;
+		my $module_name = $eval_include;
 
+		$module_name =~ s/(?:\s[\s|\w|\n|.|;]+)$//;
+		$module_name =~ s/\s+(?:[\$|\w|\n]+)$//;
+		$module_name =~ s/\s+$//;
+		$module_name =~ m/\A([\w|:]+)\b/;
+		$module_name = $1;
 
-# p $eval_include;
-    my $module_name = $eval_include;
+		# check for first char upper
+		next if not $module_name =~ m/\A(?:[A-Z])/;
 
-    $module_name =~ s/(?:\s[\s|\w|\n|.|;]+)$//;
-    $module_name =~ s/\s+(?:[\$|\w|\n]+)$//;
-    $module_name =~ s/\s+$//;
+		my $version_string = $eval_include;
+		$version_string =~ s/$module_name\s*//;
+		$version_string =~ s/\s*$//;
+		$version_string =~ s/[A-Z_a-z]|\s|\$|s|:|;//g;
+		$version_string = version::is_lax($version_string) ? $version_string : 0;
 
-# p $module_name;
+		$req->add_minimum($module_name => $version_string);
 
-    my $version_number = $eval_include;
-    $version_number =~ s/$module_name\s*//;
-    $version_number =~ s/\s*$//;
-    $version_number =~ s/[A-Z_a-z]|\s|\$|s|:|;//g;
+	}
 
-    try {
-      version->parse($version_number)->is_lax;
-    }
-    catch {
-      $version_number = 0 if $_;
-    };
-
-# p $version_number;
-    $req->add_minimum($module_name => $version_number);
-
-  }
-
-  return;
+	return;
 }
 
 
->>>>>>> bd5153b... let's refactor in to composed method
 1;
 
 __END__
