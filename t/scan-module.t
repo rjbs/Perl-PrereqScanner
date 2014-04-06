@@ -25,6 +25,8 @@ sub module_prereq_is {
 
 }
 
+<<<<<<< HEAD
+=======
 # Test with some Core modules whose dependencies are unlikely to change (very often)
 
 module_prereq_is('Getopt::Std', {'Exporter' => 0, 'perl' => '5.000',},);
@@ -33,6 +35,7 @@ module_prereq_is('Carp',
   {'Exporter' => 0, 'perl' => '5.006', 'strict' => 0, 'warnings' => 0,},
 );
 
+>>>>>>> 55105daeacaa0d190c880a1c5b9a409ef0a97049
 # Test with ourself!
 
 module_prereq_is(
