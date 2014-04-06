@@ -288,6 +288,12 @@ prereq_is(
 );
 
 prereq_is(
+"    unless eval { require IO::Socket::IP; IO::Socket::IP->VERSION(0.26) } ? 'IO::Socket::IP' :
+    'IO::Socket::INET';",
+  {'IO::Socket::IP' => 0.26},
+);
+
+prereq_is(
 "    eval { require IO::Socket::IP; IO::Socket::IP->VERSION('zero') } ? 'IO::Socket::IP' :
     'IO::Socket::INET';",
   {'IO::Socket::IP' => 0},
@@ -319,6 +325,41 @@ sub _parse_http_date {
 ',
   {},'test for false positive - Time::Local'
 );
+prereq_is(
+"    eval { require IO::Socket::IP; IO::Socket::IP->VERSION('zero') } ? 'IO::Socket::IP' :
+    'IO::Socket::INET';",
+  {'IO::Socket::IP' => 0},
+);
+
+prereq_is(
+"    sub _foo {
+		eval { require IO::Socket::SSL; IO::Socket::SSL->VERSION(1.44) };
+}",
+  {'IO::Socket::SSL' => '1.44'},
+);
+
+prereq_is(
+"    sub _bar {
+		unless eval { require IO::Socket::SSL; IO::Socket::SSL->VERSION(1.45) };
+}",
+  {'IO::Socket::SSL' => '1.45'},
+);
+
+prereq_is(
+"    sub _bar {
+		unless eval { require IO::Socket::SSL; IO::Socket::SSL->VERSION(1.45) };
+}",
+  {'IO::Socket::SSL' => '1.45'},
+);
+
+prereq_is(
+"    sub _bar {
+		die(qq/IO::Socket::SSL 1.42 must be installed for https support\n/)
+		unless eval { require IO::Socket::SSL; IO::Socket::SSL->VERSION(1.42) };
+}",
+  {'IO::Socket::SSL' => '1.42'},
+);
+
 
 done_testing;
 

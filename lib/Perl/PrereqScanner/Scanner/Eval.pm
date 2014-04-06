@@ -9,6 +9,7 @@ use Moo;
 with 'Perl::PrereqScanner::Scanner';
 
 use Try::Tiny;
+use List::Util qw(any first);
 
 =head1 DESCRIPTION
 
@@ -126,8 +127,8 @@ sub scan_for_prereqs {
 				)
 			{
 
-				my $mod_name;
-				my $mod_ver;
+				my $module_name;
+				my $module_version;
 				for (0 .. $#{$chunk->{children}}) {
 
 					if ($chunk->{children}[$_]->isa('PPI::Structure::Block')) {
@@ -135,49 +136,99 @@ sub scan_for_prereqs {
 						my $ppi_sb = $chunk->{children}[$_]
 							if $chunk->{children}[$_]->isa('PPI::Structure::Block');
 
+						$self->eval_info($ppi_sb, \$module_name, \$module_version);
+
+					}
+
+					$req->add_minimum($module_name => $module_version)
+						if version::is_lax($module_version);
+
+				}
+			}
+		}
+	};
+
+#PPI::Document
+#  PPI::Statement::Sub
+#    PPI::Token::Word  	'sub'
+#    PPI::Token::Whitespace  	' '
+#    PPI::Token::Word  	'_assert_ssl'
+#    PPI::Token::Whitespace  	' '
+#    PPI::Structure::Block  	{ ... }
+#      PPI::Token::Whitespace  	'\n'
+#      PPI::Token::Whitespace  	'\t\t'
+#      PPI::Statement
+#        PPI::Token::Word  	'eval'
+#        PPI::Token::Whitespace  	' '
+#        PPI::Structure::Block  	{ ... }
+#          PPI::Token::Whitespace  	' '
+#          PPI::Statement::Include
+#            PPI::Token::Word  	'require'
+#            PPI::Token::Whitespace  	' '
+#            PPI::Token::Word  	'IO::Socket::SSL'
+#            PPI::Token::Structure  	';'
+#          PPI::Token::Whitespace  	' '
+#          PPI::Statement
+#            PPI::Token::Word  	'IO::Socket::SSL'
+#            PPI::Token::Operator  	'->'
+#            PPI::Token::Word  	'VERSION'
+#            PPI::Structure::List  	( ... )
+#              PPI::Statement::Expression
+#                PPI::Token::Number::Float  	'1.44'
+#          PPI::Token::Whitespace  	' '
+#        PPI::Token::Structure  	';'
+#      PPI::Token::Whitespace  	'\n'
+
+	try {
+		my @chunks3 = @{$ppi_doc->find('PPI::Statement::Sub')};
+
+		foreach my $chunk (@chunks3) {
+
+			if (
+				$chunk->find(
+					sub {
+						$_[1]->isa('PPI::Token::Word')
+							and $_[1]->content =~ m{\A(?:sub)\z};
+					}
+				)
+				)
+			{
+
+				my $module_name;
+				my $module_version;
+				for (0 .. $#{$chunk->{children}}) {
+					if ($chunk->{children}[$_]->isa('PPI::Structure::Block')) {
+						my $ppi_sb = $chunk->{children}[$_]
+							if $chunk->{children}[$_]->isa('PPI::Structure::Block');
 						for (0 .. $#{$ppi_sb->{children}}) {
-
-							if ($ppi_sb->{children}[$_]->isa('PPI::Statement::Include')) {
-
-								my $ppi_si = $ppi_sb->{children}[$_]
-									if $ppi_sb->{children}[$_]->isa('PPI::Statement::Include');
-
-								if ( $ppi_si->{children}[0]->isa('PPI::Token::Word')
-									&& $ppi_si->{children}[0]->content eq 'require')
-								{
-
-									$mod_name = $ppi_si->{children}[2]->content
-										if $ppi_si->{children}[2]->isa('PPI::Token::Word');
-								}
-							}
-
 							if ($ppi_sb->{children}[$_]->isa('PPI::Statement')) {
-
 								my $ppi_s = $ppi_sb->{children}[$_]
 									if $ppi_sb->{children}[$_]->isa('PPI::Statement');
-
+								my @chunks3 = @{$ppi_s->{children}};
 								if (
-									(
-										    $ppi_s->{children}[0]->isa('PPI::Token::Word')
-										and $ppi_s->{children}[0]->content eq $mod_name
-									)
-									&& (  $ppi_s->{children}[2]->isa('PPI::Token::Word')
-										and $ppi_s->{children}[2]->content eq 'VERSION')
+									any {
+										$_->isa('PPI::Token::Word')
+											and $_->content =~ m{\A(?:eval|try)\z};
+									}
+									@{$ppi_s->{children}}
 									)
 								{
+									my @ppisb = first {
+										$_->isa('PPI::Structure::Block');
+									}
+									@{$ppi_s->{children}};
 
-									my $ppi_sl = $ppi_s->{children}[3]
-										if $ppi_s->{children}[3]->isa('PPI::Structure::List');
+									# extract first Structure::Block
+									my $ppi_sb = $ppisb[0];
 
-									$mod_ver = $ppi_sl->{children}[0]->{children}[0]->content;
+									$self->eval_info($ppi_sb, \$module_name, \$module_version);
+
+									$req->add_minimum($module_name => $module_version)
+										if version::is_lax($module_version);
 								}
 							}
 						}
 					}
-
-					$req->add_minimum($mod_name => $mod_ver)
-						if version::is_lax($mod_ver);
-
 				}
 			}
 		}
@@ -221,8 +272,52 @@ sub mod_ver {
 	return;
 }
 
+#######
+# composed Method
+#######
+sub eval_info {
+	my ($self, $ppi_sb, $mn_ref, $mv_ref) = @_;
+
+	for (0 .. $#{$ppi_sb->{children}}) {
+
+		# find module name
+		if ($ppi_sb->{children}[$_]->isa('PPI::Statement::Include')) {
+			my $ppi_si = $ppi_sb->{children}[$_]
+				if $ppi_sb->{children}[$_]->isa('PPI::Statement::Include');
+			if ( $ppi_si->{children}[0]->isa('PPI::Token::Word')
+				&& $ppi_si->{children}[0]->content eq 'require')
+			{
+				${$mn_ref} = $ppi_si->{children}[2]->content
+					if $ppi_si->{children}[2]->isa('PPI::Token::Word');
+			}
+		}
+
+		# find module version if we previously found a name
+		if ($ppi_sb->{children}[$_]->isa('PPI::Statement')) {
+			my $ppi_s = $ppi_sb->{children}[$_]
+				if $ppi_sb->{children}[$_]->isa('PPI::Statement');
+			if (
+				(
+					    $ppi_s->{children}[0]->isa('PPI::Token::Word')
+					and $ppi_s->{children}[0]->content eq ${$mn_ref}
+				)
+				&& (  $ppi_s->{children}[2]->isa('PPI::Token::Word')
+					and $ppi_s->{children}[2]->content eq 'VERSION')
+				)
+			{
+				my $ppi_sl = $ppi_s->{children}[3]
+					if $ppi_s->{children}[3]->isa('PPI::Structure::List');
+				${$mv_ref} = $ppi_sl->{children}[0]->{children}[0]->content;
+			}
+		}
+	}
+
+	return;
+}
+
 
 1;
 
 __END__
+
 
