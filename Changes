@@ -1,6 +1,8 @@
 Revision history for Perl-PrereqScanner
 
 {{$NEXT}}
+
+1.020     2014-07-02 18:52:33-04:00 America/New_York
   - update CPAN::Meta::Requirements version to match current formatting
 
 1.019     2014-01-07 19:37:41-05:00 America/New_York
