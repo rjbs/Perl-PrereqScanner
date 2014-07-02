@@ -1,6 +1,7 @@
 Revision history for Perl-PrereqScanner
 
 {{$NEXT}}
+  - update CPAN::Meta::Requirements version to match current formatting
 
 1.019     2014-01-07 19:37:41-05:00 America/New_York
   - add a warning about PPI's unclear interpretation of strings

@@ -29,7 +29,7 @@ sub module_prereq_is {
 module_prereq_is(
   'Perl::PrereqScanner',
   {
-    'CPAN::Meta::Requirements'      => '2.120630',
+    'CPAN::Meta::Requirements'      => '2.124',
     'List::Util'                    => 0,
     'Module::Path'                  => 0,
     'Moose'                         => 0,
