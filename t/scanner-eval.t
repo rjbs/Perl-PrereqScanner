@@ -360,6 +360,16 @@ prereq_is(
   {'IO::Socket::SSL' => '1.42'},
 );
 
+prereq_is(
+" BEGIN {
+    eval { require Scalar::Util; Scalar::Util->import(\"weaken\"); 1 }
+	|| eval { require WeakRef; WeakRef->import(\"weaken\"); 1 }
+	|| die \"no support for weaken - please install Scalar::Util\";
+}",
+  {'Scalar::Util' => 0, 'WeakRef' => 0 },'test for false positive - support'
+
+);
+
 
 done_testing;
 
