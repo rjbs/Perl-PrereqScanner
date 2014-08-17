@@ -33,7 +33,7 @@ module_prereq_is(
     'List::Util'                    => 0,
     'Module::Path'                  => 0,
     'Moose'                         => 0,
-    'PPI'                           => '1.215',
+    'PPI'                           => '1.218',
     'Params::Util'                  => 0,
     'Perl::PrereqScanner::Scanner'  => 0,
     'String::RewritePrefix'         => '0.005',

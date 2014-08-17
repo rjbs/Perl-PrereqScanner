@@ -10,7 +10,7 @@ use Moose;
 use List::Util qw(max);
 use Params::Util qw(_CLASS);
 use Perl::PrereqScanner::Scanner;
-use PPI 1.215; # module_version, bug fixes
+use PPI 1.218; # module_version, bug fixes and no limit on input document size
 use String::RewritePrefix 0.005 rewrite => {
   -as => '__rewrite_scanner',
   prefixes => { '' => 'Perl::PrereqScanner::Scanner::', '=' => '' },
