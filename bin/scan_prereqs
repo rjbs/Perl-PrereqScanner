@@ -6,9 +6,6 @@ use strict;
 use warnings;
 
 use File::Find;
-use File::Spec::Functions qw{ catdir updir };
-use FindBin qw{ $Bin };
-use lib catdir( $Bin, updir, 'lib' );
 
 use List::Util qw{ max };
 use Perl::PrereqScanner;
@@ -29,7 +26,7 @@ foreach my $file ( @ARGV ? @ARGV : '.' ) {
 sub scan_dir {
     find( {
         no_chdir => 1, 
-        wanted => sub { scan_file($_) if /\.(pl|pm|psgi|t)$/; }
+        wanted => sub { scan_file($_) if /\.(pl|pm|psgi|t)$/ && -f $_; }
     }, shift );
 }
 
