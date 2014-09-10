@@ -29,7 +29,7 @@ foreach my $file ( @ARGV ? @ARGV : '.' ) {
 sub scan_dir {
     find( {
         no_chdir => 1, 
-        wanted => sub { scan_file($_) if /\.(pl|pm|psgi|t)$/; }
+        wanted => sub { scan_file($_) if /\.(pl|pm|psgi|t)$/ && -f $_; }
     }, shift );
 }
 
