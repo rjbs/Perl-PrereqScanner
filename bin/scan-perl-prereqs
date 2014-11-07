@@ -5,11 +5,9 @@ package Perl::PrereqScanner::App;
 use strict;
 use warnings;
 
-use File::Find;
-use File::Spec::Functions qw{ catdir updir };
-use FindBin qw{ $Bin };
-use lib catdir( $Bin, updir, 'lib' );
+use lib ();
 
+use File::Find;
 use List::Util qw{ max };
 use Perl::PrereqScanner;
 use CPAN::Meta::Requirements ();
@@ -19,12 +17,15 @@ use Getopt::Long::Descriptive;
 
 my ($opt, $usage) = describe_options(
   'scan-perl-prereqs %o [DIR|FILES]',
-  [ 'pretty'  => 'format for human consumption, not toolchain' ],
-  [ 'by-file' => 'emit one stanza per file'  ],
+  [ 'pretty'   => 'format for human consumption, not toolchain' ],
+  [ 'by-file'  => 'emit one stanza per file'  ],
+  [ 'lib|I=s@' => 'specifies include paths, like perl\'s -I' ],
 
   [ 'version' => 'print usage message and exit' ],
   [ 'help'    => 'print version and exit' ],
 );
+
+lib->import(@{ $opt->lib }) if $opt->lib;
 
 print('scan-perl-prereqs v' . (Perl::PrereqScanner->VERSION || 'DEV') . "\n")
   if $opt->version;

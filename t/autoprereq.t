@@ -49,6 +49,7 @@ sub prereq_is {
 prereq_is('', { }, '(empty string)');
 prereq_is('use Use::NoVersion;', { 'Use::NoVersion' => 0 });
 prereq_is('use Use::Version 0.50;', { 'Use::Version' => '0.50' });
+prereq_is('use Errno 0.50;', { 'Errno' => '0.50' });
 prereq_is('require Require;', { Require => 0 });
 
 prereq_is(
