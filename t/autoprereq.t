@@ -659,6 +659,13 @@ prereq_is(
   },
 );
 
+prereq_is(
+  q{use aliased;},
+  {
+    'aliased' => 0,
+  },
+);
+
 # rolsky says this is a problem case
 prereq_is(
   q{use Test::Requires 'Foo'},
