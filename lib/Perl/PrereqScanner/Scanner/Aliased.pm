@@ -32,6 +32,7 @@ sub scan_for_prereqs {
         || $_->isa('PPI::Token::Quote')
         } $node->arguments;
 
+      next unless @args;
       my ($module) = $self->_q_contents($args[0]);
       $req->add_minimum($module => 0);
     }
