@@ -43,7 +43,7 @@ OUTPUT
 
 ) {
     my ( $name, $args, $exp ) = @$test;
-    my $command = "$^X $script $args $files";
+    my $command = qq{"$^X" $script $args $files};
     my $out = do {
         open(my $fh, "$command |")
             or die "Failed to execute '$command': $!";
