@@ -5,7 +5,7 @@ package Perl::PrereqScanner::Scanner::TestMore;
 # ABSTRACT: scanner to find recent Test::More usage
 
 use Moose;
-use List::MoreUtils 'none';
+use List::Util 1.33 'none';
 with 'Perl::PrereqScanner::Scanner';
 
 sub scan_for_prereqs {
