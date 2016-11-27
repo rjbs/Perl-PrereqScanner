@@ -7,9 +7,11 @@ package Perl::PrereqScanner;
 
 use Moose;
 
+use Safe::Isa qw( $_isa );
 use List::Util qw(max);
 use Params::Util qw(_CLASS);
 use Perl::PrereqScanner::Scanner;
+use Perl::PrereqScanner::Filter;
 use PPI 1.215; # module_version, bug fixes
 use String::RewritePrefix 0.005 rewrite => {
   -as => '__rewrite_scanner',
@@ -25,6 +27,13 @@ has scanners => (
   isa => 'ArrayRef[Perl::PrereqScanner::Scanner]',
   init_arg => undef,
   writer   => '_set_scanners',
+);
+
+has filters => (
+  is  => 'ro',
+  isa => 'ArrayRef[Perl::PrereqScanner::Filter]',
+  init_arg => undef,
+  writer   => '_set_filters',
 );
 
 sub __scanner_from_str {
@@ -50,6 +59,7 @@ sub BUILD {
   my $scanners = $self->__prepare_scanners([ @scanners, @extra_scanners ]);
 
   $self->_set_scanners($scanners);
+  $self->_set_filters([]);
 }
 
 =method scan_string
@@ -105,7 +115,14 @@ describing the modules it requires.
 =cut
 
 sub scan_ppi_document {
-  my ($self, $ppi_doc) = @_;
+  my ($self, $orig_ppi_doc) = @_;
+
+  my $ppi_doc = $orig_ppi_doc->clone;
+
+  for my $filter (@{ $self->{filters} }) {
+    $ppi_doc = $filter->filter_ppi_document($ppi_doc);
+    confess "Filter $filter failed to return a PPI::Document" unless $ppi_doc->$_isa("PPI::Document");
+  }
 
   my $req = CPAN::Meta::Requirements->new;
 
