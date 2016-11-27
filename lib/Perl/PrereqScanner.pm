@@ -16,6 +16,9 @@ use PPI 1.215; # module_version, bug fixes
 use String::RewritePrefix 0.005 rewrite => {
   -as => '__rewrite_scanner',
   prefixes => { '' => 'Perl::PrereqScanner::Scanner::', '=' => '' },
+}, rewrite => {
+  -as => '__rewrite_filter',
+  prefixes => { '' => 'Perl::PrereqScanner::Filter::', '=' => '' },
 };
 
 use CPAN::Meta::Requirements 2.124; # normalized v-strings
@@ -50,16 +53,33 @@ sub __prepare_scanners {
   return \@scanners;
 }
 
+sub __filter_from_str {
+  my $class = __rewrite_filter($_[0]);
+  confess "illegal class name: $class" unless _CLASS($class);
+  eval "require $class; 1" or die $@;
+  return $class->new;
+}
+
+sub __prepare_filters {
+  my ($self, $specs) = @_;
+  my @scanners = map {; ref $_ ? $_ : __filter_from_str($_) } @$specs;
+
+  return \@scanners;
+}
+
 sub BUILD {
   my ($self, $arg) = @_;
 
   my @scanners = @{ $arg->{scanners} || [ qw(Perl5 Superclass TestMore Moose Aliased POE) ] };
+  my @filters  = @{ $arg->{filters}  || [ ] };
+
   my @extra_scanners = @{ $arg->{extra_scanners} || [] };
 
   my $scanners = $self->__prepare_scanners([ @scanners, @extra_scanners ]);
+  my $filters  = $self->__prepare_filters([ @filters ]);
 
   $self->_set_scanners($scanners);
-  $self->_set_filters([]);
+  $self->_set_filters($filters);
 }
 
 =method scan_string
@@ -204,6 +224,16 @@ constructing your PrereqScanner:
 
   # Use any stock scanners, plus Example:
   my $scanner = Perl::PrereqScanner->new({ extra_scanners => [ qw(Example) ] });
+
+=head2 Filter Plugins
+
+Perl::PrereqScanner also supports document restructuring filters, which can be
+useful in situations where code hides inside quoted strings. Assuming a filter
+can remove the effect of the quoting safely, subsequent scanners will be able
+to see the revealed code.
+
+  my $scanner = Perl::PrereqScanner->new({ filters  => [ qw(ExampleFilter) ],
+                                           scanners => [ qw(Perl5)         ], });
 
 =head1 SEE ALSO
 
