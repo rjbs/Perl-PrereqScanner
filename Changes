@@ -1,6 +1,7 @@
 Revision history for Perl-PrereqScanner
 
 {{$NEXT}}
+  - switched from List::MoreUtils to List::Util
 
 1.023     2015-04-05 22:23:53-04:00 America/New_York
   - improve test reliability when path to perl has a space in it
