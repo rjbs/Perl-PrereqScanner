@@ -1,6 +1,8 @@
 Revision history for Perl-PrereqScanner
 
 {{$NEXT}}
+
+1.024     2021-07-03 13:28:30-04:00 America/New_York
         - switched from List::MoreUtils to List::Util (thanks, Karen
           Etheridge!)
         - update author contact info
