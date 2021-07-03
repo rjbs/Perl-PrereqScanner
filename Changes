@@ -1,160 +1,162 @@
 Revision history for Perl-PrereqScanner
 
 {{$NEXT}}
-  - switched from List::MoreUtils to List::Util
+        - switched from List::MoreUtils to List::Util (thanks, Karen
+          Etheridge!)
+        - update author contact info
+        - add docs on perl version policy
 
 1.023     2015-04-05 22:23:53-04:00 America/New_York
-  - improve test reliability when path to perl has a space in it
+        - improve test reliability when path to perl has a space in it
 
 1.022     2014-12-23 21:11:27-05:00 America/New_York
-  - do not crash when encountering arg-less "use aliased;"
+        - do not crash when encountering arg-less "use aliased;"
 
 1.021     2014-11-06 21:08:49-05:00 America/New_York
-  - instead of always trying to use lib, add a -I switch to scan-perl-prereqs
-  - when finding files to scan, find files, not anything else
+        - instead of always trying to use lib, add a -I switch to
+          scan-perl-prereqs
+        - when finding files to scan, find files, not anything else
 
 1.020     2014-07-02 18:52:33-04:00 America/New_York
-  - update CPAN::Meta::Requirements version to match current formatting
+        - update CPAN::Meta::Requirements version to match current formatting
 
 1.019     2014-01-07 19:37:41-05:00 America/New_York
-  - add a warning about PPI's unclear interpretation of strings
+        - add a warning about PPI's unclear interpretation of strings
 
 1.018     2013-11-03 21:53:46 America/New_York
-  - make the scan-perl-prereqs program also scan .PL and .cgi files
-  - also check for "Foo->VERSION(x)" after "require Foo"
-  - doc improvements from David Steinbrunner and Karen Etheridge
+        - make the scan-perl-prereqs program also scan .PL and .cgi files
+        - also check for "Foo->VERSION(x)" after "require Foo"
+        - doc improvements from David Steinbrunner and Karen Etheridge
 
 1.017     2013-10-07 17:56:34 America/New_York
-  - eliminate testing of Carp for its prereqs, which *did* change from older
-    5.8.8 installs
+        - eliminate testing of Carp for its prereqs, which *did* change from
+        older 5.8.8 installs
 
 1.016     2013-06-19 21:27:44 America/New_York
-  - new executable is bundled, scan-perl-prereqs, to take the plae of
-    scan_prereqs;  it has cpanm-friendly output by default, but supports
-    --pretty and --by-file (thanks to John SJ Anderson for some of the work on
-    this!)
+        - new executable is bundled, scan-perl-prereqs, to take the plae of
+          scan_prereqs;  it has cpanm-friendly output by default, but supports
+          --pretty and --by-file (thanks to John SJ Anderson for some of the
+          work on this!)
 
-  - add Superclass scanner for superclass.pm (thanks, David Golden!)
-  - make scan_prereqs scan .t files (thanks, David Golden!)
-  - add scan_module method (thanks, Neil Bowers!)
-  - lib.pm is now indexed in 02packages; stop skipping it (thanks, Kevin
-    Dawson!)
+        - add Superclass scanner for superclass.pm (thanks, David Golden!)
+        - make scan_prereqs scan .t files (thanks, David Golden!)
+        - add scan_module method (thanks, Neil Bowers!)
+        - lib.pm is now indexed in 02packages; stop skipping it (thanks, Kevin
+          Dawson!)
 
 1.015     2012-12-14 22:07:55 America/New_York
-  - document that "no Module" also works (thanks for the report, Toby Inkster)
+        - document that "no Module" also works (thanks for the report, Toby
+          Inkster)
 
 1.014     2012-07-26 13:22:02 America/New_York
-  - require a more recent PPI for various bugfixes that broke tests
-    (thanks for the report, Salve J. Nilsen)
+        - require a more recent PPI for various bugfixes that broke tests
+          (thanks for the report, Salve J. Nilsen)
 
 1.013     2012-07-01 17:21:25 America/New_York
- - make scan_prereqs scan directories recursively (thanks, Jakob Voss)
-
- - if PPI parsing fails, include PPI::Document->errstr in error message
-   (Christopher J. Madsen)
+        - make scan_prereqs scan directories recursively (thanks, Jakob Voss)
+        - if PPI parsing fails, include PPI::Document->errstr in error message
+          (Christopher J. Madsen)
 
 1.012     2012-06-27 16:17:28 America/New_York
-  - fix "with (...)" where spaces occur between with and parenthesized list
-    (thanks to celogeek for the failing test)
+        - fix "with (...)" where spaces occur between with and parenthesized
+          list (thanks to celogeek for the failing test)
 
 1.011     2012-03-07 13:08:49 Europe/Paris
-  - require CPAN::Meta::Requirements 2.120630 and fix tests to reflect
-    its v-string normalizing behavior
+        - require CPAN::Meta::Requirements 2.120630 and fix tests to reflect
+          its v-string normalizing behavior
 
 1.010     2012-02-22 10:07:46 America/New_York
-  - fix documentation bug (thanks to Marius Olsthoorn for the report)
-
-  - add a test case to prove someone wrong on the internet
+        - fix documentation bug (thanks to Marius Olsthoorn for the report)
+        - add a test case to prove someone wrong on the internet
 
 1.009     2012-01-01 23:11:51 America/New_York
- - switch from Version::Requirements to CPAN::Meta::Requirements
+        - switch from Version::Requirements to CPAN::Meta::Requirements
 
 1.008     2011-11-01 10:35:46 Europe/Paris
- - fix rt#72062 - look for "require Module; Module->VERSION(min);"
-   (Christopher J. Madsen)
+        - fix rt#72062 - look for "require Module; Module->VERSION(min);"
+          (Christopher J. Madsen)
 
 1.007     2011-08-31 09:22:12 Europe/Paris
- - new option --combine for scan_prereqs script (randy stauner)
+        - new option --combine for scan_prereqs script (randy stauner)
 
 1.006     2011-08-20 14:03:24 Europe/Paris
-  - add the POE scanner for POE components (David Golden)
+        - add the POE scanner for POE components (David Golden)
 
 1.005     2011-08-17 18:39:22 America/New_York
-  - stop stripping "always core" prereqs like strict and warnings
-
-  - add the Aliased scanner for aliased.pm (thanks, David Golden)
+        - stop stripping "always core" prereqs like strict and warnings
+        - add the Aliased scanner for aliased.pm (thanks, David Golden)
 
 1.004     2011-05-30 21:02:52 America/New_York
-  - avoid calling a method on undef (i.e., cope with PPI doing surprising
-    things)
+        - avoid calling a method on undef (i.e., cope with PPI doing surprising
+          things)
 
 1.003     2011-05-16 15:46:02 America/New_York
-  - fix a bug that caused things like "within" and "trextends" to trigger
-    the Moose scanner
+        - fix a bug that caused things like "within" and "trextends" to trigger
+          the Moose scanner
 
 1.002     2011-02-02 10:21:55 Europe/Paris
- - fix rt#61608 - missing description in whatisentry for TestMore.pm
+        - fix rt#61608 - missing description in whatisentry for TestMore.pm
 
 1.001     2011-01-05 16:35:26 Europe/Paris
- - fix bin/prereqs (randy stauner)
+        - fix bin/prereqs (randy stauner)
 
 1.000     2010-12-06 17:54:20 Europe/Paris
- - fix rt#59016 - support for moose 1.03 version declarations (apocalypse)
+        - fix rt#59016 - support for moose 1.03 version declarations (apocalypse)
 
 0.101892  2010-12-03 17:15:25 Europe/Paris
- - throw an exception if PPI fails to parse code (vyacheslav matjukhin)
+        - throw an exception if PPI fails to parse code (vyacheslav matjukhin)
 
 0.101891  2010-09-05 15:31:49 America/New_York
- - add a core scanner for Test::More's done_testing
- - do not detect prereqs for invalid class names in Moose scanner
- - added TODO tests for "with('Name')" -- note the parens
+        - add a core scanner for Test::More's done_testing
+        - do not detect prereqs for invalid class names in Moose scanner
+        - added TODO tests for "with('Name')" -- note the parens
 
 0.101890  2010-07-08 18:45:57 Europe/Paris
- - fix rt#59121 - remove lurking temp files
+        - fix rt#59121 - remove lurking temp files
 
 0.101480  2010-05-28 08:41:56 America/New_York
- - bump prereq version of String::RewritePrefix
+        - bump prereq version of String::RewritePrefix
 
 0.101250  2010-05-05 09:32:19 America/New_York
- - convert to Moose object system
- - add the Scanner role and pluggable scanners
+        - convert to Moose object system
+        - add the Scanner role and pluggable scanners
 
 0.100960  2010-04-06 17:03:46 Europe/Paris
- - add 'feature' pragma to skip list (mark gardner)
- - added some tests (mark gardner)
+        - add 'feature' pragma to skip list (mark gardner)
+        - added some tests (mark gardner)
 
 0.100830  2010-03-24 13:37:31 Europe/Paris
- - fix rt#55713: support for use parent -norequire
- - fix rt#55851: 'require $foo;' shouldn't add any prereq
+        - fix rt#55713: support for use parent -norequire
+        - fix rt#55851: 'require $foo;' shouldn't add any prereq
 
 0.100690  2010-03-10 21:06:49 America/New_York
- - remove another 5.10-ism
+        - remove another 5.10-ism
 
 0.100680  2010-03-09 19:10:27 America/New_York
- - fix PPI version required (thanks, Christopher J. Madsen)
+        - fix PPI version required (thanks, Christopher J. Madsen)
 
 0.100630  2010-03-04 22:58:55 America/New_York
- - work on perl 5.8
- - require a newer Version::Requirements with critical bugfix
+        - work on perl 5.8
+        - require a newer Version::Requirements with critical bugfix
 
 0.100521  2010-02-21 23:20:55 America/New_York
- - scanning methods now return Version::Requirements objects
+        - scanning methods now return Version::Requirements objects
 
 0.100520  2010-02-21 15:55:31 America/New_York
- - add perl prereq to Makefile.PL to stop test failures
+        - add perl prereq to Makefile.PL to stop test failures
 
 0.100510  2010-02-20 17:38:59 America/New_York
- - typo fixes (ricardo signes)
- - new script scan_prereqs
- - prereq accounting now managed by Version::Requirements
- - easier-to-link-to Pod
+        - typo fixes (ricardo signes)
+        - new script scan_prereqs
+        - prereq accounting now managed by Version::Requirements
+        - easier-to-link-to Pod
 
 0.100491  2010-02-18 19:16:15 Europe/Paris
- - added a changelog (this file)
+        - added a changelog (this file)
 
 0.100490 2010-02-18 19:10:32 Europe/Paris
- - factored out from dist-zilla-plugin-autoprereq
- - fix qw and base-ver parent-ver (ricardo signes)
- - require base if version given (ricardo signes)
- - refactor with/extends (ricardo signes)
- - new methods scan_string() / scan_file()
+        - factored out from dist-zilla-plugin-autoprereq
+        - fix qw and base-ver parent-ver (ricardo signes)
+        - require base if version given (ricardo signes)
+        - refactor with/extends (ricardo signes)
+        - new methods scan_string() / scan_file()
