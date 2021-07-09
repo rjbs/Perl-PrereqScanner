@@ -17,12 +17,14 @@ use Getopt::Long::Descriptive;
 
 my ($opt, $usage) = describe_options(
   'scan-perl-prereqs %o [DIR|FILES]',
-  [ 'pretty'   => 'format for human consumption, not toolchain' ],
-  [ 'by-file'  => 'emit one stanza per file'  ],
-  [ 'lib|I=s@' => 'specifies include paths, like perl\'s -I' ],
+  [ 'pretty'           => 'format for human consumption, not toolchain' ],
+  [ 'by-file'          => 'emit one stanza per file'  ],
+  [ 'lib|I=s@'         => 'specifies include paths, like perl\'s -I' ],
+  [ 'scanner=s@'       => 'disable default scanner and use only these' ],
+  [ 'extra-scanner=s@' => 'use any stock scanners, plus these' ],
 
-  [ 'version' => 'print usage message and exit' ],
-  [ 'help'    => 'print version and exit' ],
+  [ 'version'          => 'print usage message and exit' ],
+  [ 'help'             => 'print version and exit' ],
 );
 
 lib->import(@{ $opt->lib }) if $opt->lib;
@@ -51,8 +53,18 @@ sub scan_file {
     my $key = $opt->by_file ? $file : '';
     $result{ $key } ||= CPAN::Meta::Requirements->new;
 
+    my $scanner       = $opt->scanner;
+    my $extra_scanner = $opt->extra_scanner;
+    my %new_arg;
+    if ( defined $scanner ) {
+        $new_arg{scanners} = $scanner;
+    }
+    if ( defined $extra_scanner ) {
+        $new_arg{extra_scanners} = $extra_scanner;
+    }
+
     $result{ $key }->add_requirements(
-        Perl::PrereqScanner->new->scan_file($file)
+        Perl::PrereqScanner->new(\%new_arg)->scan_file($file)
     );
 }
 
@@ -86,9 +98,9 @@ exit;
 
     scan-perl-prereqs [--by-file] [--pretty] [DIRS | FILES]
 
-Directories are traversed with L<File::Find> to collect all C<.pl>, C<.pm>,
-C<.psgi> and C<.t> files. If no directories or files are specified, the current
-working directory is scanned.
+Directories are traversed with L<File::Find> to collect all C<.pl>, C<.PL>,
+C<.pm>, C<.cgi>, C<.psgi> and C<.t> files. If no directories or files are
+specified, the current working directory is scanned.
 
 The default is to print a single combined list suitable for piping to C<cpanm>
 or similar tools.
@@ -98,5 +110,11 @@ were found.
 
 The C<--pretty> swith will print results in a more human-friendly format, with
 names and versions vertically aligned.
+
+The C<--scanner> switch disables all default plugins and runs only the
+scanners specified.
+
+The C<--extra-scanner> switch can be used to run additional scanners in
+adition to all the default scanners.
 
 =cut
