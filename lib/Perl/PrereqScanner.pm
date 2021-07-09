@@ -7,13 +7,18 @@ package Perl::PrereqScanner;
 
 use Moose;
 
+use Safe::Isa qw( $_isa );
 use List::Util qw(max);
 use Params::Util qw(_CLASS);
 use Perl::PrereqScanner::Scanner;
+use Perl::PrereqScanner::Filter;
 use PPI 1.215; # module_version, bug fixes
 use String::RewritePrefix 0.005 rewrite => {
   -as => '__rewrite_scanner',
   prefixes => { '' => 'Perl::PrereqScanner::Scanner::', '=' => '' },
+}, rewrite => {
+  -as => '__rewrite_filter',
+  prefixes => { '' => 'Perl::PrereqScanner::Filter::', '=' => '' },
 };
 
 use CPAN::Meta::Requirements 2.124; # normalized v-strings
@@ -25,6 +30,13 @@ has scanners => (
   isa => 'ArrayRef[Perl::PrereqScanner::Scanner]',
   init_arg => undef,
   writer   => '_set_scanners',
+);
+
+has filters => (
+  is  => 'ro',
+  isa => 'ArrayRef[Perl::PrereqScanner::Filter]',
+  init_arg => undef,
+  writer   => '_set_filters',
 );
 
 sub __scanner_from_str {
@@ -41,15 +53,33 @@ sub __prepare_scanners {
   return \@scanners;
 }
 
+sub __filter_from_str {
+  my $class = __rewrite_filter($_[0]);
+  confess "illegal class name: $class" unless _CLASS($class);
+  eval "require $class; 1" or die $@;
+  return $class->new;
+}
+
+sub __prepare_filters {
+  my ($self, $specs) = @_;
+  my @scanners = map {; ref $_ ? $_ : __filter_from_str($_) } @$specs;
+
+  return \@scanners;
+}
+
 sub BUILD {
   my ($self, $arg) = @_;
 
   my @scanners = @{ $arg->{scanners} || [ qw(Perl5 Superclass TestMore Moose Aliased POE) ] };
+  my @filters  = @{ $arg->{filters}  || [ ] };
+
   my @extra_scanners = @{ $arg->{extra_scanners} || [] };
 
   my $scanners = $self->__prepare_scanners([ @scanners, @extra_scanners ]);
+  my $filters  = $self->__prepare_filters([ @filters ]);
 
   $self->_set_scanners($scanners);
+  $self->_set_filters($filters);
 }
 
 =method scan_string
@@ -105,7 +135,14 @@ describing the modules it requires.
 =cut
 
 sub scan_ppi_document {
-  my ($self, $ppi_doc) = @_;
+  my ($self, $orig_ppi_doc) = @_;
+
+  my $ppi_doc = $orig_ppi_doc->clone;
+
+  for my $filter (@{ $self->{filters} }) {
+    $ppi_doc = $filter->filter_ppi_document($ppi_doc);
+    confess "Filter $filter failed to return a PPI::Document" unless $ppi_doc->$_isa("PPI::Document");
+  }
 
   my $req = CPAN::Meta::Requirements->new;
 
@@ -187,6 +224,16 @@ constructing your PrereqScanner:
 
   # Use any stock scanners, plus Example:
   my $scanner = Perl::PrereqScanner->new({ extra_scanners => [ qw(Example) ] });
+
+=head2 Filter Plugins
+
+Perl::PrereqScanner also supports document restructuring filters, which can be
+useful in situations where code hides inside quoted strings. Assuming a filter
+can remove the effect of the quoting safely, subsequent scanners will be able
+to see the revealed code.
+
+  my $scanner = Perl::PrereqScanner->new({ filters  => [ qw(ExampleFilter) ],
+                                           scanners => [ qw(Perl5)         ], });
 
 =head1 SEE ALSO
 
