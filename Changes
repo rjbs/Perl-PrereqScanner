@@ -1,6 +1,8 @@
 Revision history for Perl-PrereqScanner
 
 {{$NEXT}}
+
+1.025     2022-12-31 21:10:00-05:00 America/New_York
         - update author contact info
 
 1.024     2021-07-03 13:28:30-04:00 America/New_York
