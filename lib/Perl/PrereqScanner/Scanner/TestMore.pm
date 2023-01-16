@@ -4,7 +4,7 @@ use warnings;
 package Perl::PrereqScanner::Scanner::TestMore;
 # ABSTRACT: scanner to find recent Test::More usage
 
-use Moose;
+use Moo;
 use List::Util 1.33 'none';
 with 'Perl::PrereqScanner::Scanner';
 

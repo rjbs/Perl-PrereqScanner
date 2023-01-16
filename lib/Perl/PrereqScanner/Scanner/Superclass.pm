@@ -4,7 +4,7 @@ use warnings;
 package Perl::PrereqScanner::Scanner::Superclass;
 # ABSTRACT: scan for modules loaded with superclass.pm
 
-use Moose;
+use Moo;
 with 'Perl::PrereqScanner::Scanner';
 
 =head1 DESCRIPTION

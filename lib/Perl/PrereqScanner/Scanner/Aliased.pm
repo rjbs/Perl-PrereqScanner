@@ -4,7 +4,7 @@ use warnings;
 package Perl::PrereqScanner::Scanner::Aliased;
 # ABSTRACT: scan for OO module aliases via aliased.pm
 
-use Moose;
+use Moo;
 with 'Perl::PrereqScanner::Scanner';
 
 =head1 DESCRIPTION

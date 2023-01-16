@@ -4,7 +4,7 @@ use warnings;
 package Perl::PrereqScanner::Scanner::POE;
 # ABSTRACT: scan for POE components
 
-use Moose;
+use Moo;
 with 'Perl::PrereqScanner::Scanner';
 
 =head1 DESCRIPTION

@@ -29,14 +29,16 @@ sub module_prereq_is {
 module_prereq_is(
   'Perl::PrereqScanner',
   {
+    'Carp'                          => 0,
     'CPAN::Meta::Requirements'      => '2.124',
     'List::Util'                    => 0,
     'Module::Path'                  => 0,
-    'Moose'                         => 0,
+    'Moo'                           => '2.000000',
     'PPI'                           => '1.215',
     'Params::Util'                  => 0,
     'Perl::PrereqScanner::Scanner'  => 0,
     'String::RewritePrefix'         => '0.005',
+    'Types::Standard'               => 0,
     'namespace::autoclean'          => 0,
     'perl'                          => '5.008',
     'strict'                        => 0,
