@@ -1,6 +1,7 @@
 Revision history for Perl-PrereqScanner
 
 {{$NEXT}}
+        - convert to Moo (thanks, Dan Book!)
 
 1.025     2022-12-31 21:10:00-05:00 America/New_York
         - update author contact info
